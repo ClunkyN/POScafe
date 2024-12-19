@@ -33,7 +33,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
                         $h_password = password_hash($password, PASSWORD_DEFAULT);
 
                         // save to database
-                        $query = "INSERT INTO user_db (fname, lname, user_name, password, role) VALUES ('$fname', '$lname', '$user_name', '$h_password', '$role')";
+                        $user_id = random_num(20);
+                        $query = "INSERT INTO user_db (user_id, fname, lname, user_name, password, role) VALUES ('$user_id', '$fname', '$lname', '$user_name', '$h_password', '$role')";
 
                         mysqli_query($con, $query);
 

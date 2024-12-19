@@ -2,8 +2,8 @@
 
 session_start();
 
-	include("connection.php");
-	include("function.php");
+include("../folderdb/connection.php");
+include("../folderdb/function.php");
 
 
 	if($_SERVER['REQUEST_METHOD'] == "POST")
