@@ -64,14 +64,14 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
 <link rel="stylesheet" href="sign.css">
 <style>
     body{
-        background-color: rgb(2, 179, 204);
+        background-color: rgb(255, 255, 255);
     }
     input[type=text], input[type=password], input[type=date]{
   width: 100%;
   padding: 12px 20px;
   margin: 8px 0;
   display: inline-block;
-  border: 2px solid purple;
+  border: 2px solid black;
   border-radius: 10px;
   box-sizing: border-box;
 }
@@ -80,7 +80,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
   padding: 12px 20px;
   margin: 8px 0;
   display: inline-block;
-  border: 2px solid purple;
+  border: 2px solid black;
   border-radius: 10px;
   box-sizing: border-box;
 }

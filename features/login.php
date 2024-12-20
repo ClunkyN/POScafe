@@ -53,14 +53,14 @@ include("../folderdb/function.php");
 	<link rel="stylesheet" href="sign.css">
 	<style>
     body{
-        background-color: rgb(242, 219, 255);
+        background-color: rgb(255, 255, 255);
     }
     input[type=text], input[type=password] {
   width: 100%;
   padding: 12px 20px;
   margin: 8px 0;
   display: inline-block;
-  border: 2px solid purple;
+  border: 2px solid black;
   border-radius: 10px;
   box-sizing: border-box;
 }
