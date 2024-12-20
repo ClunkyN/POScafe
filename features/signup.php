@@ -64,7 +64,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
 <link rel="stylesheet" href="sign.css">
 <style>
     body{
-        background-color: rgb(242, 219, 255);
+        background-color: rgb(2, 179, 204);
     }
     input[type=text], input[type=password], input[type=date]{
   width: 100%;
