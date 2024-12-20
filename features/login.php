@@ -71,7 +71,7 @@ include("../folderdb/function.php");
         <img width= "100"src = "logo.png">
     </div>
 	<hr>
-<h1>Sign In</h1>
+<h1>Login</h1>
 <form method="post">
   <div class="container">
     <label for="user_name"><b>Username</b></label>
