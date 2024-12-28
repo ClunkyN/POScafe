@@ -16,7 +16,7 @@ include("../folderdb/function.php");
 		{
 
 			//read from database
-			$query = "select * from users where user_name = '$user_name' limit 1";
+			$query = "select * from user_db where user_name = '$user_name' limit 1";
 			$result = mysqli_query($con, $query);
 
 			if($result)
@@ -30,7 +30,7 @@ include("../folderdb/function.php");
 					{
 
 						$_SESSION['user_id'] = $user_data['user_id'];
-						header("Location: index.php");
+						header("Location: ../features/admin_dashboard.php");
 						die;
 					}
 				}

@@ -1,4 +1,3 @@
-<link rel="stylesheet" href="../src/output.css">
 
 <div class="fixed top-[171px] left-0 w-[230px] h-[calc(100vh-171px)] bg-[#F0BB78] py-5">
     <a href="#" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all">Dashboard</a>
