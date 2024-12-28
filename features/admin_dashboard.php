@@ -7,7 +7,7 @@ php
     <title>Admin dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100">
+<body class="bg-[#FFF0DC]">
     <!-- Topbar -->
     <div class="relative z-50">
         <?php include '../features/component/topbar.php'; ?>
