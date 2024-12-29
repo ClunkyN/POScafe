@@ -1,9 +1,9 @@
 <?php 
 session_start();
 
-	include("connection.php");
-	include("functions.php");
-  include ("nav.php");
+include("../folderdb/connection.php");
+include("../folderdb/function.php");
+
 
 	$user_data = check_login($con);
 
