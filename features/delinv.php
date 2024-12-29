@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('connection.php');
+include('../conn/connection.php');
 	$id=$_GET['id'];
 	$query = "DELETE FROM inventory WHERE item= '$id'";
     mysqli_query($con, $query);

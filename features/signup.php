@@ -1,8 +1,8 @@
 <?php 
 session_start();
 
-include("../folderdb/connection.php");
-include("../folderdb/function.php");
+include("../conn/connection.php");
+include("../conn/function.php");
 $error_message = "";
 
 if($_SERVER['REQUEST_METHOD'] == "POST")

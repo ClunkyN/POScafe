@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('connection.php');
+include('../conn/connection.php');
 $id = $_POST['id'];
 $a = $_POST['item'];
 $n = $_POST['nitem'];

@@ -1,8 +1,8 @@
 <?php 
 session_start();
 
-include("../folderdb/connection.php");
-include("../folderdb/function.php");
+include("../conn/connection.php");
+include("../conn/function.php");
 
 
 	$user_data = check_login($con);
@@ -11,14 +11,23 @@ include("../folderdb/function.php");
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CTT</title>
-    <style>
-
-    </style>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory</title>
+    <link rel="stylesheet" href="../src/output.css">
 </head>
-<body>
-
+<body class="bg-[#FFF0DC]">
+    <!-- Topbar -->
+    <div class="relative z-50">
+        <?php include '../features/component/topbar.php'; ?>
+    </div>
+    <!-- Sidebar -->
+    <div class="relative z-70">
+        <?php include '../features/component/sidebar.php'; ?>
+    </div>
+    <!-- Main content -->
+    <main class="ml-[230px] mt-[171px] p-6">
+        <!-- Content here -->
 <div class = "dashboard">
 <h3>INVENTORY</h3>
 <a href = "addinventory.php" class="add">Add Item</a><br/><br/>
@@ -92,5 +101,6 @@ return false;
 
     <h6> </h6>
 </div>
+</main>
 </body>
 </html>
