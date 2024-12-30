@@ -17,7 +17,6 @@
     </div>
     <!-- Main content -->
     <main class="ml-[230px] mt-[171px] p-6">
-        <!-- Content here -->
     </main>
 </body>
 </html>
