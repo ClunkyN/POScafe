@@ -27,7 +27,7 @@ $user_data = check_login($con);
     <main class="ml-[230px] mt-[171px] p-6">
         <div class="dashboard">
             <h3 class="text-xl font-bold mb-4">INVENTORY</h3>
-            <a href="addinventory.php" class="add bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600">Add Item</a>
+            <a href="../features/addinventory.php" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">Add Item</a>
             <br /><br />
             
             <!-- Search Input -->
