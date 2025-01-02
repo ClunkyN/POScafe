@@ -40,31 +40,31 @@ $user_data = check_login($con);
             >
 
             <!-- Table -->
-            <div class="table w-[90%] overflow-hidden rounded-lg border border-purple-500">
-                <table id="myTable" class="w-full text-lg text-purple-900 border-collapse border-[0.5px] border-purple-500 rounded-lg">
-                    <thead>
-                        <tr class="header bg-purple-300 text-purple-900">
-                            <th onclick="sortTable(0)" data-type="text" class="cursor-pointer px-3 py-2 hover:text-white hover:bg-purple-500">Item</th>
-                            <th onclick="sortTable(1)" data-type="numeric" class="cursor-pointer px-3 py-2 hover:text-white hover:bg-purple-500">Quantity</th>
-                            <th width="250px" class="px-3 py-2">Action</th>
+            <div class="overflow-x-auto rounded-md">
+                <table id="myTable" class="min-w-full bg-white border-4 border-black rounded-md">
+                    <thead class="bg-[#C2A47E] text-black">
+                        <tr>
+                            <th onclick="sortTable(0)" data-type="text" class="py-3 px-6 text-left border-r border-[#A88B68]">Item</th>
+                            <th onclick="sortTable(1)" data-type="numeric" class="py-3 px-6 text-left border-r border-[#A88B68]">Quantity</th>
+                            <th width="250px" class="py-3 px-6 text-left border-r border-[#A88B68]">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-200">
                         <?php
                         $query = "SELECT id, item, qty FROM inventory";
                         $result = mysqli_query($con, $query);
 
                         if (mysqli_num_rows($result) > 0):
                             while ($row = mysqli_fetch_assoc($result)): ?>
-                                <tr class="border-b border-purple-500 bg-white hover:bg-purple-100">
-                                    <td class="text-left px-3 py-2"><?= $row["item"] ?></td>
-                                    <td class="text-left px-3 py-2"><?= $row["qty"] ?></td>
-                                    <td class="text-left px-3 py-2">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-4 px-6 border-r border-black"><?= $row["item"] ?></td>
+                                    <td class="py-4 px-6 border-r border-black"><?= $row["qty"] ?></td>
+                                    <td class="py-4 px-6 border-r border-black">
                                         <a href="editinventory.php?id=<?= $row['id'] ?>">
-                                            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Edit</button>
+                                            <button class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">Edit</button>
                                         </a>
                                         <a href="#" id="<?= $row['item'] ?>" class="delbutton" title="Click to Archive the product">
-                                            <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Archive</button>
+                                            <button class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">Archive</button>
                                         </a>
                                     </td>
                                 </tr>
