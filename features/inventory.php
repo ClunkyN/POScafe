@@ -60,7 +60,7 @@ $user_data = check_login($con);
                                     <td class="py-4 px-6 border-r border-black"><?= $row["item"] ?></td>
                                     <td class="py-4 px-6 border-r border-black"><?= $row["qty"] ?></td>
                                     <td class="py-4 px-6 border-r border-black">
-                                        <a href="editinventory.php?id=<?= $row['id'] ?>">
+                                        <a href="..features/editinventory.php?id=<?= $row['id'] ?>">
                                             <button class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">Edit</button>
                                         </a>
                                         <a href="#" id="<?= $row['item'] ?>" class="delbutton" title="Click to Archive the product">
@@ -84,7 +84,7 @@ $user_data = check_login($con);
                     if (confirm("Sure you want to delete " + info + " ? There is NO undo!")) {
                         $.ajax({
                             type: "GET",
-                            url: "delinv.php",
+                            url: "../features/delinv.php",
                             data: info,
                             success: function() {
                                 setTimeout(function() {

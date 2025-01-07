@@ -73,14 +73,14 @@ include("../conn/connection.php");
   }
 </script>
 
-    <title>CTT</title>
+    <title>Wake Up</title>
 </head>
 <body>
 <div class = "dashboard">
     <br/>
 <div class="back" onclick="goBack()"></div>
 <center><h2>Edit Item</h2></center>
-    <form action="editinv.php" method="post" onsubmit="return validateForm()">
+    <form action="../features/editinv.php" method="post" onsubmit="return validateForm()">
 <div id="ac">
 <input type="hidden" name="id" value="<?php echo $id; ?>" />
 <p>Item: </p><input type="hidden" name="item" value="<?php echo $row['item']; ?>"><input type="text" id="item" name="nitem" value="<?php echo $row['item']; ?>" required><br>

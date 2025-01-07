@@ -15,4 +15,4 @@ $n1 = str_replace(' ', '_', $n);
 $query1 = "ALTER TABLE products CHANGE $a1 $n1 varchar(255)";
 //"ALTER TABLE `products` CHANGE `try_wie` `try` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;"
 mysqli_query($con, $query1);
-header("location: inventory.php");
+header("location:../features/inventory.php");

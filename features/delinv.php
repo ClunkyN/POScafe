@@ -9,5 +9,5 @@ include('../conn/connection.php');
     $query1 ="ALTER TABLE products DROP COLUMN $ids ;";
     mysqli_query($con, $query1);
 
-    header("location: inventory.php");
+    header("location:../features/inventory.php");
 ?>
