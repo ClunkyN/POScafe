@@ -21,11 +21,22 @@
     <main class="ml-[230px] mt-[171px] p-6">
         <div class="bg-[#FFF0DC] p-6 max-h-[600px] overflow-y-auto">
             <h2 class="text-2xl font-bold mb-6 text-center">Add New Product</h2>
+            <?php
+            include "../conn/connection.php";
+            $categories_query = "SELECT * FROM categories ORDER BY category_name ASC";
+            $categories_result = mysqli_query($con, $categories_query);
+            ?>
             <form action="save_product.php" method="POST" class="space-y-4">
                 <div class="space-y-2">
                     <label class="block text-sm font-medium">Category</label>
-                    <input type="text" name="category" required
-                        class="w-full p-2 border border-gray-300 rounded">
+                    <select name="category" required class="w-full p-2 border border-gray-300 rounded">
+                        <option value="" disabled selected class="text-gray-400" >Select Category</option>
+                        <?php while($cat = mysqli_fetch_assoc($categories_result)) { ?>
+                            <option value="<?php echo $cat['category_name']; ?>">
+                                <?php echo $cat['category_name']; ?>
+                            </option>
+                        <?php } ?>
+                    </select>
                 </div>
 
                 <div class="space-y-2">

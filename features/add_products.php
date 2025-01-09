@@ -9,6 +9,9 @@ if (!$result) {
     die('Query Failed' . mysqli_error($con));
 }
 
+$categories_query = "SELECT * FROM categories ORDER BY category_name ASC";
+$categories_result = mysqli_query($con, $categories_query);
+
 ?>
 
 <!DOCTYPE html>
@@ -107,8 +110,17 @@ if (!$result) {
 
                 <div>
                     <label class="block text-sm font-medium">Category</label>
-                    <input type="text" id="edit_category" name="category" required
-                        class="w-full p-2 border border-gray-300 rounded">
+                    <select id="edit_category" name="category" required class="w-full p-2 border border-gray-300 rounded">
+                        <option value="" disabled selected class="text-gray-400">Select Category</option>
+                        <?php 
+                        mysqli_data_seek($categories_result, 0);
+                        while($cat = mysqli_fetch_assoc($categories_result)) { 
+                        ?>
+                            <option value="<?php echo $cat['category_name']; ?>">
+                                <?php echo $cat['category_name']; ?>
+                            </option>
+                        <?php } ?>
+                    </select>
                 </div>
 
                 <div>

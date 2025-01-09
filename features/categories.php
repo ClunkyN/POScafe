@@ -44,7 +44,6 @@ if (!$result) {
             <table class="min-w-full bg-white border-4 border-black rounded-md">
                 <thead class="bg-[#C2A47E] text-black">
                     <tr>
-                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">ID</th>
                         <th class="py-3 px-6 text-left border-r border-[#A88B68]">Category Name</th>
                         <th class="py-3 px-6 text-left border-r border-[#A88B68]">Description</th>
                         <th class="py-3 px-6 text-center">Action</th>
@@ -56,7 +55,6 @@ if (!$result) {
                         while ($row = mysqli_fetch_assoc($result)) {
                     ?>
                         <tr class="hover:bg-gray-50">
-                            <td class="py-4 px-6 border-r border-black"><?php echo $row['id']; ?></td>
                             <td class="py-4 px-6 border-r border-black"><?php echo $row['category_name']; ?></td>
                             <td class="py-4 px-6 border-r border-black"><?php echo $row['description']; ?></td>
                             <td class="py-4 px-6">
@@ -98,8 +96,15 @@ if (!$result) {
 
                 <div>
                     <label class="block text-sm font-medium">Description</label>
-                    <textarea id="category_description" name="description" rows="3"
-                        class="w-full p-2 border border-gray-300 rounded"></textarea>
+                    <textarea 
+                        id="category_description" 
+                        name="description" 
+                        rows="3"
+                        maxlength="30"
+                        style="resize: none;"
+                        class="w-full p-2 border border-gray-300 rounded"
+                        placeholder="Maximum 30 characters"></textarea>
+                    <small class="text-gray-500">Character limit: 30</small>
                 </div>
 
                 <div class="flex justify-end gap-2 mt-4">
