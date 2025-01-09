@@ -137,15 +137,27 @@ if (!$result) {
 
     <script>
         function editProduct(prodId) {
+            console.log('Editing product:', prodId);
             fetch(`../endpoint/get_product.php?id=${prodId}`)
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Response:', response);
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Data:', data);
+                    if(data.error) {
+                        throw new Error(data.error);
+                    }
                     document.getElementById('edit_prod_id').value = data.prod_id;
                     document.getElementById('edit_prod_name').value = data.prod_name;
                     document.getElementById('edit_category').value = data.category;
                     document.getElementById('edit_price').value = data.price;
                     document.getElementById('edit_status').value = data.status;
                     document.getElementById('editProductModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading product data');
                 });
         }
 
