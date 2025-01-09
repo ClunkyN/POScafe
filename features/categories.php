@@ -71,11 +71,11 @@ if (!$result) {
                                     </td>
                                     <td class="py-4 px-6">
                                         <div class="flex justify-center gap-2">
-                                            <button onclick="editCategory(<?php echo $row['id']; ?>)"
-                                                class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
-                                                Edit
-                                            </button>
                                             <?php if (!$row['is_archived']) { ?>
+                                                <button onclick="editCategory(<?php echo $row['id']; ?>)"
+                                                    class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
+                                                    Edit
+                                                </button>
                                                 <button onclick="archiveCategory(<?php echo $row['id']; ?>)"
                                                     class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
                                                     Archive
