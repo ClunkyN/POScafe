@@ -59,7 +59,7 @@ $categories_result = mysqli_query($con, $categories_query);
                         <th class="py-3 px-6 text-left border-r border-[#A88B68]">Code</th>
                         <th class="py-3 px-6 text-left border-r border-[#A88B68]">Category</th>
                         <th class="py-3 px-6 text-left border-r border-[#A88B68]">Price</th>
-                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">Available</th>
+                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">Status</th>
                         <th class="py-3 px-6 text-center">Action</th>
                     </tr>
                 </thead>
@@ -74,7 +74,15 @@ $categories_result = mysqli_query($con, $categories_query);
                                 <td class="py-4 px-6 border-r border-black"><?php echo $row['prod_id']; ?></td>
                                 <td class="py-4 px-6 border-r border-black"><?php echo $row['category']; ?></td>
                                 <td class="py-4 px-6 border-r border-black">₱<?php echo number_format($row['price'], 2); ?></td>
-                                <td class="py-4 px-6 border-r border-black"><?php echo $row['is_archived'] ? 'Archived' : $row['status']; ?></td>
+                                <td class="py-4 px-6 border-r border-black">
+                                    <?php 
+                                        if ($row['is_archived']) {
+                                            echo 'Archived';
+                                        } else {
+                                            echo ($row['status'] == 'Available') ? 'Yes' : 'No';
+                                        }
+                                    ?>
+                                </td>
                                 <td class="py-4 px-6">
                                     <div class="flex justify-center gap-2">
                                         <?php if (!$row['is_archived']) { ?>
@@ -142,8 +150,8 @@ $categories_result = mysqli_query($con, $categories_query);
                 <div>
                     <label class="block text-sm font-medium">Status</label>
                     <select id="edit_status" name="status" class="w-full p-2 border border-gray-300 rounded">
-                        <option value="Available">Available</option>
-                        <option value="Unavailable">Unavailable</option>
+                        <option value="Available">Yes</option>
+                        <option value="Unavailable">No</option>
                     </select>
                 </div>
 
