@@ -40,44 +40,58 @@ if (!$result) {
                 class="min-w-full max-w-xs px-4 py-2 rounded border border-gray-300 focus:outline-none focus:border-[#C2A47E]">
         </div>
 
-        <div class="overflow-x-auto rounded-md">
-            <table class="min-w-full bg-white border-4 border-black rounded-md">
-                <thead class="bg-[#C2A47E] text-black">
-                    <tr>
-                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">Category Name</th>
-                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">Description</th>
-                        <th class="py-3 px-6 text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    <?php
-                    if (mysqli_num_rows($result) > 0) {
-                        while ($row = mysqli_fetch_assoc($result)) {
-                    ?>
-                        <tr class="hover:bg-gray-50">
-                            <td class="py-4 px-6 border-r border-black"><?php echo $row['category_name']; ?></td>
-                            <td class="py-4 px-6 border-r border-black"><?php echo $row['description']; ?></td>
-                            <td class="py-4 px-6">
-                                <div class="flex justify-center gap-2">
-                                    <button onclick="editCategory(<?php echo $row['id']; ?>)"
-                                        class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
-                                        Edit
-                                    </button>
-                                    <button onclick="(<?php echo $row['id']; ?>)"
-                                        class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
-                                        Archive
-                                    </button>
-                                </div>
-                            </td>
+        <div class="space-y-6">
+            <div class="overflow-x-auto rounded-md">
+                <h2 class="text-xl font-bold mb-4">Categories</h2>
+                <table class="min-w-full bg-white border-4 border-black rounded-md">
+                    <thead class="bg-[#C2A47E] text-black">
+                        <tr>
+                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Category Name</th>
+                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Description</th>
+                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Status</th>
+                            <th class="py-3 px-6 text-center">Action</th>
                         </tr>
-                    <?php
-                        }
-                    } else {
-                        echo "<tr><td colspan='4' class='py-4 px-6 text-center'>No categories found</td></tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <?php
+                        $query = "SELECT c.*, CASE WHEN ac.id IS NOT NULL THEN 1 ELSE 0 END as is_archived 
+                                 FROM categories c 
+                                 LEFT JOIN archive_categories ac ON c.id = ac.id";
+                        $result = mysqli_query($con, $query);
+                        if (mysqli_num_rows($result) > 0) {
+                            while ($row = mysqli_fetch_assoc($result)) {
+                                $rowClass = $row['is_archived'] ? 'bg-gray-200 text-gray-600' : 'hover:bg-gray-50';
+                        ?>
+                            <tr class="<?php echo $rowClass; ?>">
+                                <td class="py-4 px-6 border-r border-black"><?php echo $row['category_name']; ?></td>
+                                <td class="py-4 px-6 border-r border-black"><?php echo $row['description']; ?></td>
+                                <td class="py-4 px-6 border-r border-black">
+                                    <?php echo $row['is_archived'] ? 'Archived' : 'Active'; ?>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="flex justify-center gap-2">
+                                        <button onclick="editCategory(<?php echo $row['id']; ?>)"
+                                            class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
+                                            Edit
+                                        </button>
+                                        <?php if (!$row['is_archived']) { ?>
+                                            <button onclick="archiveCategory(<?php echo $row['id']; ?>)"
+                                                class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                                Archive
+                                            </button>
+                                        <?php } else { ?>
+                                            <button onclick="unarchiveCategory(<?php echo $row['id']; ?>)"
+                                                class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                                Unarchive
+                                            </button>
+                                        <?php } ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php }} ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 
@@ -175,6 +189,46 @@ if (!$result) {
                         location.reload();
                     } else {
                         alert('Error deleting category');
+                    }
+                });
+            }
+        }
+
+        function archiveCategory(id) {
+            if (confirm('Are you sure you want to archive this category?')) {
+                fetch('../endpoint/archive_category.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ id: id }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error archiving category');
+                    }
+                });
+            }
+        }
+
+        function unarchiveCategory(id) {
+            if (confirm('Are you sure you want to unarchive this category?')) {
+                fetch('../endpoint/unarchive_category.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ id: id }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error unarchiving category');
                     }
                 });
             }
