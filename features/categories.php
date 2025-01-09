@@ -12,6 +12,7 @@ if (!$result) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -62,33 +63,34 @@ if (!$result) {
                             while ($row = mysqli_fetch_assoc($result)) {
                                 $rowClass = $row['is_archived'] ? 'bg-gray-200 text-gray-600' : 'hover:bg-gray-50';
                         ?>
-                            <tr class="<?php echo $rowClass; ?>">
-                                <td class="py-4 px-6 border-r border-black"><?php echo $row['category_name']; ?></td>
-                                <td class="py-4 px-6 border-r border-black"><?php echo $row['description']; ?></td>
-                                <td class="py-4 px-6 border-r border-black">
-                                    <?php echo $row['is_archived'] ? 'Archived' : 'Active'; ?>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <div class="flex justify-center gap-2">
-                                        <button onclick="editCategory(<?php echo $row['id']; ?>)"
-                                            class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
-                                            Edit
-                                        </button>
-                                        <?php if (!$row['is_archived']) { ?>
-                                            <button onclick="archiveCategory(<?php echo $row['id']; ?>)"
-                                                class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
-                                                Archive
+                                <tr class="<?php echo $rowClass; ?>">
+                                    <td class="py-4 px-6 border-r border-black"><?php echo $row['category_name']; ?></td>
+                                    <td class="py-4 px-6 border-r border-black"><?php echo $row['description']; ?></td>
+                                    <td class="py-4 px-6 border-r border-black">
+                                        <?php echo $row['is_archived'] ? 'Archived' : 'Active'; ?>
+                                    </td>
+                                    <td class="py-4 px-6">
+                                        <div class="flex justify-center gap-2">
+                                            <button onclick="editCategory(<?php echo $row['id']; ?>)"
+                                                class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
+                                                Edit
                                             </button>
-                                        <?php } else { ?>
-                                            <button onclick="unarchiveCategory(<?php echo $row['id']; ?>)"
-                                                class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
-                                                Unarchive
-                                            </button>
-                                        <?php } ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php }} ?>
+                                            <?php if (!$row['is_archived']) { ?>
+                                                <button onclick="archiveCategory(<?php echo $row['id']; ?>)"
+                                                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                                    Archive
+                                                </button>
+                                            <?php } else { ?>
+                                                <button onclick="unarchiveCategory(<?php echo $row['id']; ?>)"
+                                                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                                    Unarchive
+                                                </button>
+                                            <?php } ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                        <?php }
+                        } ?>
                     </tbody>
                 </table>
             </div>
@@ -110,9 +112,9 @@ if (!$result) {
 
                 <div>
                     <label class="block text-sm font-medium">Description</label>
-                    <textarea 
-                        id="category_description" 
-                        name="description" 
+                    <textarea
+                        id="category_description"
+                        name="description"
                         rows="3"
                         maxlength="30"
                         style="resize: none;"
@@ -160,79 +162,86 @@ if (!$result) {
             const isAdd = !formData.get('id');
 
             fetch(`../endpoint/${isAdd ? 'add_category' : 'update_category'}.php`, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeModal();
-                    location.reload();
-                } else {
-                    alert('Error saving category');
-                }
-            });
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeModal();
+                        location.reload();
+                    } else {
+                        alert('Error saving category');
+                    }
+                });
         });
 
         function deleteCategory(id) {
             if (confirm('Are you sure you want to delete this category?')) {
                 fetch('../endpoint/delete_category.php', {
-                    method: 'POST',
-                    body: JSON.stringify({ id: id }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Error deleting category');
-                    }
-                });
+                        method: 'POST',
+                        body: JSON.stringify({
+                            id: id
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Error deleting category');
+                        }
+                    });
             }
         }
 
         function archiveCategory(id) {
             if (confirm('Are you sure you want to archive this category?')) {
                 fetch('../endpoint/archive_category.php', {
-                    method: 'POST',
-                    body: JSON.stringify({ id: id }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Error archiving category');
-                    }
-                });
+                        method: 'POST',
+                        body: JSON.stringify({
+                            id: id
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Error archiving category');
+                        }
+                    });
             }
         }
 
         function unarchiveCategory(id) {
             if (confirm('Are you sure you want to unarchive this category?')) {
                 fetch('../endpoint/unarchive_category.php', {
-                    method: 'POST',
-                    body: JSON.stringify({ id: id }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Error unarchiving category');
-                    }
-                });
+                        method: 'POST',
+                        body: JSON.stringify({
+                            id: id
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Error unarchiving category');
+                        }
+                    });
             }
         }
     </script>
 </body>
+
 </html>

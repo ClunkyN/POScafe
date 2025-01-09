@@ -2,7 +2,9 @@
 session_start();
 include "../conn/connection.php";
 
-$query = "SELECT * FROM products";
+$query = "SELECT p.*, CASE WHEN ap.prod_id IS NOT NULL THEN 1 ELSE 0 END as is_archived 
+         FROM products p 
+         LEFT JOIN archive_products ap ON p.prod_id = ap.prod_id";
 $result = mysqli_query($con, $query);
 
 if (!$result) {
@@ -65,23 +67,31 @@ $categories_result = mysqli_query($con, $categories_query);
                     <?php
                     if (mysqli_num_rows($result) > 0) {
                         while ($row = mysqli_fetch_assoc($result)) {
+                            $rowClass = $row['is_archived'] ? 'bg-gray-200 text-gray-600' : 'hover:bg-gray-50';
                     ?>
-                            <tr class="hover:bg-gray-50">
+                            <tr class="<?php echo $rowClass; ?>">
                                 <td class="py-4 px-6 border-r border-black"><?php echo $row['prod_name']; ?></td>
                                 <td class="py-4 px-6 border-r border-black"><?php echo $row['prod_id']; ?></td>
                                 <td class="py-4 px-6 border-r border-black"><?php echo $row['category']; ?></td>
                                 <td class="py-4 px-6 border-r border-black">₱<?php echo number_format($row['price'], 2); ?></td>
-                                <td class="py-4 px-6 border-r border-black"><?php echo $row['status']; ?></td>
+                                <td class="py-4 px-6 border-r border-black"><?php echo $row['is_archived'] ? 'Archived' : $row['status']; ?></td>
                                 <td class="py-4 px-6">
                                     <div class="flex justify-center gap-2">
-                                        <button onclick="editProduct(<?php echo $row['prod_id']; ?>)"
-                                            class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
-                                            Edit
-                                        </button>
-                                        <button onclick="deleteProduct(<?php echo $row['prod_id']; ?>)"
-                                            class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
-                                            Archive
-                                        </button>
+                                        <?php if (!$row['is_archived']) { ?>
+                                            <button onclick="editProduct(<?php echo $row['prod_id']; ?>)"
+                                                class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
+                                                Edit
+                                            </button>
+                                            <button onclick="archiveProduct(<?php echo $row['prod_id']; ?>)"
+                                                class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                                Archive
+                                            </button>
+                                        <?php } else { ?>
+                                            <button onclick="unarchiveProduct(<?php echo $row['prod_id']; ?>)"
+                                                class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                                Unarchive
+                                            </button>
+                                        <?php } ?>
                                     </div>
                                 </td>
                             </tr>
@@ -195,6 +205,46 @@ $categories_result = mysqli_query($con, $categories_query);
                     }
                 });
         });
+
+        function archiveProduct(prodId) {
+            if (confirm('Are you sure you want to archive this product?')) {
+                fetch('../endpoint/archive_product.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ prod_id: prodId }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error archiving product');
+                    }
+                });
+            }
+        }
+
+        function unarchiveProduct(prodId) {
+            if (confirm('Are you sure you want to unarchive this product?')) {
+                fetch('../endpoint/unarchive_product.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ prod_id: prodId }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error unarchiving product');
+                    }
+                });
+            }
+        }
     </script>
 </body>
 
