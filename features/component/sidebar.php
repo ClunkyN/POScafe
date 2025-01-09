@@ -5,7 +5,7 @@
 
     <div class="bg-[#F2DBBE] px-6 pt-5 pb-2 text-gray-400 text-xs font-bold tracking-wider">LISTS</div>
     <a href="../features/inventory.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all">Inventory</a>
-    <a href="#" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all">Categories</a>
+    <a href="../features/categories.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all">Categories</a>
     <a href="../features/add_products.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all">Products</a>
 
     <div class="bg-[#F2DBBE] px-6 pt-5 pb-2 text-gray-400 text-xs font-bold tracking-wider">REPORTS</div>

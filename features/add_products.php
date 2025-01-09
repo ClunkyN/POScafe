@@ -42,7 +42,7 @@ if (!$result) {
         <!-- Search bar -->
         <div class="mb-6">
             <input type="text" placeholder="Search products..."
-                class="w-full max-w-xs px-4 py-2 rounded border border-gray-300 focus:outline-none focus:border-[#C2A47E]">
+                class="min-w-full max-w-xs px-4 py-2 rounded border border-gray-300 focus:outline-none focus:border-[#C2A47E]">
         </div>
 
         <!-- table -->
