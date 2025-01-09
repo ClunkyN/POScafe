@@ -24,19 +24,13 @@
             <form action="save_product.php" method="POST" class="space-y-4">
                 <div class="space-y-2">
                     <label class="block text-sm font-medium">Category</label>
-                    <input type="text" name="product_name" required
+                    <input type="text" name="category" required
                         class="w-full p-2 border border-gray-300 rounded">
                 </div>
 
                 <div class="space-y-2">
-                    <label class="block text-sm font-medium">Code</label>
-                    <input type="number" name="price" required
-                        class="w-full p-2 border border-gray-300 rounded">
-                </div>
-
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Name</label>
-                    <input type="number" name="price" required
+                    <label class="block text-sm font-medium">Product Name</label>
+                    <input type="text" name="prod_name" required
                         class="w-full p-2 border border-gray-300 rounded">
                 </div>
 
@@ -45,7 +39,7 @@
                     <input type="number" name="price" required
                         class="w-full p-2 border border-gray-300 rounded">
                 </div>
-
+<!--
                 <div>
                     <h3>How many of these items would it take to make this product?</h3>
                 </div>
@@ -73,6 +67,7 @@
                     <input type="number" name="price" required
                         class="w-full p-2 border border-gray-300 rounded">
                 </div>
+-->
 
                 <div class="space-y-2">
                     <label class="block text-sm font-medium">Availability Status</label>
