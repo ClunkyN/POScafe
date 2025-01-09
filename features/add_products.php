@@ -33,7 +33,7 @@ if (!$result) {
     <!-- Main content -->
     <main class="ml-[230px] mt-[171px] p-6">
         <div class="flex flex-col  justify-between items-start mb-6">
-            <h1 class="text-2xl font-bold">Products</h1>
+            <h1 class="text-2xl font-bold mb-4">Products</h1>
             <button onclick="window.location.href='../endpoint/add_product_button.php'" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">
                 Add Product
             </button>
