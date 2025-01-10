@@ -100,10 +100,38 @@ $categories_result = mysqli_query($con, $categories_query);
         </div>
     </main>
 
+    <div id="editItemModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg w-96">
+            <h2 class="text-xl font-bold mb-4">Edit Item</h2>
+            <form id="editItemForm" class="space-y-4">
+                <input type="hidden" id="edit_id" name="id">
+
+                <div>
+                    <label class="block text-sm font-medium">Item</label>
+                    <input type="text" id="edit_item" name="item" required
+                        class="w-full p-2 border border-gray-300 rounded">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium">Quantity</label>
+                    <input type="number" id="edit_qty" name="qty" required
+                        class="w-full p-2 border border-gray-300 rounded">
+                </div>
+
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" onclick="closeEditModal()"
+                        class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Cancel</button>
+                    <button type="submit"
+                        class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        function editItem(Id) {
-            console.log('Editing item:', Id);
-            fetch(`../endpoint/get_inventory.php?id=${Id}`)
+        function editItem(id) {
+            console.log('Editing item:', id);
+            fetch(`../endpoint/get_inventory.php?id=${id}`)
                 .then(response => response.json())
                 .then(data => {
                     if(data.error) {
@@ -119,6 +147,31 @@ $categories_result = mysqli_query($con, $categories_query);
                     alert('Error loading item data');
                 });
         }
+
+    
+
+function closeEditModal() {
+    document.getElementById('editItemModal').classList.add('hidden');
+}
+
+document.getElementById('editItemForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('../endpoint/update_inventory.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeEditModal();
+                location.reload();
+            } else {
+                alert('Error updating product');
+            }
+        });
+});
 
         function archiveItem(Id) {
             if (confirm('Are you sure you want to archive this item?')) {
