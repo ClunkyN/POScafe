@@ -1,19 +1,31 @@
-<?php 
+<?php
 session_start();
+include "../conn/connection.php";
 
-include("../conn/connection.php");
-include("../conn/function.php");
+$query = "SELECT i.*, CASE WHEN ai.id IS NOT NULL THEN 1 ELSE 0 END as is_archived 
+         FROM inventory i 
+         LEFT JOIN archive_inventory ai ON i.id = ai.id";
+$result = mysqli_query($con, $query);
 
-$user_data = check_login($con);
+if (!$result) {
+    die('Query Failed' . mysqli_error($con));
+}
+
+$categories_query = "SELECT * FROM categories ORDER BY category_name ASC";
+$categories_result = mysqli_query($con, $categories_query);
+
 ?>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inventory</title>
-<link rel="stylesheet" href="../src/output.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Inventory</title>
+    <link rel="stylesheet" href="../src/output.css">
 </head>
+
 <body class="bg-[#FFF0DC]">
     <!-- Topbar -->
     <div class="relative z-50">
@@ -25,81 +37,129 @@ $user_data = check_login($con);
     </div>
     <!-- Main content -->
     <main class="ml-[230px] mt-[171px] p-6">
-        <div class="dashboard">
-            <h3 class="text-xl font-bold mb-4">INVENTORY</h3>
-            <a href="../features/addinventory.php" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">Add Item</a>
-            <br /><br />
-            
-            <!-- Search Input -->
-            <input 
-                type="text" 
-                id="myInput" 
-                onkeyup="myFunction()" 
-                placeholder="Search for items.." 
-                class="w-[90%] text-lg py-3 pl-10 pr-5 mb-3 border-2 border-purple-500 rounded-lg bg-[url('./icons/search.png')] bg-no-repeat bg-[length:30px] bg-[10px_10px] focus:outline-purple-500 focus:outline-[4px]"
-            >
+        <div class="flex flex-col justify-between items-start mb-6">
+            <h1 class="text-2xl font-bold mb-4">Inventory</h1>
+            <button onclick="window.location.href='../endpoint/add_inventory_button.php'" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">
+                Add Item
+            </button>
+        </div>
 
-            <!-- Table -->
-            <div class="overflow-x-auto rounded-md">
-                <table id="myTable" class="min-w-full bg-white border-4 border-black rounded-md">
-                    <thead class="bg-[#C2A47E] text-black">
-                        <tr>
-                            <th onclick="sortTable(0)" data-type="text" class="py-3 px-6 text-left border-r border-[#A88B68]">Item</th>
-                            <th onclick="sortTable(1)" data-type="numeric" class="py-3 px-6 text-left border-r border-[#A88B68]">Quantity</th>
-                            <th width="250px" class="py-3 px-6 text-left border-r border-[#A88B68]">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <?php
-                        $query = "SELECT id, item, qty FROM inventory";
-                        $result = mysqli_query($con, $query);
+        <!-- Search bar -->
+        <div class="mb-6">
+            <input type="text" placeholder="Search items..."
+                class="min-w-full max-w-xs px-4 py-2 rounded border border-gray-300 focus:outline-none focus:border-[#C2A47E]">
+        </div>
 
-                        if (mysqli_num_rows($result) > 0):
-                            while ($row = mysqli_fetch_assoc($result)): ?>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="py-4 px-6 border-r border-black"><?= $row["item"] ?></td>
-                                    <td class="py-4 px-6 border-r border-black"><?= $row["qty"] ?></td>
-                                    <td class="py-4 px-6 border-r border-black">
-                                        <a href="..features/editinventory.php?id=<?= $row['id'] ?>">
-                                            <button class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">Edit</button>
-                                        </a>
-                                        <a href="#" id="<?= $row['item'] ?>" class="delbutton" title="Click to Archive the product">
-                                            <button class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">Archive</button>
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endwhile;
-                        endif; ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <script src="js/jquery.js"></script>
-            <script type="text/javascript">
-            $(function() {
-                $(".delbutton").click(function() {
-                    var element = $(this);
-                    var del_id = element.attr("id");
-                    var info = 'id=' + del_id;
-                    if (confirm("Sure you want to delete " + info + " ? There is NO undo!")) {
-                        $.ajax({
-                            type: "GET",
-                            url: "../features/delinv.php",
-                            data: info,
-                            success: function() {
-                                setTimeout(function() {
-                                    location.reload()
-                                }, 100);
-                            }
-                        });
-                        $(this).parents("tr").animate({ backgroundColor: "#fbc7c7" }, "fast")
-                            .animate({ opacity: "hide" }, "slow");
+        <!-- table -->
+        <div class="overflow-x-auto rounded-md">
+            <table class="min-w-full bg-white border-4 border-black rounded-md">
+                <thead class="bg-[#C2A47E] text-black">
+                    <tr>
+                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">Item</th>
+                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">Quantity</th>
+                        <th class="py-3 px-6 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <?php
+                    if (mysqli_num_rows($result) > 0) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $rowClass = $row['is_archived'] ? 'bg-gray-200 text-gray-600' : 'hover:bg-gray-50';
+                    ?>
+                            <tr class="<?php echo $rowClass; ?>">
+                                <td class="py-4 px-6 border-r border-black"><?php echo $row['item']; ?></td>
+                                <td class="py-4 px-6 border-r border-black"><?php echo $row['qty']; ?></td>
+                                <td class="py-4 px-6">
+                                    <div class="flex justify-center gap-2">
+                                        <?php if (!$row['is_archived']) { ?>
+                                            <button onclick="editItem(<?php echo $row['id']; ?>)"
+                                                class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
+                                                Edit
+                                            </button>
+                                            <button onclick="archiveItem(<?php echo $row['id']; ?>)"
+                                                class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                                Archive
+                                            </button>
+                                        <?php } else { ?>
+                                            <button onclick="unarchiveItem(<?php echo $row['id']; ?>)"
+                                                class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                                Unarchive
+                                            </button>
+                                        <?php } ?>
+                                    </div>
+                                </td>
+                            </tr>
+                    <?php
+                        }
+                    } else {
+                        echo "<tr><td colspan='3' class='py-4 px-6 text-center'>No items found</td></tr>";
                     }
-                    return false;
-                });
-            });
-            </script>
+                    ?>
+                </tbody>
+            </table>
         </div>
     </main>
+
+    <script>
+        function editItem(Id) {
+            console.log('Editing item:', Id);
+            fetch(`../endpoint/get_inventory.php?id=${Id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.error) {
+                        throw new Error(data.error);
+                    }
+                    document.getElementById('edit_id').value = data.id;
+                    document.getElementById('edit_item').value = data.item;
+                    document.getElementById('edit_qty').value = data.qty;
+                    document.getElementById('editItemModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading item data');
+                });
+        }
+
+        function archiveItem(Id) {
+            if (confirm('Are you sure you want to archive this item?')) {
+                fetch('../endpoint/archive_item.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ id: Id }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error archiving item');
+                    }
+                });
+            }
+        }
+
+        function unarchiveItem(Id) {
+            if (confirm('Are you sure you want to unarchive this item?')) {
+                fetch('../endpoint/unarchive_item.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ id: Id }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error unarchiving item');
+                    }
+                });
+            }
+        }
+    </script>
 </body>
+
 </html>
