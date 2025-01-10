@@ -66,8 +66,8 @@ include("../conn/function.php");
 	</style>
 </head>
 <body>
-<div class = "logo">
-        <img width= "100"src = "logo.png">
+<div class="flex items-center">
+        <img src="../img/header_logo.svg" alt="Cafe Logo" class="object-cover">
     </div>
 	<hr>
 <h1>Login</h1>

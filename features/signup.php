@@ -108,9 +108,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
 <body>
 <div class="back" onclick="goBack()"></div>
 <br/>
-<div class="logo">
-    <img width="100" src="logo.png">
-</div>
+<div class="flex items-center">
+        <img src="../img/header_logo.svg" alt="Cafe Logo" class="object-cover">
+    </div>
 <hr>
 <h1>Add Admin/Staff</h1>
 <p>Please fill in this form to create an account.</p>
