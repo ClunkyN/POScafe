@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 $data = json_decode(file_get_contents('php://input'), true);
 
 if(isset($data['id'])) {
-    $prod_id = mysqli_real_escape_string($con, $data['id']);
+    $id = mysqli_real_escape_string($con, $data['id']);
     
     mysqli_begin_transaction($con);
     try {
