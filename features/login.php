@@ -1,93 +1,87 @@
-<?php 
-
+<?php
 session_start();
+include "../conn/connection.php";
 
-include("../conn/connection.php");
-include("../conn/function.php");
+if($_SERVER['REQUEST_METHOD'] == "POST") {
+    $username = mysqli_real_escape_string($con, $_POST['username']); // Changed from user_name to username
+    $password = mysqli_real_escape_string($con, $_POST['password']);
 
-	if($_SERVER['REQUEST_METHOD'] == "POST")
-	{
-		//something was posted
-		$user_name = $_POST['user_name'];
-		$password = $_POST['password'];
+    if(!empty($username) && !empty($password)) {
+        $query = "select * from user_db where user_name = '$username'";
+        $result = mysqli_query($con, $query);
 
-		if(!empty($user_name) && !empty($password) && !is_numeric($user_name))
-		{
-
-			//read from database
-			$query = "select * from user_db where user_name = '$user_name' limit 1";
-			$result = mysqli_query($con, $query);
-
-			if($result)
-			{
-				if($result && mysqli_num_rows($result) > 0)
-				{
-
-					$user_data = mysqli_fetch_assoc($result);
-					
-					if(password_verify($password, $user_data['password']))
-					{
-
-						$_SESSION['user_id'] = $user_data['user_id'];
-						header("Location: ../features/admin_dashboard.php");
-						die;
-					}
-				}
-			}
-			
-			echo "wrong username or password!";
-		}else
-		{
-			echo "wrong username or password!";
-		}
-	}
-
+        if($result && mysqli_num_rows($result) > 0) {
+            $user_data = mysqli_fetch_assoc($result);
+            
+            if(password_verify($password, $user_data['password'])) {
+                $_SESSION['user_id'] = $user_data['user_id'];
+                header("Location: ../features/admin_dashboard.php");
+                die;
+            }
+        }
+        $error = "Invalid username or password";
+    }
+}
 ?>
 
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<title>Login</title>
-	<link rel="stylesheet" href="sign.css">
-	<style>
-    body{
-        background-color: rgb(255, 255, 255);
-    }
-    input[type=text], input[type=password] {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 2px solid black;
-  border-radius: 10px;
-  box-sizing: border-box;
-}
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - POSCafe</title>
+    <link rel="stylesheet" href="../src/output.css">
 </head>
-<body>
-<div class="flex items-center">
-        <img src="../img/header_logo.svg" alt="Cafe Logo" class="object-cover">
+
+<body class="bg-[#FFF0DC] min-h-screen">
+    <div class="flex min-h-screen">
+        <!-- Left Side - Login Form -->
+        <div class="w-1/2 flex items-center justify-center bg-white">
+            <div class="w-[400px] p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800">Welcome Back!</h2>
+                    <p class="text-gray-600">Please sign in to continue</p>
+                </div>
+
+                <?php if(isset($error)): ?>
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        <?php echo $error; ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="post" class="space-y-6">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" 
+                            name="username" 
+                            id="username" 
+                            required 
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" 
+                            name="password" 
+                            id="password" 
+                            required 
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
+                    </div>
+
+                    <div>
+                        <button type="submit" 
+                            class="w-full bg-[#F0BB78] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                            Sign In
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Side - Image -->
+        <div class="w-1/2 bg-[#C2A47E] flex items-center justify-center">
+            <img src="../assets/header_logo.svg" alt="Logo" class="w-2/3 h-2/3 object-contain">
+        </div>
     </div>
-	<hr>
-<h1>Login</h1>
-<form method="post">
-  <div class="container">
-    <label for="user_name"><b>Username</b></label>
-    <input type="text" placeholder="Enter Username" name="user_name" required>
-
-    <label for="password"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="password" required>
-        
-    <button type="submit">Sign in</button>
-	<button onclick="window.location.href='signup.php'">
-                Create an account
-            </button>
-  </div>
-
-  <div class="container" style="background-color:#f1f1f1">
-  </div>
-</form>
-
 </body>
 </html>

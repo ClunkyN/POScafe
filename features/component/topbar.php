@@ -1,3 +1,14 @@
+<?php
+session_start();
+include "../conn/connection.php";
+
+// Get username from database
+$user_id = $_SESSION['user_id'];
+$query = "SELECT user_name FROM user_db WHERE user_id = '$user_id'";
+$result = mysqli_query($con, $query);
+$user = mysqli_fetch_assoc($result);
+?>
+
 <div class="fixed top-0 right-0 h-[171px] w-[1920px] bg-[#C2A47E] shadow-md flex justify-between items-center px-8">
     <!-- Logo Section -->
     <div class="flex items-center">
@@ -9,7 +20,7 @@
         <button onclick="toggleDropdown()" class="flex items-center space-x-3 bg-[#F2DBBE] hover:bg-gray-100 rounded-full p-2">
             <img src="../assets/header_logo.svg" alt="Cafe Logo" class="h-12 w-12 rounded-full object-cover">
             <div class="text-left">
-                <p class="text-gray-800 font-semibold">John Doe</p>
+                <p class="text-gray-800 font-semibold"><?php echo $user['user_name']; ?></p>
                 <p class="text-sm text-gray-600">Admin</p>
             </div>
             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
