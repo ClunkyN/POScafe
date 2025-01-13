@@ -175,7 +175,7 @@ document.getElementById('editItemForm').addEventListener('submit', function(e) {
 
         function archiveItem(Id) {
             if (confirm('Are you sure you want to archive this item?')) {
-                fetch('../endpoint/archive_item.php', {
+                fetch('../endpoint/archive_inventory.php', {
                     method: 'POST',
                     body: JSON.stringify({ id: Id }),
                     headers: {
@@ -195,7 +195,7 @@ document.getElementById('editItemForm').addEventListener('submit', function(e) {
 
         function unarchiveItem(Id) {
             if (confirm('Are you sure you want to unarchive this item?')) {
-                fetch('../endpoint/unarchive_item.php', {
+                fetch('../endpoint/unarchive_inventory.php', {
                     method: 'POST',
                     body: JSON.stringify({ id: Id }),
                     headers: {
