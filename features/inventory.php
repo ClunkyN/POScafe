@@ -67,12 +67,16 @@ $categories_result = mysqli_query($con, $categories_query);
                             $rowClass = $row['is_archived'] ? 'bg-gray-200 text-gray-600' : 'hover:bg-gray-50';
                     ?>
                             <tr class="<?php echo $rowClass; ?>">
-                                <td class="py-4 px-6 border-r border-black"><?php echo $row['item']; ?></td>
-                                <td class="py-4 px-6 border-r border-black"><?php echo $row['qty']; ?></td>
+                                <td class="py-4 px-6 border-r border-black">
+                                    <?php echo $row['item']; ?>
+                                </td>
+                                <td class="py-4 px-6 border-r border-black">
+                                    <?php echo $row['qty']; ?>
+                                </td>
                                 <td class="py-4 px-6">
                                     <div class="flex justify-center gap-2">
                                         <?php if (!$row['is_archived']) { ?>
-                                            <button onclick="editItem(<?php echo $row['id']; ?>)"
+                                            <button onclick="editItem(<?php echo $row['id']; ?>, '<?php echo $row['item']; ?>')"
                                                 class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
                                                 Edit
                                             </button>
@@ -100,6 +104,7 @@ $categories_result = mysqli_query($con, $categories_query);
         </div>
     </main>
 
+    <!-- Edit Item Modal -->
     <div id="editItemModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white p-6 rounded-lg w-96">
             <h2 class="text-xl font-bold mb-4">Edit Item</h2>
@@ -108,7 +113,7 @@ $categories_result = mysqli_query($con, $categories_query);
 
                 <div>
                     <label class="block text-sm font-medium">Item</label>
-                    <input type="text" id="edit_item" name="item" required
+                    <input type="text" id="edit_item" name="item" data-old-item="" required
                         class="w-full p-2 border border-gray-300 rounded">
                 </div>
 
@@ -129,17 +134,18 @@ $categories_result = mysqli_query($con, $categories_query);
     </div>
 
     <script>
-        function editItem(id) {
+        function editItem(id, oldItem) {
             console.log('Editing item:', id);
             fetch(`../endpoint/get_inventory.php?id=${id}`)
                 .then(response => response.json())
                 .then(data => {
-                    if(data.error) {
+                    if (data.error) {
                         throw new Error(data.error);
                     }
                     document.getElementById('edit_id').value = data.id;
                     document.getElementById('edit_item').value = data.item;
                     document.getElementById('edit_qty').value = data.qty;
+                    document.getElementById('edit_item').setAttribute('data-old-item', oldItem.replace(/ /g, '_'));
                     document.getElementById('editItemModal').classList.remove('hidden');
                 })
                 .catch(error => {
@@ -148,30 +154,32 @@ $categories_result = mysqli_query($con, $categories_query);
                 });
         }
 
-    
+        function closeEditModal() {
+            document.getElementById('editItemModal').classList.add('hidden');
+        }
 
-function closeEditModal() {
-    document.getElementById('editItemModal').classList.add('hidden');
-}
+        document.getElementById('editItemForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
 
-document.getElementById('editItemForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-
-    fetch('../endpoint/update_inventory.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                closeEditModal();
-                location.reload();
-            } else {
-                alert('Error updating product');
-            }
+            fetch('../endpoint/update_inventory.php', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeEditModal();
+                        location.reload();
+                    } else {
+                        alert('Error: ' + (data.error || 'Unexpected error occurred'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Unexpected error:', error);
+                    alert('Unexpected error occurred.');
+                });
         });
-});
 
         function archiveItem(Id) {
             if (confirm('Are you sure you want to archive this item?')) {
