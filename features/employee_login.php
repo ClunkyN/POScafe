@@ -93,7 +93,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
                     </div>
 
-                    <div class="text-right">
+                    <div class="text-left">
                         <a href="#" onclick="showForgotPasswordModal()" class="text-sm text-blue-600 hover:underline">
                             Forgot Password?
                         </a>
