@@ -23,7 +23,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
         Products</a>
 
     <div class="bg-[#F2DBBE] px-6 pt-5 pb-2 text-gray-400 text-xs font-bold tracking-wider">REPORTS</div>
-    <a href="#" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all">Orders</a>
+    <a href="../features/orders.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
+    <?php echo ($current_page == 'orders.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">Orders</a>
     <a href="../features/sold_items.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
     <?php echo ($current_page == 'sold_items.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">Sold Items</a>
 
