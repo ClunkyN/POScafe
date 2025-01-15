@@ -23,8 +23,15 @@
             <h2 class="text-2xl font-bold mb-6 text-center">Add New Item</h2>
             <?php
             include "../conn/connection.php";
+
+            // Fetch categories
             $categories_query = "SELECT * FROM categories ORDER BY category_name ASC";
             $categories_result = mysqli_query($con, $categories_query);
+
+            // Check if the query failed
+            if (!$categories_result) {
+                echo "<p class='text-red-500'>Error fetching categories: " . mysqli_error($con) . "</p>";
+            }
             ?>
             <form action="save_inventory.php" method="POST" class="space-y-4">
                 <div class="space-y-2">
@@ -35,39 +42,39 @@
 
                 <div class="space-y-2">
                     <label class="block text-sm font-medium">Quantity</label>
-                    <input type="number" name="qty" required
+                    <input type="number" name="qty" min="1" required
                         class="w-full p-2 border border-gray-300 rounded">
                 </div>
-<!--
-                <div>
-                    <h3>How many of these items would it take to make this product?</h3>
-                </div>
 
+                <!-- Uncomment the following section if you need category selection -->
+                <!--
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">Category</label>
+                    <select name="category" required class="w-full p-2 border border-gray-300 rounded">
+                        <option value="" disabled selected>Select a category</option>
+                        <?php
+                        if (mysqli_num_rows($categories_result) > 0) {
+                            while ($category = mysqli_fetch_assoc($categories_result)) {
+                                echo "<option value='" . htmlspecialchars($category['id']) . "'>" . htmlspecialchars($category['category_name']) . "</option>";
+                            }
+                        } else {
+                            echo "<option value='' disabled>No categories available</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+                -->
+
+                <!-- Uncomment the following section for additional item-related inputs -->
+                <!--
                 <div class="space-y-2">
                     <label class="block text-sm font-medium">Large Cups</label>
-                    <input type="number" name="price" required
-                        class="w-full p-2 border border-gray-300 rounded">
+                    <input type="number" name="large_cups" class="w-full p-2 border border-gray-300 rounded">
                 </div>
+                -->
 
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Medium Cups</label>
-                    <input type="number" name="price" required
-                        class="w-full p-2 border border-gray-300 rounded">
-                </div>
-
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Small Cups</label>
-                    <input type="number" name="price" required
-                        class="w-full p-2 border border-gray-300 rounded">
-                </div>
-
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium">Straws</label>
-                    <input type="number" name="price" required
-                        class="w-full p-2 border border-gray-300 rounded">
-                </div>
--->
-<!--
+                <!-- Availability Status -->
+                <!--
                 <div class="space-y-2">
                     <label class="block text-sm font-medium">Availability Status</label>
                     <button type="button"
@@ -78,7 +85,8 @@
                     </button>
                     <input type="hidden" name="is_available" id="availabilityStatus" value="0">
                 </div>
--->
+                -->
+
                 <div class="pt-8">
                     <button type="submit"
                         class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-6 rounded">
@@ -89,6 +97,7 @@
         </div>
     </main>
     <script>
+        // Toggle availability button behavior
         function toggleAvailability() {
             const btn = document.getElementById('availabilityBtn');
             const status = document.getElementById('availabilityStatus');
@@ -106,7 +115,6 @@
             }
         }
     </script>
-    
 </body>
 
 </html>
