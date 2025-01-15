@@ -9,9 +9,7 @@ if(isset($data['id'])) {
     
     mysqli_begin_transaction($con);
     try {
-        $insert = "INSERT INTO archive_inventory (id, item, qty, status)
-                  SELECT id, item, qty, status 
-                  FROM inventory WHERE id = '$id'";
+        $insert = "INSERT INTO archive_inventory (id) VALUES ('$id')";
         mysqli_query($con, $insert);
         
         mysqli_commit($con);
