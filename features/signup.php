@@ -48,6 +48,22 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $validationPassed = false;
     }
 
+    // Email validation
+    if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+        $error_message[] = "Invalid email format";  
+        $validationPassed = false;
+    }
+
+    // Check if email exists 
+    $stmt = mysqli_prepare($con, "SELECT email FROM user_db WHERE email = ?");
+    mysqli_stmt_bind_param($stmt, "s", $_POST['email']);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_store_result($stmt);
+    if(mysqli_stmt_num_rows($stmt) > 0) {
+        $error_message[] = "Email already registered";
+        $validationPassed = false;
+    }
+
     // Password validation
     $passwordErrors = [];
     if (strlen($password) < 8) {
@@ -82,15 +98,15 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $h_password = password_hash($password, PASSWORD_DEFAULT);
         $user_id = random_num(20);
         
-        $query = "INSERT INTO user_db (user_id, fname, lname, user_name, password, role) 
-                 VALUES (?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO user_db (user_id, fname, lname, user_name, password, role, email) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = mysqli_prepare($con, $query);
         
         if (!$stmt) {
             error_log("Prepare failed: " . mysqli_error($con));
             $error_message[] = "Registration failed. Please try again.";
         } else {
-            mysqli_stmt_bind_param($stmt, "ssssss", $user_id, $fname, $lname, $user_name, $h_password, $role);
+            mysqli_stmt_bind_param($stmt, "sssssss", $user_id, $fname, $lname, $user_name, $h_password, $role, $_POST['email']);
             
             if (mysqli_stmt_execute($stmt)) {
                 $_SESSION['success_message'] = "Account created successfully! Please login to continue.";
@@ -170,6 +186,15 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                                 required
                                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
                         </div>
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email"
+                            name="email"
+                            id="email"
+                            placeholder=""
+                            required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
                     </div>
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
