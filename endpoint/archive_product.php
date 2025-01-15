@@ -4,14 +4,12 @@ header('Content-Type: application/json');
 
 $data = json_decode(file_get_contents('php://input'), true);
 
-if(isset($data['prod_id'])) {
-    $prod_id = mysqli_real_escape_string($con, $data['prod_id']);
+if(isset($data['id'])) {
+    $id = mysqli_real_escape_string($con, $data['id']);
     
     mysqli_begin_transaction($con);
     try {
-        $insert = "INSERT INTO archive_products (prod_id, prod_name, category, price, status)
-                  SELECT prod_id, prod_name, category, price, status 
-                  FROM products WHERE prod_id = '$prod_id'";
+        $insert = "INSERT INTO archive_products (id) VALUES ('$id')";
         mysqli_query($con, $insert);
         
         mysqli_commit($con);
