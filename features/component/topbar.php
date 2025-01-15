@@ -24,7 +24,7 @@ $role = "Guest";
 
 if ($result && $user = mysqli_fetch_assoc($result)) {
     $username = $user['user_name'];
-    $role = ucfirst(strtolower($user['role'])); 
+    $role = ucfirst(strtolower($user['role']));
 }
 ?>
 
@@ -52,7 +52,11 @@ if ($result && $user = mysqli_fetch_assoc($result)) {
             <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
             <a href="settings.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
             <hr class="my-1">
-            <a href="../endpoint/logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
+            <?php if ($_SESSION['role'] === 'admin'): ?>
+                <a href="../endpoint/admin_logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
+            <?php else: ?>
+                <a href="../endpoint/employee_logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -67,7 +71,7 @@ if ($result && $user = mysqli_fetch_assoc($result)) {
     document.addEventListener('click', function(event) {
         const userDropdown = document.getElementById('userDropdown');
         const dropdownMenu = document.getElementById('dropdownMenu');
-        
+
         if (!userDropdown.contains(event.target)) {
             dropdownMenu.classList.add('hidden');
         }

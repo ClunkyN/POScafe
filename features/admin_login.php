@@ -80,7 +80,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
                     </div>
 
                     <div class="text-start">
-                        <a href="../features/login.php" class="text-blue-700 underline">
+                        <a href="../features/employee_login.php" class="text-blue-700 underline">
                             Back to regular login
                         </a>
                     </div>

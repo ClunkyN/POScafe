@@ -2,6 +2,6 @@
 session_start();
 session_unset();
 session_destroy();
-header("Location: ../features/login.php");
+header("Location: ../features/employee_login.php");
 exit();
 ?>

@@ -7,7 +7,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     $password = mysqli_real_escape_string($con, $_POST['password']);
 
     if(!empty($username) && !empty($password)) {
-        // Query to check user with role
         $query = "SELECT * FROM user_db WHERE user_name = ?";
         $stmt = mysqli_prepare($con, $query);
         mysqli_stmt_bind_param($stmt, "s", $username);
@@ -22,11 +21,15 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
                 $_SESSION['role'] = $user_data['role'];
 
                 // Redirect based on role
-                if($user_data['role'] === 'employee') {
-                    header("Location: ../dashboard/employee_dashboard.php");
-                    exit();
-                } else {
-                    $error = "Access denied. Please use correct login portal.";
+                switch($user_data['role']) {
+                    case 'employee':
+                        header("Location: ../dashboard/employee_dashboard.php");
+                        exit();
+                    case 'new_user':
+                        header("Location: ../dashboard/new_user.php");
+                        exit();
+                    default:
+                        $error = "Access denied. Please use correct login portal.";
                 }
             } else {
                 $error = "Invalid username or password";
@@ -59,6 +62,15 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
                 <?php if(isset($error)): ?>
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                         <?php echo $error; ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if(isset($_SESSION['success_message'])): ?>
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                        <?php 
+                            echo $_SESSION['success_message']; 
+                            unset($_SESSION['success_message']);
+                        ?>
                     </div>
                 <?php endif; ?>
 
