@@ -11,7 +11,7 @@ include "../conn/connection.php";
 
 // Get username from database
 $user_id = $_SESSION['user_id'];
-$query = "SELECT user_name FROM user_db WHERE user_id = ?";
+$query = "SELECT user_name, role FROM user_db WHERE user_id = ?";
 $stmt = mysqli_prepare($con, $query);
 mysqli_stmt_bind_param($stmt, "s", $user_id);
 mysqli_stmt_execute($stmt);
@@ -19,9 +19,12 @@ $result = mysqli_stmt_get_result($stmt);
 
 // Default username if query fails
 $username = "User";
+$role = "Guest";
+
 
 if ($result && $user = mysqli_fetch_assoc($result)) {
     $username = $user['user_name'];
+    $role = ucfirst(strtolower($user['role'])); 
 }
 ?>
 
@@ -37,7 +40,7 @@ if ($result && $user = mysqli_fetch_assoc($result)) {
             <img src="../assets/header_logo.svg" alt="Cafe Logo" class="h-12 w-12 rounded-full object-cover">
             <div class="text-left">
                 <p class="text-gray-800 font-semibold"><?php echo htmlspecialchars($username); ?></p>
-                <p class="text-sm text-gray-600">Admin</p>
+                <p class="text-sm text-gray-600"><?php echo htmlspecialchars($role); ?></p>
             </div>
             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />

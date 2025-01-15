@@ -7,8 +7,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     $password = mysqli_real_escape_string($con, $_POST['password']);
 
     if(!empty($username) && !empty($password)) {
-        // Query to check user with role
-        $query = "SELECT * FROM user_db WHERE user_name = ?";
+        // Modified query to check for admin role
+        $query = "SELECT * FROM user_db WHERE user_name = ? AND role = 'admin'";
         $stmt = mysqli_prepare($con, $query);
         mysqli_stmt_bind_param($stmt, "s", $username);
         mysqli_stmt_execute($stmt);
@@ -19,21 +19,12 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
             
             if(password_verify($password, $user_data['password'])) {
                 $_SESSION['user_id'] = $user_data['user_id'];
-                $_SESSION['role'] = $user_data['role'];
-
-                // Redirect based on role
-                if($user_data['role'] === 'employee') {
-                    header("Location: ../dashboard/employee_dashboard.php");
-                    exit();
-                } else {
-                    $error = "Access denied. Please use correct login portal.";
-                }
-            } else {
-                $error = "Invalid username or password";
+                $_SESSION['role'] = 'admin'; // Set admin role in session
+                header("Location: ../dashboard/admin_dashboard.php");
+                die;
             }
-        } else {
-            $error = "Invalid username or password";
         }
+        $error = "Invalid admin credentials";
     }
 }
 ?>
@@ -43,7 +34,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - POSCafe</title>
+    <title>Admin Login - POSCafe</title>
     <link rel="stylesheet" href="../src/output.css">
 </head>
 
@@ -53,7 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
         <div class="w-1/2 flex items-center justify-center bg-[#F2DBBE]">
             <div class="w-[400px]">
                 <div class="text-center mb-8">
-                    <h1 class="text-[128px] font-bold">LOGIN</h1>
+                    <h1 class="text-[128px] font-bold">ADMIN</h1>
                 </div>
 
                 <?php if(isset($error)): ?>
@@ -64,7 +55,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
 
                 <form method="post" class="space-y-6">
                     <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                        <label for="username" class="block text-sm font-medium text-gray-700">Admin Username</label>
                         <input type="text" 
                             name="username" 
                             id="username" 
@@ -84,18 +75,20 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
                     <div>
                         <button type="submit" 
                             class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
-                            Sign In
+                            Login as Admin
                         </button>
                     </div>
 
-                    <div class="text-start flex">
-                        <p class="text-black">No account yet?</p> <a href="../features/signup.php" class=" pl-2 underline text-blue-700"> Register here</a>
+                    <div class="text-start">
+                        <a href="../features/login.php" class="text-blue-700 underline">
+                            Back to regular login
+                        </a>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Right Side - Image -->
+        <!-- Right Side - Logo -->
         <div class="w-1/2 bg-[#C2A47E] flex items-center justify-center">
             <img src="../assets/header_logo.svg" alt="Logo" class="w-2/3 h-2/3 object-contain">
         </div>

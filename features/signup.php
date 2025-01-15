@@ -1,154 +1,294 @@
-<?php 
+<?php
 session_start();
+include "../conn/connection.php";
+include "../conn/function.php";
 
-include("../conn/connection.php");
-include("../conn/function.php");
-$error_message = "";
-
-if($_SERVER['REQUEST_METHOD'] == "POST")
-{
-    // something was posted
-    $fname = $_POST['fname'];
-    $lname = $_POST['lname'];
-    $user_name = $_POST['user_name'];
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
+    // Trim input values
+    $fname = trim($_POST['fname']);
+    $lname = trim($_POST['lname']);
+    $user_name = trim($_POST['user_name']);
     $password = $_POST['password'];
     $cpassword = $_POST['cpassword'];
-    $role = $_POST['role'];
+    $role = 'new_user'; // Set default role
 
-    // Check for SQL delimiter characters
-    $delimiter_pattern = '/[;\'"]/';
+    // Validation flags
+    $validationPassed = true;
+    $error_message = [];
 
-    if (preg_match($delimiter_pattern, $fname) || preg_match($delimiter_pattern, $lname) || preg_match($delimiter_pattern, $user_name) || preg_match($delimiter_pattern, $password) || preg_match($delimiter_pattern, $role)) {
-        $error_message = "Inputs cannot contain SQL delimiter characters such as ;, ', or \"";
-    } else {
-        if (!empty($user_name) && !empty($password) && !is_numeric($user_name)) {
-            $u = "SELECT user_name FROM user_db WHERE user_name='$user_name'";
-            $uu = mysqli_query($con, $u);
+    // Check if fields are empty or contain only spaces
+    if (empty($fname) || ctype_space($_POST['fname']) || strlen($fname) === 0) {
+        $error_message[] = "First name cannot be empty or contain only spaces";
+        $validationPassed = false;
+    }
 
-            if (mysqli_num_rows($uu) <= 0) {
-                if ($cpassword == $password) {
+    if (empty($lname) || ctype_space($_POST['lname']) || strlen($lname) === 0) {
+        $error_message[] = "Last name cannot be empty or contain only spaces";
+        $validationPassed = false;
+    }
 
-                    // Server-side validation for alphanumeric and underscore
-                    if (preg_match('/^[a-zA-Z0-9_]+$/', $user_name) && preg_match('/^[a-zA-Z0-9_]{8,}$/', $password)) {
-                        $h_password = password_hash($password, PASSWORD_DEFAULT);
+    if (empty($user_name) || ctype_space($_POST['user_name']) || strlen($user_name) === 0) {
+        $error_message[] = "Username cannot be empty or contain only spaces";
+        $validationPassed = false;
+    }
 
-                        // save to database
-                        $user_id = random_num(20);
-                        $query = "INSERT INTO user_db (user_id, fname, lname, user_name, password, role) VALUES ('$user_id', '$fname', '$lname', '$user_name', '$h_password', '$role')";
+    // Username validation with no spaces allowed
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $user_name)) {
+        $error_message[] = "Username can only contain letters, numbers, and underscores";
+        $validationPassed = false;
+    }
 
-                        mysqli_query($con, $query);
+    // Check if username exists
+    $stmt = mysqli_prepare($con, "SELECT user_name FROM user_db WHERE user_name = ?");
+    mysqli_stmt_bind_param($stmt, "s", $user_name);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_store_result($stmt);
+    if (mysqli_stmt_num_rows($stmt) > 0) {
+        $error_message[] = "Username already exists";
+        $validationPassed = false;
+    }
 
-                        header("Location: ./login.php");
-                        die;
-                    } else {
-                        $error_message = "Username and password can only contain letters, numbers, and underscores. Password must be at least 8 characters long.";
-                    }   
-                } else {
-                    $error_message = "Passwords don't match";
-                }
-            } else {
-                $error_message = "Username exists";
-            }
+    // Password validation
+    $passwordErrors = [];
+    if (strlen($password) < 8) {
+        $passwordErrors[] = "Password must be at least 8 characters long";
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        $passwordErrors[] = "Password must contain at least one uppercase letter";
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        $passwordErrors[] = "Password must contain at least one lowercase letter";
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        $passwordErrors[] = "Password must contain at least one number";
+    }
+    if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+        $passwordErrors[] = "Password must contain at least one special character";
+    }
+    
+    if (!empty($passwordErrors)) {
+        $error_message = array_merge($error_message, $passwordErrors);
+        $validationPassed = false;
+    }
+
+    // Check if passwords match
+    if ($password !== $cpassword) {
+        $error_message[] = "Passwords do not match";
+        $validationPassed = false;
+    }
+
+    // If all validations pass, proceed with registration
+    if ($validationPassed) {
+        $h_password = password_hash($password, PASSWORD_DEFAULT);
+        $user_id = random_num(20);
+        
+        $query = "INSERT INTO user_db (user_id, fname, lname, user_name, password, role) 
+                 VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = mysqli_prepare($con, $query);
+        mysqli_stmt_bind_param($stmt, "ssssss", $user_id, $fname, $lname, $user_name, $h_password, $role);
+        
+        if (mysqli_stmt_execute($stmt)) {
+            header("Location: ./login.php");
+            die;
         } else {
-            $error_message = "Please enter some valid information!";
+            $error_message[] = "Registration failed. Please try again.";
         }
     }
 }
-
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="sign.css">
-<style>
-    body{
-        background-color: rgb(255, 255, 255);
-    }
-    input[type=text], input[type=password], input[type=date]{
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 2px solid black;
-  border-radius: 10px;
-  box-sizing: border-box;
-}
-    .user{
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 2px solid black;
-  border-radius: 10px;
-  box-sizing: border-box;
-}
-.back {
-  width: 40px;
-  height: 40px;
-  background-image: url('./icons/arrow.png');
-  background-size: cover;
-  background-position: center;
-  transition: background-image 0.3s;
-}
-
-.back:hover {
-  background-image: url('./icons/arrow2.png');
-  cursor: pointer;
-}
-</style>
-<script>
-    function goBack() {
-            window.history.back();
-        }
-</script>
-<title>Signup</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - POSCafe</title>
+    <link rel="stylesheet" href="../src/output.css">
 </head>
-<body>
-<div class="back" onclick="goBack()"></div>
-<br/>
-<div class="flex items-center">
-        <img src="../img/header_logo.svg" alt="Cafe Logo" class="object-cover">
+
+<body class="bg-[#F2DBBE] min-h-screen">
+    <div class="flex min-h-screen">
+        <!-- Left Side - Logo -->
+        <div class="w-1/2 bg-[#C2A47E] flex items-center justify-center">
+            <img src="../assets/header_logo.svg" alt="Logo" class="w-2/3 h-2/3 object-contain">
+        </div>
+
+        <!-- Right Side - Signup Form -->
+        <div class="w-1/2 flex items-center justify-center bg-[#F2DBBE]">
+            <div class="w-[400px]">
+                <div class="text-center mb-8">
+                    <h1 class="text-[64px] font-bold">SIGN UP</h1>
+                </div>
+
+                <form method="post" class="space-y-4">
+                    <div>
+                        <label for="user_name" class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text"
+                            name="user_name"
+                            id="user_name"
+                            placeholder=""
+                            required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
+                    </div>
+                    <div class="flex space-x-4 mb-4">
+                        <div class="w-1/2">
+                            <label for="fname" class="block text-sm font-medium text-gray-700">First Name</label>
+                            <input type="text"
+                                name="fname"
+                                id="fname"
+                                placeholder=""
+                                required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
+                        </div>
+
+                        <div class="w-1/2">
+                            <label for="lname" class="block text-sm font-medium text-gray-700">Last Name</label>
+                            <input type="text"
+                                name="lname"
+                                id="lname"
+                                placeholder=""
+                                required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password"
+                            name="password"
+                            id="password"
+                            placeholder=""
+                            required
+                            onkeyup="checkPasswordStrength()"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
+                        <div class="strength mt-1" id="strength-bar">
+                            <span></span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="cpassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                        <input type="password"
+                            name="cpassword"
+                            id="cpassword"
+                            placeholder=""
+                            required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
+                    </div>
+
+                    <div>
+                        <button type="submit"
+                            class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                            Sign up
+                        </button>
+                    </div>
+
+                    <div class="text-start flex">
+                        <p>Have an account? </p>
+                        <a class="pl-2 underline text-blue-700" href="../features/login.php" >Login here</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-<hr>
-<h1>Add Admin/Staff</h1>
-<p>Please fill in this form to create an account.</p>
-<form method="post">
-  <div class="container">
-  <label for="fname"><b>First Name</b></label>
-  <input type="text" placeholder="Enter First Name" name="fname" required>
-
-  <label for="lname"><b>Last Name</b></label>
-  <input type="text" placeholder="Enter Last Name" name="lname" required>
-
-    <label for="user_name"><b>Username</b></label>
-    <input type="text" placeholder="Enter Username" name="user_name" required>
-
-    <label for="password"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="password" required onkeyup="checkPasswordStrength()">
-
-    <div class="strength" id="strength-bar">
-      <span></span>
-    </div>
-
-    <label for="cpassword"><b>Confirm Password</b></label>
-    <input type="password" placeholder="Enter Password" name="cpassword" required>
-
-    <label for="role"><b>User Type</b></label>
-    <select name="role" class="user"required>
-            <option value="1">Admin</option>
-            <option value="0">Staff</option>
-        </select>
-
-    <div id="error-message" class="error"><?php echo $error_message; ?></div>
-        
-    <button type="submit">ADD USER</button>
-  </div>
-
-  <div class="container" style="background-color:#f1f1f1">
-  </div>
-</form>
-
 </body>
+
 </html>
+
+<!-- Add this JavaScript before closing body tag -->
+<script>
+function checkPasswordStrength() {
+    const password = document.getElementById('password').value;
+    const strengthBar = document.getElementById('strength-bar');
+    const confirmPassword = document.getElementById('cpassword');
+    let strength = 0;
+    let messages = [];
+
+    // Reset strength bar
+    strengthBar.innerHTML = '';
+
+    // Check length
+    if (password.length >= 8) {
+        strength += 1;
+    } else {
+        messages.push('At least 8 characters');
+    }
+
+    // Check uppercase
+    if (password.match(/[A-Z]/)) {
+        strength += 1;
+    } else {
+        messages.push('One uppercase letter');
+    }
+
+    // Check lowercase
+    if (password.match(/[a-z]/)) {
+        strength += 1;
+    } else {
+        messages.push('One lowercase letter');
+    }
+
+    // Check numbers
+    if (password.match(/[0-9]/)) {
+        strength += 1;
+    } else {
+        messages.push('One number');
+    }
+
+    // Check special characters
+    if (password.match(/[!@#$%^&*(),.?":{}|<>]/)) {
+        strength += 1;
+    } else {
+        messages.push('One special character');
+    }
+
+    // Update strength bar
+    let strengthText = '';
+    let strengthColor = '';
+    switch (strength) {
+        case 0:
+            strengthColor = '#ff0000';
+            strengthText = 'Very Weak';
+            break;
+        case 1:
+            strengthColor = '#ff4500';
+            strengthText = 'Weak';
+            break;
+        case 2:
+            strengthColor = '#ffa500';
+            strengthText = 'Fair';
+            break;
+        case 3:
+            strengthColor = '#9acd32';
+            strengthText = 'Good';
+            break;
+        case 4:
+            strengthColor = '#90ee90';
+            strengthText = 'Strong';
+            break;
+        case 5:
+            strengthColor = '#008000';
+            strengthText = 'Very Strong';
+            break;
+    }
+
+    strengthBar.innerHTML = `
+        <div style="width: ${(strength/5)*100}%; background-color: ${strengthColor}; height: 5px; transition: all 0.3s;"></div>
+        <div class="text-sm mt-1">${strengthText}</div>
+        <div class="text-sm text-gray-600">${messages.length ? 'Required: ' + messages.join(', ') : ''}</div>
+    `;
+
+    // Check password match
+    if (confirmPassword.value) {
+        if (password === confirmPassword.value) {
+            confirmPassword.style.borderColor = '#008000';
+        } else {
+            confirmPassword.style.borderColor = '#ff0000';
+        }
+    }
+}
+
+// Add event listeners
+document.getElementById('password').addEventListener('keyup', checkPasswordStrength);
+document.getElementById('cpassword').addEventListener('keyup', checkPasswordStrength);
+</script>
