@@ -7,7 +7,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     $password = mysqli_real_escape_string($con, $_POST['password']);
 
     if(!empty($username) && !empty($password)) {
-        // Query to check user with role
         $query = "SELECT * FROM user_db WHERE user_name = ?";
         $stmt = mysqli_prepare($con, $query);
         mysqli_stmt_bind_param($stmt, "s", $username);
@@ -22,11 +21,15 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
                 $_SESSION['role'] = $user_data['role'];
 
                 // Redirect based on role
-                if($user_data['role'] === 'employee') {
-                    header("Location: ../dashboard/employee_dashboard.php");
-                    exit();
-                } else {
-                    $error = "Access denied. Please use correct login portal.";
+                switch($user_data['role']) {
+                    case 'employee':
+                        header("Location: ../dashboard/employee_dashboard.php");
+                        exit();
+                    case 'new_user':
+                        header("Location: ../dashboard/new_user.php");
+                        exit();
+                    default:
+                        $error = "Access denied. Please use correct login portal.";
                 }
             } else {
                 $error = "Invalid username or password";

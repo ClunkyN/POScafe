@@ -5,7 +5,8 @@ module.exports = {
     "./features/*.{html,php,js}", 
     "./php/*.{html,php,js}", 
     "./js/*.{html,php,js}",
-    "./features/component/**/*.php"
+    "./features/component/**/*.php",
+    "./dashboard/**/*.{html,php,js}",
   ],
   theme: {
     extend: {},
