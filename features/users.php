@@ -39,6 +39,7 @@ $user_data = check_login($con);
     </div>
         <!-- table -->
         <div class="overflow-x-auto rounded-md">
+        <h2 class="text-xl font-bold mb-4">Users List</h2>
             <table class="min-w-full bg-white border-4 border-black rounded-md">
                 <thead class="bg-[#C2A47E] text-black">
                     <tr>
