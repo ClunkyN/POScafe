@@ -85,13 +85,21 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $query = "INSERT INTO user_db (user_id, fname, lname, user_name, password, role) 
                  VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = mysqli_prepare($con, $query);
-        mysqli_stmt_bind_param($stmt, "ssssss", $user_id, $fname, $lname, $user_name, $h_password, $role);
         
-        if (mysqli_stmt_execute($stmt)) {
-            header("Location: ./login.php");
-            die;
-        } else {
+        if (!$stmt) {
+            error_log("Prepare failed: " . mysqli_error($con));
             $error_message[] = "Registration failed. Please try again.";
+        } else {
+            mysqli_stmt_bind_param($stmt, "ssssss", $user_id, $fname, $lname, $user_name, $h_password, $role);
+            
+            if (mysqli_stmt_execute($stmt)) {
+                $_SESSION['success_message'] = "Account created successfully! Please login to continue.";
+                header("Location: ./employee_login.php");
+                exit();
+            } else {
+                error_log("Execute failed: " . mysqli_stmt_error($stmt));
+                $error_message[] = "Registration failed: " . mysqli_stmt_error($stmt);
+            }
         }
     }
 }
@@ -120,6 +128,17 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 <div class="text-center mb-8">
                     <h1 class="text-[64px] font-bold">SIGN UP</h1>
                 </div>
+
+                <!-- Add this after the form title -->
+                <?php if(!empty($error_message)): ?>
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        <?php 
+                            foreach($error_message as $error) {
+                                echo $error . "<br>";
+                            }
+                        ?>
+                    </div>
+                <?php endif; ?>
 
                 <form method="post" class="space-y-4">
                     <div>
@@ -185,7 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
                     <div class="text-start flex">
                         <p>Have an account? </p>
-                        <a class="pl-2 underline text-blue-700" href="../features/login.php" >Login here</a>
+                        <a class="pl-2 underline text-blue-700" href="../features/employee_login.php" >Login here</a>
                     </div>
                 </form>
             </div>

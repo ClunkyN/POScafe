@@ -65,6 +65,15 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
                     </div>
                 <?php endif; ?>
 
+                <?php if(isset($_SESSION['success_message'])): ?>
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                        <?php 
+                            echo $_SESSION['success_message']; 
+                            unset($_SESSION['success_message']);
+                        ?>
+                    </div>
+                <?php endif; ?>
+
                 <form method="post" class="space-y-6">
                     <div>
                         <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
