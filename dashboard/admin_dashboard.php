@@ -2,8 +2,15 @@
 session_start();
 include "../conn/connection.php";
 
+// Prevent caching
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 // Check if user is logged in and has admin role
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    session_unset();
+    session_destroy();
     header("Location: ../features/admin_login.php");
     exit();
 }
@@ -17,6 +24,12 @@ mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $user = mysqli_fetch_assoc($result);
 
+if (!$user) {
+    session_unset();
+    session_destroy();
+    header("Location: ../features/admin_login.php");
+    exit();
+}
 ?>
 
 
@@ -25,8 +38,15 @@ $user = mysqli_fetch_assoc($result);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin dashboard</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../src/output.css">
+    <script>
+        // Prevent going back
+        history.pushState(null, null, document.URL);
+        window.addEventListener('popstate', function () {
+            history.pushState(null, null, document.URL);
+        });
+    </script>
 </head>
 <body class="bg-[#FFF0DC]">
     <!-- Topbar -->
