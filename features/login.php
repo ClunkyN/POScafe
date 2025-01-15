@@ -33,14 +33,13 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     <link rel="stylesheet" href="../src/output.css">
 </head>
 
-<body class="bg-[#FFF0DC] min-h-screen">
+<body class="bg-[#F2DBBE] min-h-screen">
     <div class="flex min-h-screen">
         <!-- Left Side - Login Form -->
-        <div class="w-1/2 flex items-center justify-center bg-white">
-            <div class="w-[400px] p-8">
+        <div class="w-1/2 flex items-center justify-center bg-[#F2DBBE]">
+            <div class="w-[400px]">
                 <div class="text-center mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800">Welcome Back!</h2>
-                    <p class="text-gray-600">Please sign in to continue</p>
+                    <h1 class="text-[128px] font-bold">LOGIN</h1>
                 </div>
 
                 <?php if(isset($error)): ?>
@@ -70,9 +69,13 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
 
                     <div>
                         <button type="submit" 
-                            class="w-full bg-[#F0BB78] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                            class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
                             Sign In
                         </button>
+                    </div>
+
+                    <div class="text-start flex">
+                        <p class="text-black">No account yet?</p> <a href="../features/signup.php" class=" pl-2 underline text-blue-700"> Register here</a>
                     </div>
                 </form>
             </div>
