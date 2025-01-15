@@ -27,7 +27,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <a href="#" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all">Sold Items</a>
 
     <div class="bg-[#F2DBBE] px-6 pt-5 pb-2 text-gray-400 text-xs font-bold tracking-wider">PEOPLE</div>
-    <a href="#" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all">Customers</a>
-    <a href="../features/users.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all"
+    <a href="../features/customers.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
+    <?php echo ($current_page == 'customers.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">Customers</a>
+    <a href="../features/users.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
     <?php echo ($current_page == 'users.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">Users</a>
 </div>

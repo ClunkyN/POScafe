@@ -9,7 +9,7 @@ $user_data = check_login($con);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users</title>
+    <title>Customers</title>
     <link rel="stylesheet" href="../src/output.css">
 </head>
 
@@ -26,28 +26,26 @@ $user_data = check_login($con);
     <!-- Main content -->
     <main class="ml-[230px] mt-[171px] p-6">
         <div class="flex flex-col justify-between items-start mb-6">
-            <h1 class="text-2xl font-bold mb-4">Users</h1>
+            <h1 class="text-2xl font-bold mb-4">Customers</h1>
             <button onclick="window.location.href='#'" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">
-                Add User
+                Add Customer
             </button>
             </div>
 
     <!-- Search bar -->
      <div class="mb-6">
-            <input type="text" placeholder="Search Users..."
+            <input type="text" placeholder="Search for name..."
                 class="min-w-full max-w-xs px-4 py-2 rounded border border-gray-300 focus:outline-none focus:border-[#C2A47E]">
     </div>
         <!-- table -->
         <div class="overflow-x-auto rounded-md">
-        <h2 class="text-xl font-bold mb-4">Users List</h2>
+        <h2 class="text-xl font-bold mb-4">Customers List</h2>
             <table class="min-w-full bg-white border-4 border-black rounded-md">
                 <thead class="bg-[#C2A47E] text-black">
                     <tr>
-                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">ID</th>
-                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">First Name</th>
-                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">Last Name</th>
-                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">Username</th>
-                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">Type</th>
+                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">Name</th>
+                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">Birthday</th>
+                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">Orders</th>
                         <th class="py-3 px-6 text-center">Action</th>
                     </tr>
                 </thead>
@@ -56,11 +54,9 @@ $user_data = check_login($con);
                     if (mysqli_num_rows($result) > 0):
                         while ($row = mysqli_fetch_assoc($result)): ?>
                         <tr class="border-t border-gray-200">
-                            <td class="px-4 py-2"><?php echo $row["user_id"] ?></td>
-                            <td class="px-4 py-2"><?php echo $row["fname"] ?></td>
-                            <td class="px-4 py-2"><?php echo $row["lname"] ?></td>
-                            <td class="px-4 py-2"><?php echo $row["user_name"] ?></td>
-                            <td class="px-4 py-2"><?php echo $row['role'] == 1 ? 'Admin' : 'Staff'; ?></td>
+                            <td class="px-4 py-2"><?php echo $row["name"] ?></td>
+                            <td class="px-4 py-2"><?php echo $row["birthday"] ?></td>
+                            <td class="px-4 py-2"><?php echo $row["orders"] ?></td>
                             <td class="px-4 py-2 text-center">
                                 <a href="edituser.php?id=<?= $row['id']?>" class="inline-block bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Edit</a>
                                 <a href="#" id="<?php echo $row['id']; ?>" class="delbutton inline-block bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Archive</a>
