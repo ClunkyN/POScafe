@@ -17,7 +17,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
         <?php echo ($current_page == 'categories.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">
         Categories</a>
-    <a href="../features/add_products.php" 
+    <a href="../features/products.php" 
         class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
         <?php echo ($current_page == 'add_products.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">
         Products</a>
