@@ -1,5 +1,4 @@
 <?php
-session_start();
 include "../conn/connection.php";
 
 // Get username from database
