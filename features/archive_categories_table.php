@@ -13,7 +13,7 @@ $offset = ($page - 1) * $limit;
 
 try {
     // Get total count
-    $countQuery = "SELECT COUNT(*) as total FROM archive_products";
+    $countQuery = "SELECT COUNT(*) as total FROM archive_categories";
     $countResult = mysqli_query($con, $countQuery);
     if (!$countResult) {
         throw new Exception(mysqli_error($con));
@@ -21,18 +21,13 @@ try {
     $total = mysqli_fetch_assoc($countResult)['total'];
     $totalPages = ceil($total / $limit);
 
-    // Updated query to properly fetch category data
+    // Get archived categories
     $query = "SELECT 
-        ap.id,
-        ap.product_name,
-        ap.category_id,
-        ap.price,
-        COALESCE(c.category_name, ac.category_name) as category_name,
-        ap.archived_at
-    FROM archive_products ap
-    LEFT JOIN categories c ON ap.category_id = c.id
-    LEFT JOIN archive_categories ac ON ap.category_id = ac.id
-    ORDER BY ap.archived_at DESC
+        ac.id,
+        ac.category_name,
+        ac.description
+    FROM archive_categories ac
+    ORDER BY ac.id DESC
     LIMIT ?, ?";
 
     if ($stmt = mysqli_prepare($con, $query)) {
@@ -44,15 +39,15 @@ try {
             throw new Exception("Query failed: " . mysqli_error($con));
         }
         
-        $archivedProducts = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $archivedCategories = mysqli_fetch_all($result, MYSQLI_ASSOC);
     } else {
         throw new Exception("Prepare failed: " . mysqli_error($con));
     }
 
 } catch(Exception $e) {
     error_log($e->getMessage());
-    $_SESSION['error'] = "Failed to fetch archived products: " . $e->getMessage();
-    $archivedProducts = [];
+    $_SESSION['error'] = "Failed to fetch archived categories: " . $e->getMessage();
+    $archivedCategories = [];
 }
 ?>
 
@@ -61,7 +56,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Archived Products</title>
+    <title>Archived Categories</title>
     <link rel="stylesheet" href="../src/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -76,9 +71,9 @@ try {
     <main class="ml-[230px] mt-[171px] p-6">
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold">Archived Products</h2>
-                <a href="products.php" class="text-blue-500 hover:text-blue-700">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to Products
+                <h2 class="text-2xl font-bold">Archived Categories</h2>
+                <a href="categories.php" class="text-blue-500 hover:text-blue-700">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Categories
                 </a>
             </div>
 
@@ -95,28 +90,24 @@ try {
                 <table class="min-w-full bg-white border-4 border-black rounded-md">
                     <thead class="bg-[#C2A47E] text-black">
                         <tr>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Product Name</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Category</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Price</th>
+                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Category Name</th>
+                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Description</th>
                             <th class="py-3 px-6 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        <?php if ($archivedProducts && count($archivedProducts) > 0): ?>
-                            <?php foreach ($archivedProducts as $product): ?>
-                                <tr id="archived-product-<?php echo $product['id']; ?>" class="hover:bg-gray-50">
+                        <?php if ($archivedCategories && count($archivedCategories) > 0): ?>
+                            <?php foreach ($archivedCategories as $category): ?>
+                                <tr id="archived-category-<?php echo $category['id']; ?>" class="hover:bg-gray-50">
                                     <td class="py-4 px-6 border-r border-black">
-                                        <?php echo htmlspecialchars($product['product_name']); ?>
+                                        <?php echo htmlspecialchars($category['category_name']); ?>
                                     </td>
                                     <td class="py-4 px-6 border-r border-black">
-                                        <?php echo htmlspecialchars($product['category_name']); ?>
-                                    </td>
-                                    <td class="py-4 px-6 border-r border-black">
-                                        ₱<?php echo number_format($product['price'], 2); ?>
+                                        <?php echo htmlspecialchars($category['description']); ?>
                                     </td>
                                     <td class="py-4 px-6">
                                         <div class="flex justify-center">
-                                            <button onclick="restoreProduct(<?php echo $product['id']; ?>)"
+                                            <button onclick="restoreCategory(<?php echo $category['id']; ?>)"
                                                 class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
                                                 Restore
                                             </button>
@@ -126,8 +117,8 @@ try {
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="4" class="py-4 px-6 text-center text-gray-500">
-                                    No archived products found
+                                <td colspan="3" class="py-4 px-6 text-center text-gray-500">
+                                    No archived categories found
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -164,9 +155,9 @@ try {
     </main>
 
     <script>
-        function restoreProduct(id) {
-            if (confirm('Are you sure you want to restore this product?')) {
-                fetch('../endpoint/unarchive_product.php', {
+        function restoreCategory(id) {
+            if (confirm('Are you sure you want to restore this category?')) {
+                fetch('../endpoint/unarchive_category.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -176,14 +167,14 @@ try {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        window.location.href = '../features/products.php';
+                        window.location.href = '../features/categories.php';
                     } else {
-                        alert('Error restoring product');
+                        alert('Error restoring category');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error restoring product');
+                    alert('Error restoring category');
                 });
             }
         }

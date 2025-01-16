@@ -31,9 +31,13 @@ if (!$result) {
     <main class="ml-[230px] mt-[171px] p-6">
         <div class="flex flex-col justify-between items-start mb-6">
             <h1 class="text-2xl font-bold mb-4">Categories</h1>
-            <button onclick="showAddModal()" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">
-                Add Category
-            </button>
+            <div class="flex items-center justify-between">
+                <button onclick="showAddModal()" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">
+                    Add Category
+                </button>
+                <a href="../features/archive_categories_table.php" class="text-blue-500 hover:text-blue-700">
+                    <i class="fas fa-archive mr-2"></i>View Archived Categories</a>
+            </div>
         </div>
 
         <div class="mb-6">
@@ -212,10 +216,14 @@ if (!$result) {
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            location.reload();
+                            window.location.href = '../features/archive_categories_table.php';
                         } else {
-                            alert('Error archiving category');
+                            alert('Error archiving category: ' + (data.error || 'Unknown error'));
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error archiving category');
                     });
             }
         }
