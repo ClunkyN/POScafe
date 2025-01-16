@@ -1,5 +1,4 @@
 <?php
-session_start();
 include "../conn/connection.php";
 
 $query = "SELECT * FROM products";
@@ -31,10 +30,12 @@ if (!$result) {
     <main class="ml-[230px] mt-[171px] p-6">
         <div class="flex flex-col justify-between items-start mb-6">
             <h1 class="text-2xl font-bold mb-4">Products</h1>
-            <a href="../features/archive_products_table.php">archive products</a>
-            <button onclick="showAddModal()" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">
-                Add New Product
-            </button>
+            <div class="flex items-center space-x-4">    
+                <button onclick="showAddModal()" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">
+                    Add New Product
+                </button>
+                <a class="" href="../features/archive_products_table.php">archived products</a>
+            </div>
         </div>
 
         <div class="mb-6">
@@ -65,9 +66,9 @@ if (!$result) {
                             FROM products p 
                             LEFT JOIN categories c ON p.category_id = c.id
                             ORDER BY p.id DESC";
-                            
+
                             $result = mysqli_query($con, $query);
-                            
+
                             if (!$result) {
                                 throw new Exception(mysqli_error($con));
                             }
@@ -76,34 +77,34 @@ if (!$result) {
                             error_log("Database Error: " . $e->getMessage());
                             $result = false;
                         }
-                        
+
                         if ($result && mysqli_num_rows($result) > 0) {
                             while ($row = mysqli_fetch_assoc($result)) {
                         ?>
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-4 px-6 border-r border-black">
-                                    <?php echo htmlspecialchars($row['product_name']); ?>
-                                </td>
-                                <td class="py-4 px-6 border-r border-black">
-                                    <?php echo htmlspecialchars($row['category_name']); ?>
-                                </td>
-                                <td class="py-4 px-6 border-r border-black">
-                                    ₱<?php echo number_format($row['price'], 2); ?>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <div class="flex justify-center space-x-2">
-                                        <button onclick="editProduct(<?php echo $row['id']; ?>)" 
-                                            class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
-                                            Edit
-                                        </button>
-                                        <button onclick="archiveProduct(<?php echo $row['id']; ?>)" 
-                                            class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
-                                            Archive
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php 
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-4 px-6 border-r border-black">
+                                        <?php echo htmlspecialchars($row['product_name']); ?>
+                                    </td>
+                                    <td class="py-4 px-6 border-r border-black">
+                                        <?php echo htmlspecialchars($row['category_name']); ?>
+                                    </td>
+                                    <td class="py-4 px-6 border-r border-black">
+                                        ₱<?php echo number_format($row['price'], 2); ?>
+                                    </td>
+                                    <td class="py-4 px-6">
+                                        <div class="flex justify-center space-x-2">
+                                            <button onclick="editProduct(<?php echo $row['id']; ?>)"
+                                                class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
+                                                Edit
+                                            </button>
+                                            <button onclick="archiveProduct(<?php echo $row['id']; ?>)"
+                                                class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                                Archive
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                        <?php
                             }
                         } else {
                             echo "<tr><td colspan='4' class='py-4 px-6 text-center'>No products found</td></tr>";
@@ -203,22 +204,22 @@ if (!$result) {
         function archiveProduct(id) {
             if (confirm('Are you sure you want to archive this product?')) {
                 fetch('../endpoint/archive_product.php', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        id: id
-                    }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = 'archive_products_table.php';
-                    } else {
-                        alert('Error archiving product');
-                    }
-                });
+                        method: 'POST',
+                        body: JSON.stringify({
+                            id: id
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = 'archive_products_table.php';
+                        } else {
+                            alert('Error archiving product');
+                        }
+                    });
             }
         }
 

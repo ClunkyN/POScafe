@@ -1,4 +1,5 @@
 <?php
+session_start();
 include "../conn/connection.php";
 
 // Get username from database
@@ -23,7 +24,7 @@ if ($result && $user = mysqli_fetch_assoc($result)) {
 <div class="fixed top-0 right-0 h-[171px] w-[1920px] bg-[#C2A47E] shadow-md flex justify-between items-center px-8">
     <!-- Logo Section -->
     <div class="flex items-center">
-        <img src="../img/header_logo.svg" alt="Cafe Logo" class="object-cover">
+        <img src="../assets/header_logo.svg" alt="Cafe Logo" class="object-cover">
     </div>
 
     <!-- User Profile Dropdown -->
