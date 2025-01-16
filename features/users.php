@@ -43,7 +43,6 @@ $user_data = check_login($con);
             <table class="min-w-full bg-white border-4 border-black rounded-md">
                 <thead class="bg-[#C2A47E] text-black">
                     <tr>
-                        <th class="py-3 px-6 text-left border-r border-[#A88B68]">ID</th>
                         <th class="py-3 px-6 text-left border-r border-[#A88B68]">First Name</th>
                         <th class="py-3 px-6 text-left border-r border-[#A88B68]">Last Name</th>
                         <th class="py-3 px-6 text-left border-r border-[#A88B68]">Username</th>
