@@ -44,70 +44,71 @@ if (!$result) {
 
         <div class="space-y-6">
             <div class="overflow-x-auto rounded-md">
-                <h2 class="text-xl font-bold mb-4">Products List</h2>
                 <table class="min-w-full bg-white border-4 border-black rounded-md">
                     <thead class="bg-[#C2A47E] text-black">
                         <tr>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Product Name</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Category</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Price</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Stock</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Status</th>
-                            <th class="py-3 px-6 text-center">Action</th>
+                            <th class="py-3 px-6 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         <?php
                         try {
-                            $query = "SELECT p.*, c.category_name, 
-                                      CASE WHEN ap.id IS NOT NULL THEN 1 ELSE 0 END as is_archived 
-                                      FROM products p 
-                                      LEFT JOIN categories c ON p.category_id = c.id
-                                      LEFT JOIN archive_products ap ON p.id = ap.id";
+                            $query = "SELECT 
+                                p.id,
+                                p.product_name,
+                                p.category_id,
+                                p.price,
+                                c.category_name
+                            FROM products p 
+                            LEFT JOIN categories c ON p.category_id = c.id
+                            ORDER BY p.id DESC";
+                            
                             $result = mysqli_query($con, $query);
                             
                             if (!$result) {
                                 throw new Exception(mysqli_error($con));
                             }
                         } catch (Exception $e) {
-                            echo "<div class='text-red-500 p-4'>Error: Unable to fetch products. Please ensure database tables are properly set up.</div>";
+                            echo "<div class='text-red-500 p-4'>Error: Unable to fetch products.</div>";
                             error_log("Database Error: " . $e->getMessage());
                             $result = false;
                         }
+                        
                         if ($result && mysqli_num_rows($result) > 0) {
                             while ($row = mysqli_fetch_assoc($result)) {
-                                $rowClass = $row['is_archived'] ? 'bg-gray-200 text-gray-600' : 'hover:bg-gray-50';
                         ?>
-                                <tr class="<?php echo $rowClass; ?>">
-                                    <td class="py-4 px-6 border-r border-black"><?php echo $row['product_name']; ?></td>
-                                    <td class="py-4 px-6 border-r border-black"><?php echo $row['category_name']; ?></td>
-                                    <td class="py-4 px-6 border-r border-black">₱<?php echo number_format($row['price'], 2); ?></td>
-                                    <td class="py-4 px-6 border-r border-black"><?php echo $row['stock']; ?></td>
-                                    <td class="py-4 px-6 border-r border-black">
-                                        <?php echo $row['is_archived'] ? 'Archived' : 'Active'; ?>
-                                    </td>
-                                    <td class="py-4 px-6">
-                                        <div class="flex justify-center gap-2">
-                                            <?php if (!$row['is_archived']) { ?>
-                                                <button onclick="editProduct(<?php echo $row['id']; ?>)"
-                                                    class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
-                                                    Edit
-                                                </button>
-                                                <button onclick="archiveProduct(<?php echo $row['id']; ?>)"
-                                                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
-                                                    Archive
-                                                </button>
-                                            <?php } else { ?>
-                                                <button onclick="unarchiveProduct(<?php echo $row['id']; ?>)"
-                                                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
-                                                    Unarchive
-                                                </button>
-                                            <?php } ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                        <?php }
-                        } ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-4 px-6 border-r border-black">
+                                    <?php echo htmlspecialchars($row['product_name']); ?>
+                                </td>
+                                <td class="py-4 px-6 border-r border-black">
+                                    <?php echo htmlspecialchars($row['category_name']); ?>
+                                </td>
+                                <td class="py-4 px-6 border-r border-black">
+                                    ₱<?php echo number_format($row['price'], 2); ?>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="flex justify-center space-x-2">
+                                        <button onclick="editProduct(<?php echo $row['id']; ?>)" 
+                                            class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
+                                            Edit
+                                        </button>
+                                        <button onclick="archiveProduct(<?php echo $row['id']; ?>)" 
+                                            class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                            Archive
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php 
+                            }
+                        } else {
+                            echo "<tr><td colspan='4' class='py-4 px-6 text-center'>No products found</td></tr>";
+                        }
+                        ?>
                     </tbody>
                 </table>
             </div>
@@ -145,12 +146,6 @@ if (!$result) {
                         class="w-full p-2 border border-gray-300 rounded">
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium">Stock</label>
-                    <input type="number" id="stock" name="stock" required
-                        class="w-full p-2 border border-gray-300 rounded">
-                </div>
-
                 <div class="flex justify-end gap-2 mt-4">
                     <button type="button" onclick="closeModal()"
                         class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Cancel</button>
@@ -177,7 +172,6 @@ if (!$result) {
                     document.getElementById('product_name').value = data.product_name;
                     document.getElementById('category_id').value = data.category_id;
                     document.getElementById('price').value = data.price;
-                    document.getElementById('stock').value = data.stock;
                     document.getElementById('productModal').classList.remove('hidden');
                 });
         }

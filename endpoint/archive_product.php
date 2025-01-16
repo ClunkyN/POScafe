@@ -16,10 +16,10 @@ if(isset($data['id'])) {
         
         // Insert into archive_products
         $insert = "INSERT INTO archive_products 
-                  (id, product_name, category_id, price, stock, category_name) 
+                  (id, product_name, category_id, price, category_name) 
                   VALUES ('$id', '{$product['product_name']}', 
                           '{$product['category_id']}', '{$product['price']}', 
-                          '{$product['stock']}', '{$product['category_name']}')";
+                          '{$product['category_name']}')";
         mysqli_query($con, $insert);
         
         // Delete from products

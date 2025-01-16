@@ -27,7 +27,6 @@ try {
         ap.product_name,
         ap.category_id,
         ap.price,
-        ap.stock,
         c.category_name,  
         ap.archived_at
     FROM archive_products ap
@@ -98,7 +97,6 @@ try {
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Product Name</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Category</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Price</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Stock</th>
                             <th class="py-3 px-6 text-center">Action</th>
                         </tr>
                     </thead>
@@ -115,9 +113,6 @@ try {
                                     <td class="py-4 px-6 border-r border-black">
                                         ₱<?php echo number_format($product['price'], 2); ?>
                                     </td>
-                                    <td class="py-4 px-6 border-r border-black">
-                                        <?php echo htmlspecialchars($product['stock']); ?>
-                                    </td>
                                     <td class="py-4 px-6">
                                         <div class="flex justify-center">
                                             <button onclick="restoreProduct(<?php echo $product['id']; ?>)"
@@ -130,7 +125,7 @@ try {
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="5" class="py-4 px-6 text-center text-gray-500">
+                                <td colspan="4" class="py-4 px-6 text-center text-gray-500">
                                     No archived products found
                                 </td>
                             </tr>
