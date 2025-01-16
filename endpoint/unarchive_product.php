@@ -9,6 +9,20 @@ if(isset($data['id'])) {
     
     mysqli_begin_transaction($con);
     try {
+        // Get archived product data first
+        $select = "SELECT * FROM archive_products WHERE id = '$id'";
+        $result = mysqli_query($con, $select);
+        $product = mysqli_fetch_assoc($result);
+        
+        // Insert back into products
+        $insert = "INSERT INTO products 
+                  (id, product_name, category_id, price, stock) 
+                  VALUES ('$id', '{$product['product_name']}', 
+                          '{$product['category_id']}', '{$product['price']}', 
+                          '{$product['stock']}')";
+        mysqli_query($con, $insert);
+        
+        // Delete from archive_products
         $delete = "DELETE FROM archive_products WHERE id = '$id'";
         mysqli_query($con, $delete);
         
@@ -19,4 +33,5 @@ if(isset($data['id'])) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
+mysqli_close($con);
 ?>

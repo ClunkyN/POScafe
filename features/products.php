@@ -31,6 +31,7 @@ if (!$result) {
     <main class="ml-[230px] mt-[171px] p-6">
         <div class="flex flex-col justify-between items-start mb-6">
             <h1 class="text-2xl font-bold mb-4">Products</h1>
+            <a href="../features/archive_products_table.php">archive products</a>
             <button onclick="showAddModal()" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">
                 Add New Product
             </button>
@@ -208,22 +209,22 @@ if (!$result) {
         function archiveProduct(id) {
             if (confirm('Are you sure you want to archive this product?')) {
                 fetch('../endpoint/archive_product.php', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            id: id
-                        }),
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert('Error archiving product');
-                        }
-                    });
+                    method: 'POST',
+                    body: JSON.stringify({
+                        id: id
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = 'archive_products_table.php';
+                    } else {
+                        alert('Error archiving product');
+                    }
+                });
             }
         }
 
