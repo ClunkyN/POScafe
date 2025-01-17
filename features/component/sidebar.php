@@ -6,7 +6,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
         <?php echo ($current_page == 'admin_dashboard.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">
         Dashboard</a>
-    <a href="#" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all">Order</a>
+    <a href="../features/order_tab.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all">Order</a>
 
     <div class="bg-[#F2DBBE] px-6 pt-5 pb-2 text-gray-400 text-xs font-bold tracking-wider">LISTS</div>
     <a href="../features/inventory.php" 
