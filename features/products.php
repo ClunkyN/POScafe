@@ -1,4 +1,5 @@
 <?php
+session_start();
 include "../conn/connection.php";
 
 $query = "SELECT * FROM products";

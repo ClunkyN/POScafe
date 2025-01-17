@@ -1,11 +1,6 @@
 <?php
 include "../conn/connection.php";
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    session_destroy();
-    exit();
-}
 
 try {
     // Get username from database
