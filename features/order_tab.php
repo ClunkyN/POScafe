@@ -56,7 +56,7 @@ include "../conn/connection.php";
                             </div>
 
                             <div class="flex justify-end">
-                                <button type="button" id="pay-btn" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-6 py-2 text-sm rounded-md">
+                                <button type="button" id="pay-btn" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-[#543A14] px-6 py-2 text-sm rounded-md">
                                     Pay
                                 </button>
                             </div>
@@ -73,14 +73,14 @@ include "../conn/connection.php";
                         <div class="col-span-2 border-r border-[#C2A47E] pr-4">
                             <h2 class="text-lg font-bold mb-3">Categories</h2>
                             <div class="flex flex-col space-y-2 overflow-y-auto h-[calc(100vh-450px)]">
-                                <button class="category-btn bg-[#F0BB78] hover:bg-[#C2A47E] text-white p-3 rounded text-left text-sm"
+                                <button class="category-btn bg-[#543A14] hover:bg-[#C2A47E] text-white p-3 rounded text-left text-sm"
                                     data-category="all">All Categories</button>
                                 <?php
                                 $cat_query = "SELECT * FROM categories WHERE id NOT IN (SELECT id FROM archive_categories)";
                                 $cat_result = mysqli_query($con, $cat_query);
                                 while ($category = mysqli_fetch_assoc($cat_result)):
                                 ?>
-                                    <button class="category-btn bg-[#F0BB78] hover:bg-[#C2A47E] text-white p-3 rounded text-left text-sm"
+                                    <button class="category-btn bg-[#543A14] hover:bg-[#C2A47E] text-white p-3 rounded text-left text-sm"
                                         data-category="<?php echo $category['id']; ?>">
                                         <?php echo htmlspecialchars($category['category_name']); ?>
                                     </button>
@@ -100,7 +100,7 @@ include "../conn/connection.php";
                                 $result = mysqli_query($con, $query);
                                 while ($product = mysqli_fetch_assoc($result)):
                                 ?>
-                                    <div class="product-item cursor-pointer bg-[#F0BB78] hover:bg-[#C2A47E] text-white rounded p-3 text-center"
+                                    <div class="product-item cursor-pointer bg-[#543A14] hover:bg-[#C2A47E] text-white rounded p-3 text-center"
                                         data-json='<?php echo json_encode($product); ?>'
                                         data-category="<?php echo $product['category_id']; ?>">
                                         <span class="font-bold text-sm block">
