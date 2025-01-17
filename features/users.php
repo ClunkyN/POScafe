@@ -42,9 +42,7 @@ if (!$result) {
     <main class="ml-[230px] mt-[171px] p-6">
         <div class="flex flex-col justify-between items-start mb-6">
             <h1 class="text-2xl font-bold mb-4">Users</h1>
-            <button onclick="showAddModal()" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">
-                Add User
-            </button>
+            
         </div>
 
         <!-- Search bar -->
@@ -134,11 +132,6 @@ if (!$result) {
     </div>
 
     <script>
-        function showAddModal() {
-            document.getElementById('modalTitle').textContent = 'Add User';
-            document.getElementById('userForm').reset();
-            document.getElementById('userModal').classList.remove('hidden');
-        }
 
         function editUser(id) {
             document.getElementById('modalTitle').textContent = 'Edit User';
