@@ -1,22 +1,34 @@
 <?php
 include "../conn/connection.php";
 
-// Get username from database
-$user_id = $_SESSION['user_id'];
-$query = "SELECT user_name, role FROM user_db WHERE user_id = ?";
-$stmt = mysqli_prepare($con, $query);
-mysqli_stmt_bind_param($stmt, "s", $user_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    session_destroy();
+    exit();
+}
 
-// Default username if query fails
-$username = "User";
-$role = "Guest";
+try {
+    // Get username from database
+    $query = "SELECT user_name, role FROM user_db WHERE user_id = ?";
+    $user_id = $_SESSION['user_id'];
+    $stmt = mysqli_prepare($con, $query);
+    
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "s", $user_id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
 
+        // Default username if query fails
+        $username = "User";
+        $role = "Guest";
 
-if ($result && $user = mysqli_fetch_assoc($result)) {
-    $username = $user['user_name'];
-    $role = ucfirst(strtolower($user['role']));
+        if ($result && $user = mysqli_fetch_assoc($result)) {
+            $username = $user['user_name'];
+            $role = ucfirst(strtolower($user['role']));
+        }
+    }
+} catch (Exception $e) {
+    error_log("Error in topbar: " . $e->getMessage());
 }
 ?>
 
