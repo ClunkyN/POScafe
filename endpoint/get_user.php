@@ -1,17 +1,18 @@
 <?php
 include "../conn/connection.php";
-header('Content-Type: application/json');
 
-if(isset($_GET['user_id'])) {
-    $user_id = mysqli_real_escape_string($con, $_GET['user_id']);
-    $query = "SELECT * FROM user_db WHERE user_id = '$user_id'";
+if (isset($_GET['id'])) {
+    $id = intval($_GET['id']);
+    $query = "SELECT * FROM user_db WHERE user_id = $id";
     $result = mysqli_query($con, $query);
-    
-    if($result && mysqli_num_rows($result) > 0) {
-        echo json_encode(mysqli_fetch_assoc($result));
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        $user = mysqli_fetch_assoc($result);
+        echo json_encode($user);
     } else {
-        echo json_encode(['error' => 'User not found']);
+        echo json_encode(['success' => false, 'error' => 'User not found']);
     }
+} else {
+    echo json_encode(['success' => false, 'error' => 'Invalid request']);
 }
-mysqli_close($con);
 ?>

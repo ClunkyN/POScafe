@@ -83,11 +83,6 @@ if (!$result) {
                                                     class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
                                                     Archive
                                                 </button>
-                                            <?php } else { ?>
-                                                <button onclick="unarchiveUser(<?php echo $row['user_id']; ?>)"
-                                                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
-                                                    Unarchive
-                                                </button>
                                             <?php } ?>
                                         </div>
                                     </td>
@@ -127,8 +122,11 @@ if (!$result) {
 
                 <div>
                     <label class="block text-sm font-medium">Role</label>
-                    <input type="text" id="role" name="role" required
+                    <select id="role" name="role" required
                         class="w-full p-2 border border-gray-300 rounded">
+                        <option value="Admin">Admin</option>
+                        <option value="Employee">Employee</option>
+                    </select>
                 </div>
 
                 <div>
@@ -148,7 +146,6 @@ if (!$result) {
     </div>
 
     <script>
-
         function editUser(id) {
             document.getElementById('modalTitle').textContent = 'Edit User';
             fetch(`../endpoint/get_user.php?id=${id}`)
@@ -158,9 +155,13 @@ if (!$result) {
                     document.getElementById('fname').value = data.fname;
                     document.getElementById('lname').value = data.lname;
                     document.getElementById('user_name').value = data.user_name;
-                    document.getElementById('role').value = data.role;
+                    document.getElementById('role').value = data.role; // Set dropdown value
                     document.getElementById('email').value = data.email;
                     document.getElementById('userModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error fetching user details:', error);
+                    alert('Failed to fetch user details.');
                 });
         }
 
@@ -168,70 +169,48 @@ if (!$result) {
             document.getElementById('userModal').classList.add('hidden');
         }
 
-        document.getElementById('userForm').addEventListener('submit', function(e) {
+        document.getElementById('userForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const formData = new FormData(this);
-            const isAdd = !formData.get('user_id');
 
-            fetch(`../endpoint/${isAdd ? 'add_user' : 'update_user'}.php`, {
-                    method: 'POST',
-                    body: formData
-                })
+            fetch('../endpoint/update_user.php', {
+                method: 'POST',
+                body: formData
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         closeModal();
-                        location.reload();
+                        location.reload(); // Refresh to show updated data
                     } else {
-                        alert('Error saving user');
+                        alert(`Error: ${data.error || 'Unknown error'}`);
                     }
+                })
+                .catch(error => {
+                    console.error('Error during form submission:', error);
+                    alert('An error occurred while saving changes.');
                 });
         });
 
         function archiveUser(id) {
             if (confirm('Are you sure you want to archive this user?')) {
                 fetch('../endpoint/archive_user.php', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            id: id
-                        }),
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
+                    method: 'POST',
+                    body: JSON.stringify({ user_id: id }),
+                    headers: { 'Content-Type': 'application/json' }
+                })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            // Redirect to archive_users_table.php after successful archiving
                             window.location.href = '../features/archive_users_table.php';
                         } else {
-                            alert('Error archiving user: ' + (data.error || 'Unknown error'));
+                            alert(`Error: ${data.error || 'Unknown error'}`);
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error archiving user');
-                    });
-            }
-        }
-
-        function unarchiveUser(id) {
-            if (confirm('Are you sure you want to unarchive this user?')) {
-                fetch('../endpoint/unarchive_user.php', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            id: id
-                        }),
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert('Error unarchiving user');
-                        }
+                        alert('An error occurred while archiving the user.');
                     });
             }
         }
