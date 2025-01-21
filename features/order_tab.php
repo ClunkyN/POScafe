@@ -31,9 +31,26 @@ include "../conn/connection.php";
                         </a>
                     </div>
                     <form id="manage-order" class="space-y-4">
-                        <div class="bg-[#543A14] p-3 rounded flex items-center">
-                            <label class="text-sm font-medium text-white text-center w-24">Order No.</label>
-                            <input type="number" name="order_number" class="flex-1 p-2 text-sm border rounded" required>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-[#543A14] p-3 rounded flex items-center">
+                                <label class="text-sm font-medium text-white text-center w-24">Order No.</label>
+                                <input type="number" name="order_number" class="flex-1 p-2 text-sm border rounded" required>
+                            </div>
+                            <div class="bg-[#543A14] p-3 rounded flex items-center">
+                                <label class="text-sm font-medium text-white text-center w-24">Customer</label>
+                                <select name="customer_id" class="flex-1 p-2 text-sm border rounded">
+                                    <option value="">Select Customer</option>
+                                    <?php
+                                    $customer_query = "SELECT * FROM customers WHERE id NOT IN (SELECT id FROM archive_customers)";
+                                    $customer_result = mysqli_query($con, $customer_query);
+                                    while ($customer = mysqli_fetch_assoc($customer_result)):
+                                    ?>
+                                        <option value="<?php echo $customer['id']; ?>">
+                                            <?php echo htmlspecialchars($customer['name']); ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
                         </div>
                         <div class="overflow-y-auto h-[calc(100vh-450px)]" id="order-items">
                             <table class="w-full text-sm border-2 border-black">
@@ -249,40 +266,63 @@ include "../conn/connection.php";
             $('#change-amount').val(`₱${change.toFixed(2)}`);
         });
 
+        // Update the processPayment function in your script tag
+
+        // Update processPayment validation
         function processPayment() {
             const tendered = parseFloat($('#amount-tendered').val()) || 0;
+            const orderNumber = $('input[name="order_number"]').val();
+
+            if (!orderNumber) {
+                alert('Please enter order number');
+                return;
+            }
 
             if (tendered < total) {
                 alert('Insufficient amount');
                 return;
             }
 
-            // Submit order data
+            // Format data for submission
+            const formData = {
+                customer_id: $('select[name="customer_id"]').val() || null, // Make customer optional
+                order_number: orderNumber,
+                order_items: JSON.stringify(orderItems),
+                total_amount: total,
+                amount_tendered: tendered
+            };
+
             $.ajax({
                 url: '../endpoint/save_order.php',
                 method: 'POST',
-                data: {
-                    order_items: orderItems,
-                    total_amount: total,
-                    amount_tendered: tendered
-                },
+                data: formData,
+                dataType: 'json',
                 success: function(response) {
+                    console.log('Response:', response);
                     if (response.success) {
                         alert('Order completed successfully');
                         orderItems = [];
                         updateOrderDisplay();
                         closePaymentModal();
+                        // Optional: Redirect or refresh
+                        window.location.reload();
                     } else {
-                        alert('Error processing order');
+                        alert(response.message || 'Error processing order');
                     }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    console.log('Status:', status);
+                    console.log('Response:', xhr.responseText);
+                    alert('Error processing order. Please check console for details.');
                 }
             });
         }
 
         // Category filter functionality
         $('.category-btn').click(function() {
-            $('.category-btn').removeClass('bg-[#C2A47E]').addClass('bg-[#F0BB78]');
-            $(this).removeClass('bg-[#F0BB78]').addClass('bg-[#C2A47E]');
+            $('.category-btn').removeClass('bg-[#C2A47E]').addClass('bg-[#543A14]');
+            $(this).removeClass('bg-[#543A14]').addClass('bg-[#C2A47E]');
 
             const categoryId = $(this).data('category');
 
