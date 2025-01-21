@@ -2,28 +2,72 @@
 session_start();
 include "../conn/connection.php";
 
+// Enable full error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Debug connection
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+echo "<!-- Database connection successful -->";
+
+// Test if we can query the database at all
+$test_query = "SHOW TABLES";
+$test_result = mysqli_query($con, $test_query);
+if (!$test_result) {
+    die("Cannot query database: " . mysqli_error($con));
+}
+echo "<!-- Database is queryable -->";
+
+// Verify the orders table exists
+$table_check = mysqli_query($con, "SELECT 1 FROM orders LIMIT 1");
+if (!$table_check) {
+    die("Orders table might not exist: " . mysqli_error($con));
+}
+echo "<!-- Orders table exists -->";
+
 $month = isset($_GET['month']) ? $_GET['month'] : date('Y-m');
 
-// Get orders for current month
-$query = "SELECT * FROM orders 
-          WHERE DATE_FORMAT(date_created,'%Y-%m') = ? 
-          ORDER BY date_created DESC";
-$stmt = mysqli_prepare($con, $query);
-mysqli_stmt_bind_param($stmt, "s", $month);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
+// Let's first check if there are any records at all
+$count_query = "SELECT COUNT(*) as total FROM orders";
+$count_result = mysqli_query($con, $count_query);
+if ($count_result) {
+    $count_row = mysqli_fetch_assoc($count_result);
+    echo "<!-- Total records in orders table: " . $count_row['total'] . " -->";
+}
+
+// Modified query with error checking
+$query = "SELECT 
+            o.*,
+            DATE_FORMAT(o.date_created, '%M %d, %Y') as formatted_date
+          FROM orders o 
+          ORDER BY o.date_created DESC";
+
+echo "<!-- Executing query: " . htmlspecialchars($query) . " -->";
+
+$result = mysqli_query($con, $query);
+
+if (!$result) {
+    die("Query failed: " . mysqli_error($con));
+}
+
+$num_rows = mysqli_num_rows($result);
+echo "<!-- Number of rows returned: " . $num_rows . " -->";
 
 // Calculate total
 $total = 0;
-if ($result) {
+if ($result && $num_rows > 0) {
     while ($row = mysqli_fetch_assoc($result)) {
-        $total += $row['total_amount'];
+        echo "<!-- Processing row with order_number: " . htmlspecialchars($row['order_number']) . " -->";
+        $total += (float)$row['total_amount'];
     }
     mysqli_data_seek($result, 0);
+    echo "<!-- Total calculated: " . $total . " -->";
 }
+
 ?>
-
-
+<!-- Rest of your HTML remains the same -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -82,7 +126,7 @@ if ($result) {
                             <?php while($row = mysqli_fetch_assoc($result)): ?>
                                 <tr class="hover:bg-gray-50">
                                     <td class="py-4 px-6 border-r border-black">
-                                        <?php echo date("M d, Y", strtotime($row['date_created'])) ?>
+                                        <?php echo $row['formatted_date'] ?>
                                     </td>
                                     <td class="py-4 px-6 border-r border-black">
                                         <?php echo htmlspecialchars($row['ref_no']) ?>
