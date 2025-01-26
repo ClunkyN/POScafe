@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     // Email validation
     if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
-        $error_message[] = "Invalid email format";  
+        $error_message[] = "Invalid email format";
         $validationPassed = false;
     }
 
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     mysqli_stmt_bind_param($stmt, "s", $_POST['email']);
     mysqli_stmt_execute($stmt);
     mysqli_stmt_store_result($stmt);
-    if(mysqli_stmt_num_rows($stmt) > 0) {
+    if (mysqli_stmt_num_rows($stmt) > 0) {
         $error_message[] = "Email already registered";
         $validationPassed = false;
     }
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
         $passwordErrors[] = "Password must contain at least one special character";
     }
-    
+
     if (!empty($passwordErrors)) {
         $error_message = array_merge($error_message, $passwordErrors);
         $validationPassed = false;
@@ -97,17 +97,17 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if ($validationPassed) {
         $h_password = password_hash($password, PASSWORD_DEFAULT);
         $user_id = random_num(20);
-        
+
         $query = "INSERT INTO user_db (user_id, fname, lname, user_name, password, role, email) 
                  VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = mysqli_prepare($con, $query);
-        
+
         if (!$stmt) {
             error_log("Prepare failed: " . mysqli_error($con));
             $error_message[] = "Registration failed. Please try again.";
         } else {
             mysqli_stmt_bind_param($stmt, "sssssss", $user_id, $fname, $lname, $user_name, $h_password, $role, $_POST['email']);
-            
+
             if (mysqli_stmt_execute($stmt)) {
                 $_SESSION['success_message'] = "Account created successfully! Please login to continue.";
                 header("Location: ./employee_login.php");
@@ -129,6 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - POSCafe</title>
     <link rel="stylesheet" href="../src/output.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body class="bg-[#F2DBBE] min-h-screen">
@@ -146,12 +147,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 </div>
 
                 <!-- Add this after the form title -->
-                <?php if(!empty($error_message)): ?>
+                <?php if (!empty($error_message)): ?>
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        <?php 
-                            foreach($error_message as $error) {
-                                echo $error . "<br>";
-                            }
+                        <?php
+                        foreach ($error_message as $error) {
+                            echo $error . "<br>";
+                        }
                         ?>
                     </div>
                 <?php endif; ?>
@@ -163,6 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                             name="user_name"
                             id="user_name"
                             placeholder=""
+                            value="<?php echo isset($_POST['user_name']) ? trim($_POST['user_name']) : ''; ?>"
                             required
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
                     </div>
@@ -173,6 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                                 name="fname"
                                 id="fname"
                                 placeholder=""
+                                value="<?php echo isset($_POST['fname']) ? trim($_POST['fname']) : ''; ?>"
                                 required
                                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
                         </div>
@@ -183,6 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                                 name="lname"
                                 id="lname"
                                 placeholder=""
+                                value="<?php echo isset($_POST['lname']) ? trim($_POST['lname']) : ''; ?>"
                                 required
                                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
                         </div>
@@ -198,13 +202,16 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     </div>
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                        <input type="password"
-                            name="password"
-                            id="password"
-                            placeholder=""
-                            required
-                            onkeyup="checkPasswordStrength()"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
+                        <div class="flex items-center">
+                            <input type="password"
+                                name="password"
+                                id="password"
+                                placeholder=""
+                                required
+                                onkeyup="checkPasswordStrength()"
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
+                            <span> <i class="fa fa-eye" id="password-toggle" onclick="togglePassword('password')"></i></span>
+                        </div>
                         <div class="strength mt-1" id="strength-bar">
                             <span></span>
                         </div>
@@ -212,25 +219,29 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
                     <div>
                         <label for="cpassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-                        <input type="password"
-                            name="cpassword"
-                            id="cpassword"
-                            placeholder=""
-                            required
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
-                    </div>
+                        <div class="flex mb-4 items-center">
+                            <input type="password"
+                                name="cpassword"
+                                id="cpassword"
+                                placeholder=""
+                                required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
 
-                    <div>
-                        <button type="submit"
-                            class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
-                            Sign up
-                        </button>
-                    </div>
+                            <i class="fa fa-eye" id="cpassword-toggle" onclick="togglePassword('cpassword')"></i>
+                        </div>
+                        </di>
 
-                    <div class="text-start flex">
-                        <p>Have an account? </p>
-                        <a class="pl-2 underline text-blue-700" href="../features/employee_login.php" >Login here</a>
-                    </div>
+                        <div>
+                            <button type="submit"
+                                class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                                Sign up
+                            </button>
+                        </div>
+
+                        <div class="text-start flex">
+                            <p>Have an account? </p>
+                            <a class="pl-2 underline text-blue-700" href="../features/employee_login.php">Login here</a>
+                        </div>
                 </form>
             </div>
         </div>
@@ -238,101 +249,114 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 </body>
 
 </html>
-
-<!-- Add this JavaScript before closing body tag -->
 <script>
-function checkPasswordStrength() {
-    const password = document.getElementById('password').value;
-    const strengthBar = document.getElementById('strength-bar');
-    const confirmPassword = document.getElementById('cpassword');
-    let strength = 0;
-    let messages = [];
+    function checkPasswordStrength() {
+        const password = document.getElementById('password').value;
+        const strengthBar = document.getElementById('strength-bar');
+        const confirmPassword = document.getElementById('cpassword');
+        let strength = 0;
+        let messages = [];
 
-    // Reset strength bar
-    strengthBar.innerHTML = '';
+        // Reset strength bar
+        strengthBar.innerHTML = '';
 
-    // Check length
-    if (password.length >= 8) {
-        strength += 1;
-    } else {
-        messages.push('At least 8 characters');
-    }
+        // Check length
+        if (password.length >= 8) {
+            strength += 1;
+        } else {
+            messages.push('At least 8 characters');
+        }
 
-    // Check uppercase
-    if (password.match(/[A-Z]/)) {
-        strength += 1;
-    } else {
-        messages.push('One uppercase letter');
-    }
+        // Check uppercase
+        if (password.match(/[A-Z]/)) {
+            strength += 1;
+        } else {
+            messages.push('One uppercase letter');
+        }
 
-    // Check lowercase
-    if (password.match(/[a-z]/)) {
-        strength += 1;
-    } else {
-        messages.push('One lowercase letter');
-    }
+        // Check lowercase
+        if (password.match(/[a-z]/)) {
+            strength += 1;
+        } else {
+            messages.push('One lowercase letter');
+        }
 
-    // Check numbers
-    if (password.match(/[0-9]/)) {
-        strength += 1;
-    } else {
-        messages.push('One number');
-    }
+        // Check numbers
+        if (password.match(/[0-9]/)) {
+            strength += 1;
+        } else {
+            messages.push('One number');
+        }
 
-    // Check special characters
-    if (password.match(/[!@#$%^&*(),.?":{}|<>]/)) {
-        strength += 1;
-    } else {
-        messages.push('One special character');
-    }
+        // Check special characters
+        if (password.match(/[!@#$%^&*(),.?":{}|<>]/)) {
+            strength += 1;
+        } else {
+            messages.push('One special character');
+        }
 
-    // Update strength bar
-    let strengthText = '';
-    let strengthColor = '';
-    switch (strength) {
-        case 0:
-            strengthColor = '#ff0000';
-            strengthText = 'Very Weak';
-            break;
-        case 1:
-            strengthColor = '#ff4500';
-            strengthText = 'Weak';
-            break;
-        case 2:
-            strengthColor = '#ffa500';
-            strengthText = 'Fair';
-            break;
-        case 3:
-            strengthColor = '#9acd32';
-            strengthText = 'Good';
-            break;
-        case 4:
-            strengthColor = '#90ee90';
-            strengthText = 'Strong';
-            break;
-        case 5:
-            strengthColor = '#008000';
-            strengthText = 'Very Strong';
-            break;
-    }
+        // Update strength bar
+        let strengthText = '';
+        let strengthColor = '';
+        switch (strength) {
+            case 0:
+                strengthColor = '#ff0000';
+                strengthText = 'Very Weak';
+                break;
+            case 1:
+                strengthColor = '#ff4500';
+                strengthText = 'Weak';
+                break;
+            case 2:
+                strengthColor = '#ffa500';
+                strengthText = 'Fair';
+                break;
+            case 3:
+                strengthColor = '#9acd32';
+                strengthText = 'Good';
+                break;
+            case 4:
+                strengthColor = '#90ee90';
+                strengthText = 'Strong';
+                break;
+            case 5:
+                strengthColor = '#008000';
+                strengthText = 'Very Strong';
+                break;
+        }
 
-    strengthBar.innerHTML = `
+        strengthBar.innerHTML = `
         <div style="width: ${(strength/5)*100}%; background-color: ${strengthColor}; height: 5px; transition: all 0.3s;"></div>
         <div class="text-sm mt-1">${strengthText}</div>
         <div class="text-sm text-gray-600">${messages.length ? 'Required: ' + messages.join(', ') : ''}</div>
     `;
 
-    // Check password match
-    if (confirmPassword.value) {
-        if (password === confirmPassword.value) {
-            confirmPassword.style.borderColor = '#008000';
-        } else {
-            confirmPassword.style.borderColor = '#ff0000';
+        // Check password match
+        if (confirmPassword.value) {
+            if (password === confirmPassword.value) {
+                confirmPassword.style.borderColor = '#008000';
+            } else {
+                confirmPassword.style.borderColor = '#ff0000';
+            }
         }
     }
-}
 
-// Add event listeners
-document.getElementById('password').addEventListener('keyup', checkPasswordStrength);
-document.getElementById('cpassword').addEventListener('keyup', checkPasswordStrength);
+    // Add event listeners
+    document.getElementById('password').addEventListener('keyup', checkPasswordStrength);
+    document.getElementById('cpassword').addEventListener('keyup', checkPasswordStrength);
+
+    function togglePassword(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(inputId + '-toggle');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
 </script>

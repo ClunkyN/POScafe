@@ -13,7 +13,7 @@
         </div>
         <div class="flex justify-end items-center px-6 gap-4 pr-10">
             <ol class="px-6 text-2xl font-bold text-[#F2DBBE]"><a href="#">About Us</a></ol>
-            <button onclick="window.location.href='login.php'" class="bg-[#F2DBBE] h-[52px] w-[150px] rounded-xl text-2xl font-bold">
+            <button onclick="window.location.href='../features/employee_login.php'" class="bg-[#F2DBBE] h-[52px] w-[150px] rounded-xl text-2xl font-bold">
                 Login
             </button>
         </div>

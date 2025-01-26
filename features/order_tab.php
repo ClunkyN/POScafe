@@ -25,13 +25,13 @@ include "../conn/connection.php";
             <div class="col-span-1">
                 <div class="bg-[#FFF0DC] rounded-lg shadow-md p-4 border-2 border-[#C2A47E]">
                     <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-lg font-bold bg">Order List</h2>
+                        <h2 class="text-lg font-bold">Order List</h2>
                         <a href="../dashboard/admin_dashboard.php" class="bg-[#543A14] hover:bg-[#C2A47E] text-white px-3 py-2 rounded text-sm">
                             <i class="fas fa-home mr-1"></i> Home
                         </a>
                     </div>
                     <form id="manage-order" class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-2 gap-4 bg-[#543A14]">
                             <div class="bg-[#543A14] p-3 rounded flex items-center">
                                 <label class="text-sm font-medium text-white text-center w-24">Order No.</label>
                                 <input type="number" name="order_number" class="flex-1 p-2 text-sm border rounded" required>

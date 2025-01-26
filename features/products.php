@@ -35,7 +35,7 @@ if (!$result) {
                 <button onclick="showAddModal()" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">
                     Add New Product
                 </button>
-                <a class="" href="../features/archive_products_table.php">archived products</a>
+                <a class="underline text-blue-600" href="../features/archive_products_table.php">View Archived Products</a>
             </div>
         </div>
 
