@@ -2,7 +2,7 @@
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 <div class="fixed top-[171px] left-0 w-[230px] h-[calc(100vh-171px)] bg-[#F0BB78] py-5">
-    <a href="../features/admin_dashboard.php" 
+    <a href=".../dashboard/admin_dashboard.php" 
         class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
         <?php echo ($current_page == 'admin_dashboard.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">
         Dashboard</a>
