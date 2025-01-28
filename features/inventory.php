@@ -2,7 +2,20 @@
 session_start();
 include "../conn/connection.php";
 
-$query = "SELECT * FROM inventory WHERE id NOT IN (SELECT id FROM archive_inventory)";
+$limit = 6;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Get total count
+$countQuery = "SELECT COUNT(*) as total FROM inventory";
+$countResult = mysqli_query($con, $countQuery);
+$total = mysqli_fetch_assoc($countResult)['total'];
+$totalPages = ceil($total / $limit);
+
+$query = "SELECT i.*, CASE WHEN ai.id IS NOT NULL THEN 1 ELSE 0 END as is_archived 
+          FROM inventory i 
+          LEFT JOIN archive_inventory ai ON i.id = ai.id
+          LIMIT $limit OFFSET $offset";
 $result = mysqli_query($con, $query);
 
 if (!$result) {
@@ -94,6 +107,28 @@ if (!$result) {
                     </tbody>
                 </table>
             </div>
+        </div>
+        <div class="flex justify-center items-center mt-4 space-x-2">
+            <?php if ($page > 1): ?>
+                <a href="?page=1" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">First</a>
+                <a href="?page=<?php echo $page - 1; ?>" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Previous</a>
+            <?php endif; ?>
+
+            <?php
+            $start = max(1, $page - 2);
+            $end = min($totalPages, $page + 2);
+
+            for ($i = $start; $i <= $end; $i++): ?>
+                <a href="?page=<?php echo $i; ?>"
+                    class="px-4 py-2 rounded <?php echo $i == $page ? 'bg-[#C2A47E] text-white' : 'bg-[#F0BB78] hover:bg-[#C2A47E] text-white'; ?>">
+                    <?php echo $i; ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($page < $totalPages): ?>
+                <a href="?page=<?php echo $page + 1; ?>" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Next</a>
+                <a href="?page=<?php echo $totalPages; ?>" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Last</a>
+            <?php endif; ?>
         </div>
     </main>
 

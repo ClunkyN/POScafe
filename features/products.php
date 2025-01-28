@@ -20,7 +20,18 @@ mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $user = mysqli_fetch_assoc($result);
 
-$query = "SELECT * FROM products";
+// Add pagination setup
+$limit = 6;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Get total count without modifying main query
+$countQuery = "SELECT COUNT(*) as total FROM products";
+$countResult = mysqli_query($con, $countQuery);
+$total = mysqli_fetch_assoc($countResult)['total'];
+$totalPages = ceil($total / $limit);
+
+$query = "SELECT * FROM products LIMIT $limit OFFSET $offset";
 $result = mysqli_query($con, $query);
 
 if (!$result) {
@@ -88,7 +99,8 @@ if (!$result) {
                                 c.category_name
                             FROM products p 
                             LEFT JOIN categories c ON p.category_id = c.id
-                            ORDER BY p.id DESC";
+                            ORDER BY p.id DESC
+                            LIMIT $limit OFFSET $offset";
 
                             $result = mysqli_query($con, $query);
 
@@ -153,6 +165,28 @@ if (!$result) {
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <!-- Add this before closing main div -->
+        <div class="flex justify-center items-center mt-4 space-x-2">
+            <?php if ($page > 1): ?>
+                <a href="?page=1" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">First</a>
+            <?php endif; ?>
+
+            <?php
+            $start = max(1, $page - 2);
+            $end = min($totalPages, $page + 2);
+
+            for ($i = $start; $i <= $end; $i++): ?>
+                <a href="?page=<?php echo $i; ?>"
+                    class="px-4 py-2 rounded <?php echo $i == $page ? 'bg-[#C2A47E] text-white' : 'bg-[#F0BB78] hover:bg-[#C2A47E] text-white'; ?>">
+                    <?php echo $i; ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($page < $totalPages): ?>
+                <a href="?page=<?php echo $totalPages; ?>" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Last</a>
+            <?php endif; ?>
         </div>
     </main>
 

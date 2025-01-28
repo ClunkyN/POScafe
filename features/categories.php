@@ -2,6 +2,16 @@
 session_start();
 include "../conn/connection.php";
 
+$limit = 6;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Get total count
+$countQuery = "SELECT COUNT(*) as total FROM categories";
+$countResult = mysqli_query($con, $countQuery);
+$total = mysqli_fetch_assoc($countResult)['total'];
+$totalPages = ceil($total / $limit);
+
 // RBAC Check
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || 
     ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'employee')) {
@@ -20,7 +30,10 @@ mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $user = mysqli_fetch_assoc($result);
 
-$query = "SELECT * FROM categories";
+$query = "SELECT c.*, CASE WHEN ac.id IS NOT NULL THEN 1 ELSE 0 END as is_archived 
+          FROM categories c 
+          LEFT JOIN archive_categories ac ON c.id = ac.id
+          LIMIT $limit OFFSET $offset";
 $result = mysqli_query($con, $query);
 
 if (!$result) {
@@ -111,6 +124,28 @@ if (!$result) {
                     </tbody>
                 </table>
             </div>
+        </div>
+        <div class="flex justify-center items-center mt-4 space-x-2">
+            <?php if ($page > 1): ?>
+                <a href="?page=1" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">First</a>
+                <a href="?page=<?php echo $page - 1; ?>" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Previous</a>
+            <?php endif; ?>
+
+            <?php
+            $start = max(1, $page - 2);
+            $end = min($totalPages, $page + 2);
+
+            for ($i = $start; $i <= $end; $i++): ?>
+                <a href="?page=<?php echo $i; ?>"
+                    class="px-4 py-2 rounded <?php echo $i == $page ? 'bg-[#C2A47E] text-white' : 'bg-[#F0BB78] hover:bg-[#C2A47E] text-white'; ?>">
+                    <?php echo $i; ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($page < $totalPages): ?>
+                <a href="?page=<?php echo $page + 1; ?>" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Next</a>
+                <a href="?page=<?php echo $totalPages; ?>" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Last</a>
+            <?php endif; ?>
         </div>
     </main>
 
