@@ -1,6 +1,36 @@
 <?php
 session_start();
 include "../conn/connection.php";
+
+// Add this function at the top of the file
+function generateOrderNumber($con)
+{
+    $today = date('Ymd');
+
+    // Get the last order number for today
+    $query = "SELECT order_number 
+             FROM orders 
+             WHERE DATE(date_created) = CURDATE()
+             ORDER BY order_number DESC 
+             LIMIT 1";
+
+    $result = mysqli_query($con, $query);
+    $row = mysqli_fetch_assoc($result);
+
+    if ($row) {
+        // Extract sequence number and increment
+        $lastNumber = substr($row['order_number'], -3);
+        $sequence = str_pad((int)$lastNumber + 1, 3, '0', STR_PAD_LEFT);
+    } else {
+        // First order of the day
+        $sequence = '001';
+    }
+
+    return $today . '-' . $sequence;
+}
+
+// Get order number
+$orderNumber = generateOrderNumber($con);
 ?>
 
 <!DOCTYPE html>
@@ -34,7 +64,10 @@ include "../conn/connection.php";
                         <div class="grid grid-cols-2 gap-4 bg-[#543A14]">
                             <div class="bg-[#543A14] p-3 rounded flex items-center">
                                 <label class="text-sm font-medium text-white text-center w-24">Order No.</label>
-                                <input type="number" name="order_number" class="flex-1 p-2 text-sm border rounded" required>
+                                <input type="text" name="order_number"
+                                    value="<?php echo $orderNumber; ?>"
+                                    class="bg-gray-100 border border-gray-300 rounded px-3 py-2"
+                                    readonly>
                             </div>
                             <div class="bg-[#543A14] p-3 rounded flex items-center">
                                 <label class="text-sm font-medium text-white text-center w-24">Customer</label>
@@ -108,26 +141,42 @@ include "../conn/connection.php";
                         <!-- Products Column -->
                         <div class="col-span-3">
                             <h2 class="text-lg font-bold mb-3">Products</h2>
-                            <div class="grid grid-cols-2 gap-2 overflow-y-auto h-[400px] pr-2" id="products-grid">
-                                <?php
-                                $query = "SELECT p.*, c.category_name 
-                                         FROM products p 
-                                         JOIN categories c ON p.category_id = c.id 
-                                         WHERE p.id NOT IN (SELECT id FROM archive_products)";
-                                $result = mysqli_query($con, $query);
-                                while ($product = mysqli_fetch_assoc($result)):
-                                ?>
-                                    <!-- Update the product display to show stock -->
-                                    <div class="product-item cursor-pointer bg-[#543A14] hover:bg-[#C2A47E] text-white rounded p-3 text-center"
-                                        data-json='<?php echo json_encode($product); ?>'
-                                        data-category="<?php echo $product['category_id']; ?>">
-                                        <span class="font-bold text-sm block">
-                                            <?php echo htmlspecialchars($product['product_name']); ?>
-                                        </span>
-                                        <div class="text-xs">₱<?php echo number_format($product['price'], 2); ?></div>
-                                        <div class="text-xs"><?php echo $product['quantity'] > 0 ? "Stock: " . $product['quantity'] : "Out of Stock"; ?></div>
-                                    </div>
-                                <?php endwhile; ?>
+                            <div class="h-[calc(100vh-280px)] overflow-y-auto pr-2">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <?php
+                                    $query = "SELECT p.*, c.category_name 
+                                    FROM products p 
+                                    JOIN categories c ON p.category_id = c.id 
+                                    WHERE p.id NOT IN (SELECT id FROM archive_products)";
+                                    $result = mysqli_query($con, $query);
+                                    while ($product = mysqli_fetch_assoc($result)):
+                                    ?>
+                                        <div class="product-item w-[200px] h-[120px] cursor-pointer bg-[#543A14] hover:bg-[#C2A47E] text-white rounded-lg p-3"
+                                            onclick="addToOrder(<?php echo htmlspecialchars(json_encode($product)); ?>)"
+                                            data-category="<?php echo $product['category_id']; ?>">
+
+                                            <div class="h-full flex flex-col justify-between">
+                                                <div>
+                                                    <h3 class="font-bold text-sm truncate mb-1">
+                                                        <?php echo htmlspecialchars($product['product_name']); ?>
+                                                    </h3>
+                                                    <p class="text-xs text-gray-300 truncate">
+                                                        <?php echo htmlspecialchars($product['category_name']); ?>
+                                                    </p>
+                                                </div>
+
+                                                <div>
+                                                    <p class="text-lg font-bold mb-1">
+                                                        ₱<?php echo number_format($product['price'], 2); ?>
+                                                    </p>
+                                                    <p class="text-xs <?php echo $product['quantity'] > 0 ? 'text-green-300' : 'text-red-300'; ?>">
+                                                        <?php echo $product['quantity'] > 0 ? "Stock: " . $product['quantity'] : "Out of Stock"; ?>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endwhile; ?>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -180,10 +229,10 @@ include "../conn/connection.php";
         function addToOrder(product) {
             // Check if product already exists in order
             const existingItem = orderItems.find(item => item.id === product.id);
-            
+
             // Get current stock from product data
             const availableStock = parseInt(product.quantity);
-            
+
             if (availableStock <= 0) {
                 alert(`Sorry, ${product.product_name} is out of stock!`);
                 return;

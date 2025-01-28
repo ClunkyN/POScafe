@@ -225,8 +225,15 @@ if (!$result) {
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium">Quantity</label>
-                    <input type="number" id="edit_quantity" name="quantity" min="0" required class="w-full p-2 border border-gray-300 rounded">
+                    <label class="block text-sm font-medium">Available Quantity</label>
+                    <input type="number" id="edit_available_quantity" name="available_quantity" readonly 
+                        class="w-full p-2 border border-gray-300 rounded bg-gray-100">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium">Additional Quantity</label>
+                    <input type="number" id="edit_additional_quantity" name="additional_quantity" min="0" value="0"
+                        class="w-full p-2 border border-gray-300 rounded">
                 </div>
 
                 <div>
@@ -248,12 +255,12 @@ if (!$result) {
             fetch(`../endpoint/get_product.php?id=${id}`)
                 .then(response => response.json())
                 .then(data => {
-                    // Set basic product info
                     document.getElementById('edit_product_id').value = data.id;
                     document.getElementById('edit_product_name').value = data.product_name;
                     document.getElementById('edit_category_id').value = data.category_id;
                     document.getElementById('edit_price').value = data.price;
-                    document.getElementById('edit_quantity').value = data.quantity;
+                    document.getElementById('edit_available_quantity').value = data.quantity;
+                    document.getElementById('edit_additional_quantity').value = 0;
                     
                     // Clear existing items
                     document.getElementById('editItemsList').innerHTML = '';
@@ -328,6 +335,13 @@ if (!$result) {
             });
             
             formData.set('required_items', JSON.stringify(items));
+            
+            // Calculate total quantity
+            const availableQty = parseInt(document.getElementById('edit_available_quantity').value);
+            const additionalQty = parseInt(document.getElementById('edit_additional_quantity').value);
+            const totalQty = availableQty + additionalQty;
+            
+            formData.set('quantity', totalQty);
             
             fetch('../endpoint/update_product.php', {
                 method: 'POST',

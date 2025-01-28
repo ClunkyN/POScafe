@@ -11,11 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $quantity = mysqli_real_escape_string($con, $_POST['quantity']);
         $required_items = $_POST['required_items'];
 
-        // Validate JSON
-        if (!json_decode($required_items)) {
-            throw new Exception("Invalid required items format");
-        }
-
         $query = "UPDATE products SET 
                   product_name = ?,
                   category_id = ?,
@@ -33,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             throw new Exception(mysqli_error($con));
         }
     } catch (Exception $e) {
-        error_log("Error updating product: " . $e->getMessage());
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
