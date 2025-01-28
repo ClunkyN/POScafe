@@ -20,6 +20,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
             if(password_verify($password, $user_data['password'])) {
                 $_SESSION['user_id'] = $user_data['user_id'];
                 $_SESSION['role'] = 'admin'; // Set admin role in session
+                $_SESSION['user_role'] = 'admin'; // Add this line
                 header("Location: ../dashboard/admin_dashboard.php");
                 die;
             }

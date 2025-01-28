@@ -2,6 +2,26 @@
     session_start();
     include "../conn/connection.php";
 
+    // RBAC Check
+    if (
+        !isset($_SESSION['user_id']) || !isset($_SESSION['role']) ||
+        ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'employee')
+    ) {
+        session_unset();
+        session_destroy();
+        header("Location: ../features/homepage.php");
+        exit();
+    }
+
+    // Verify role from database
+    $user_id = $_SESSION['user_id'];
+    $query = "SELECT role FROM user_db WHERE user_id = ? AND (role = 'admin' OR role = 'employee')";
+    $stmt = mysqli_prepare($con, $query);
+    mysqli_stmt_bind_param($stmt, "s", $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $user = mysqli_fetch_assoc($result);
+
     // Enable error reporting
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
@@ -42,6 +62,7 @@
 
     <!DOCTYPE html>
     <html lang="en">
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,32 +88,32 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
+                        <?php
                         if (!empty($rows)) {
                             foreach ($rows as $row) {
                         ?>
-                            <tr class="hover:bg-gray-50 bg-[#FFF0DC]">
-                                <td class="py-4 px-6 border-r border-black">
-                                    <?php echo htmlspecialchars($row['formatted_date']); ?>
-                                </td>
-                                <td class="py-4 px-6 border-r border-black">
-                                    <?php echo htmlspecialchars($row['product_name']); ?>
-                                </td>
-                                <td class="py-4 px-6 border-r border-black">
-                                    <?php echo number_format($row['total_qty']); ?>
-                                </td>
-                                <td class="py-4 px-6 border-r border-black">
-                                    ₱<?php echo number_format($row['total_sales'], 2); ?>
-                                </td>
-                            </tr>
-                        <?php 
+                                <tr class="hover:bg-gray-50 bg-[#FFF0DC]">
+                                    <td class="py-4 px-6 border-r border-black">
+                                        <?php echo htmlspecialchars($row['formatted_date']); ?>
+                                    </td>
+                                    <td class="py-4 px-6 border-r border-black">
+                                        <?php echo htmlspecialchars($row['product_name']); ?>
+                                    </td>
+                                    <td class="py-4 px-6 border-r border-black">
+                                        <?php echo number_format($row['total_qty']); ?>
+                                    </td>
+                                    <td class="py-4 px-6 border-r border-black">
+                                        ₱<?php echo number_format($row['total_sales'], 2); ?>
+                                    </td>
+                                </tr>
+                            <?php
                             }
                         } else {
-                        ?>
+                            ?>
                             <tr>
                                 <td colspan="4" class="py-4 px-6 text-center">No sold items found</td>
                             </tr>
-                        <?php 
+                        <?php
                         }
                         ?>
                     </tbody>
@@ -108,4 +129,5 @@
             </div>
         </main>
     </body>
+
     </html>

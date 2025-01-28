@@ -2,22 +2,42 @@
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 <div class="fixed top-[171px] left-0 w-[230px] h-[calc(100vh-171px)] bg-[#F0BB78] py-5">
-    <a href=".../dashboard/admin_dashboard.php" 
-        class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
-        <?php echo ($current_page == 'admin_dashboard.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">
-        Dashboard</a>
+
+    <?php if (isset($_SESSION['role'])): ?>
+        <?php if ($_SESSION['role'] === 'admin'): ?>
+            <a href="../dashboard/admin_dashboard.php"
+                class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
+            <?php echo ($current_page == '../dashboard/admin_dashboard.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">
+                Admin Dashboard
+            </a>
+        <?php elseif ($_SESSION['role'] === 'employee'): ?>
+            <a href="../dashboard/employee_dashboard.php"
+                class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
+            <?php echo ($current_page == '../dashboard/employee_dashboard.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">
+                Employee Dashboard
+            </a>
+        <?php endif; ?>
+    <?php else: ?>
+        <?php
+        session_unset();
+        session_destroy();
+        header("Location: ../features/login.php");
+        exit();
+        ?>
+    <?php endif; ?>
+
     <a href="../features/order_tab.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all">Order</a>
 
     <div class="bg-[#F2DBBE] px-6 pt-5 pb-2 text-gray-400 text-xs font-bold tracking-wider">LISTS</div>
-    <a href="../features/inventory.php" 
+    <a href="../features/inventory.php"
         class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
         <?php echo ($current_page == 'inventory.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">
         Inventory</a>
-    <a href="../features/categories.php" 
+    <a href="../features/categories.php"
         class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
         <?php echo ($current_page == 'categories.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">
         Categories</a>
-    <a href="../features/products.php" 
+    <a href="../features/products.php"
         class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
         <?php echo ($current_page == 'add_products.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">
         Products</a>
@@ -31,6 +51,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <div class="bg-[#F2DBBE] px-6 pt-5 pb-2 text-gray-400 text-xs font-bold tracking-wider">PEOPLE</div>
     <a href="../features/customers.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
     <?php echo ($current_page == 'customers.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">Customers</a>
-    <a href="../features/users.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
-    <?php echo ($current_page == 'users.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">Users</a>
+    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+        <a href="../features/users.php" class="block px-6 py-4 text-black hover:bg-[#C2A47E] hover:pl-8 transition-all
+        <?php echo ($current_page == 'users.php') ? 'bg-[#C2A47E] outline outline-2 outline-black' : ''; ?>">
+            Users
+        </a>
+    <?php endif; ?>
 </div>

@@ -9,21 +9,38 @@ if(isset($data['id'])) {
     
     mysqli_begin_transaction($con);
     try {
-        // Get archived product data first
-        $select = "SELECT * FROM archive_products WHERE id = '$id'";
-        $result = mysqli_query($con, $select);
+        // Get archived product data
+        $select = "SELECT * FROM archive_products WHERE id = ?";
+        $stmt = mysqli_prepare($con, $select);
+        mysqli_stmt_bind_param($stmt, "i", $id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
         $product = mysqli_fetch_assoc($result);
-        
-        // Insert back into products
+
+        if (!$product) {
+            throw new Exception("Archived product not found");
+        }
+
+        // Insert back into products with all fields
         $insert = "INSERT INTO products 
-                  (id, product_name, category_id, price) 
-                  VALUES ('$id', '{$product['product_name']}', 
-                          '{$product['category_id']}', '{$product['price']}')";
-        mysqli_query($con, $insert);
+                  (id, product_name, category_id, price, quantity, required_items) 
+                  VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = mysqli_prepare($con, $insert);
+        mysqli_stmt_bind_param($stmt, "isidis",
+            $product['id'],
+            $product['product_name'],
+            $product['category_id'],
+            $product['price'],
+            $product['quantity'],
+            $product['required_items']
+        );
+        mysqli_stmt_execute($stmt);
         
         // Delete from archive_products
-        $delete = "DELETE FROM archive_products WHERE id = '$id'";
-        mysqli_query($con, $delete);
+        $delete = "DELETE FROM archive_products WHERE id = ?";
+        $stmt = mysqli_prepare($con, $delete);
+        mysqli_stmt_bind_param($stmt, "i", $id);
+        mysqli_stmt_execute($stmt);
         
         mysqli_commit($con);
         echo json_encode(['success' => true]);

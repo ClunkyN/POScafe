@@ -2,6 +2,23 @@
 session_start();
 include "../conn/connection.php";
 
+// Check if user is logged in and has admin role
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    session_unset();
+    session_destroy();
+    header("Location: ../features/admin_login.php");
+    exit();
+}
+
+// Double check admin role from database
+$user_id = $_SESSION['user_id'];
+$query = "SELECT role FROM user_db WHERE user_id = ? AND role = 'admin'";
+$stmt = mysqli_prepare($con, $query);
+mysqli_stmt_bind_param($stmt, "s", $user_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$user = mysqli_fetch_assoc($result);
+
 $query = "SELECT * FROM user_db";
 $result = mysqli_query($con, $query);
 

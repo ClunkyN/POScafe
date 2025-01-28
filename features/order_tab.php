@@ -2,7 +2,27 @@
 session_start();
 include "../conn/connection.php";
 
-// Add this function at the top of the file
+
+// RBAC Check
+if (
+    !isset($_SESSION['user_id']) || !isset($_SESSION['role']) ||
+    ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'employee')
+) {
+    session_unset();
+    session_destroy();
+    header("Location: ../features/homepage.php");
+    exit();
+}
+
+// Verify role from database
+$user_id = $_SESSION['user_id'];
+$query = "SELECT role FROM user_db WHERE user_id = ? AND (role = 'admin' OR role = 'employee')";
+$stmt = mysqli_prepare($con, $query);
+mysqli_stmt_bind_param($stmt, "s", $user_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$user = mysqli_fetch_assoc($result);
+
 function generateOrderNumber($con)
 {
     $today = date('Ymd');
@@ -62,9 +82,22 @@ $orderNumber = generateOrderNumber($con);
                 <div class="bg-[#FFF0DC] rounded-lg shadow-md p-4 border-2 border-[#C2A47E]">
                     <div class="flex justify-between items-center mb-3">
                         <h2 class="text-lg font-bold">Order List</h2>
-                        <a href="../dashboard/admin_dashboard.php" class="bg-[#543A14] hover:bg-[#C2A47E] text-white px-3 py-2 rounded text-sm">
-                            <i class="fas fa-home mr-1"></i> Home
-                        </a>
+                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
+                            <a href="../dashboard/admin_dashboard.php" class="bg-[#543A14] hover:bg-[#C2A47E] text-white px-3 py-2 rounded text-sm">
+                                <i class="fas fa-home mr-1"></i> Home
+                            </a>
+                        <?php elseif (isset($_SESSION['role']) && $_SESSION['role'] == 'employee'): ?>
+                            <a href="../dashboard/employee_dashboard.php" class="bg-[#543A14] hover:bg-[#C2A47E] text-white px-3 py-2 rounded text-sm">
+                                <i class="fas fa-home mr-1"></i> Home
+                            </a>
+                        <?php else: ?>
+                            <?php
+                            session_unset();
+                            session_destroy();
+                            header("Location: ../features/login.php");
+                            exit();
+                            ?>
+                        <?php endif; ?>
                     </div>
                     <form id="manage-order" class="space-y-4">
                         <div class="grid grid-cols-2 gap-4 bg-[#543A14]">
@@ -244,14 +277,14 @@ $orderNumber = generateOrderNumber($con);
             if (product.required_items) {
                 const items = JSON.parse(product.required_items);
                 let insufficientItems = [];
-                
+
                 // Calculate total required quantities
                 items.forEach(item => {
                     const totalNeeded = item.quantity; // Quantity needed per product
                     const existingOrderItem = orderItems.find(orderItem => orderItem.id === product.id);
                     const existingQuantity = existingOrderItem ? existingOrderItem.quantity : 0;
                     const additionalNeeded = totalNeeded * (existingQuantity + 1); // For current order + new addition
-                    
+
                     // Fetch current stock from inventory
                     fetch(`../endpoint/get_inventory_stock.php?id=${item.id}`)
                         .then(response => response.json())
@@ -397,8 +430,8 @@ $orderNumber = generateOrderNumber($con);
                 alert('Insufficient amount');
                 return;
             }
-            
-            
+
+
 
             // Check stock availability for all items
             let stockError = false;
@@ -435,23 +468,23 @@ $orderNumber = generateOrderNumber($con);
             } catch (error) {
                 console.error('Error generating receipt:', error);
             }
-            
+
             fetch('../endpoint/save_order.php', {
-                method: 'POST',
-                body: JSON.stringify(orderData),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    generateReceipt(orderData);
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                }
-            });
+                    method: 'POST',
+                    body: JSON.stringify(orderData),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        generateReceipt(orderData);
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    }
+                });
 
             $.ajax({
                 url: '../endpoint/save_order.php',

@@ -35,9 +35,11 @@ if (!$result) {
                 <button onclick="showAddModal()" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">
                     Add Item
                 </button>
-                <a href="../features/archive_inventory_table.php" class="text-blue-500 hover:text-blue-700">
-                    <i class="fas fa-archive mr-2"></i>View Archived Items
-                </a>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                    <a href="../features/archive_inventory_table.php" class="text-blue-500 hover:text-blue-700">
+                        <i class="fas fa-archive mr-2"></i>View Archived Items
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -76,15 +78,13 @@ if (!$result) {
                                                     class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
                                                     Edit
                                                 </button>
+                                                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                                                 <button onclick="archiveItem(<?php echo $row['id']; ?>)"
                                                     class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
                                                     Archive
                                                 </button>
+                                                <?php endif; ?>
                                             <?php } else { ?>
-                                                <button onclick="unarchiveItem(<?php echo $row['id']; ?>)"
-                                                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
-                                                    Unarchive
-                                                </button>
                                             <?php } ?>
                                         </div>
                                     </td>

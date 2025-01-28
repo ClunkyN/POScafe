@@ -2,6 +2,24 @@
 session_start();
 include "../conn/connection.php";
 
+// RBAC Check
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || 
+    ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'employee')) {
+    session_unset();
+    session_destroy();
+    header("Location: ../features/homepage.php");
+    exit();
+}
+
+// Verify role from database
+$user_id = $_SESSION['user_id'];
+$query = "SELECT role FROM user_db WHERE user_id = ? AND (role = 'admin' OR role = 'employee')";
+$stmt = mysqli_prepare($con, $query);
+mysqli_stmt_bind_param($stmt, "s", $user_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$user = mysqli_fetch_assoc($result);
+
 $query = "SELECT * FROM products";
 $result = mysqli_query($con, $query);
 
@@ -117,10 +135,12 @@ if (!$result) {
                                                 class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
                                                 Edit
                                             </button>
+                                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                                             <button onclick="archiveProduct(<?php echo $row['id']; ?>)"
                                                 class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
                                                 Archive
                                             </button>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>

@@ -1,6 +1,7 @@
 <?php
 session_start();
 include "../conn/connection.php";
+include "../endpoint/AdminAuth.php";
 
 // Prevent caching
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -8,7 +9,7 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 // Check if user is logged in and has admin role
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     session_unset();
     session_destroy();
     header("Location: ../features/admin_login.php");

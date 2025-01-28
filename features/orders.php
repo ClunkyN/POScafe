@@ -11,6 +11,25 @@ if (!$con) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
+// RBAC Check
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || 
+    ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'employee')) {
+    session_unset();
+    session_destroy();
+    header("Location: ../features/homepage.php");
+    exit();
+}
+
+// Verify role from database
+$user_id = $_SESSION['user_id'];
+$query = "SELECT role FROM user_db WHERE user_id = ? AND (role = 'admin' OR role = 'employee')";
+$stmt = mysqli_prepare($con, $query);
+mysqli_stmt_bind_param($stmt, "s", $user_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$user = mysqli_fetch_assoc($result);
+
+
 // Debug query to count orders
 $count_query = "SELECT COUNT(*) as count FROM orders";
 $count_result = mysqli_query($con, $count_query);
