@@ -9,52 +9,82 @@ try {
     $total_amount = $_POST['total_amount'];
     $amount_tendered = $_POST['amount_tendered'];
     $order_items = json_decode($_POST['order_items'], true);
-    $ref_no = 'REF-' . time() . '-' . rand(100, 999); // Generate unique ref_no
+    $ref_no = 'REF-' . time() . '-' . rand(100, 999);
 
     // Start transaction
     $con->begin_transaction();
 
-    // Insert order header with ref_no
+    // Insert order header
     $sql = "INSERT INTO orders (customer, ref_no, order_number, total_amount, amount_tendered, date_created) 
             VALUES (?, ?, ?, ?, ?, NOW())";
     $stmt = $con->prepare($sql);
     $stmt->bind_param("sssdd", $customer, $ref_no, $order_number, $total_amount, $amount_tendered);
     $stmt->execute();
-    
     $order_id = $con->insert_id;
 
-    // Insert order items and update the sold table
-    $sql_order_items = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
-    $stmt_order_items = $con->prepare($sql_order_items);
-
-    $sql_sold = "INSERT INTO sold (product_id, qty, date) 
-                 VALUES (?, ?, CURDATE())
-                 ON DUPLICATE KEY UPDATE 
-                 qty = qty + VALUES(qty)";
-    $stmt_sold = $con->prepare($sql_sold);
-
+    // For each ordered product
     foreach ($order_items as $item) {
-        // Insert into order_items
-        $stmt_order_items->bind_param("iidd", $order_id, $item['id'], $item['quantity'], $item['price']);
-        $stmt_order_items->execute();
+        // 1. Get product details including required items
+        $product_query = "SELECT required_items, quantity FROM products WHERE id = ?";
+        $stmt = $con->prepare($product_query);
+        $stmt->bind_param("i", $item['id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $product = $result->fetch_assoc();
 
-        // Update or insert into sold
-        $stmt_sold->bind_param("ii", $item['id'], $item['quantity']);
-        $stmt_sold->execute();
+        // 2. Check if enough product quantity available
+        if ($product['quantity'] < $item['quantity']) {
+            throw new Exception("Insufficient product quantity for " . $item['name']);
+        }
+
+        // 3. Update product quantity
+        $new_quantity = $product['quantity'] - $item['quantity'];
+        $update_product = "UPDATE products SET quantity = ? WHERE id = ?";
+        $stmt = $con->prepare($update_product);
+        $stmt->bind_param("ii", $new_quantity, $item['id']);
+        $stmt->execute();
+
+        // 4. Deduct required items from inventory
+        if (!empty($product['required_items'])) {
+            $required_items = json_decode($product['required_items'], true);
+            foreach ($required_items as $req_item) {
+                // Calculate total quantity needed
+                $total_needed = $req_item['quantity'] * $item['quantity'];
+                
+                // Update inventory
+                $update_inventory = "UPDATE inventory 
+                                   SET qty = qty - ? 
+                                   WHERE id = ? AND qty >= ?";
+                $stmt = $con->prepare($update_inventory);
+                $stmt->bind_param("iii", $total_needed, $req_item['id'], $total_needed);
+                if (!$stmt->execute()) {
+                    throw new Exception("Insufficient inventory for " . $req_item['name']);
+                }
+                if ($stmt->affected_rows == 0) {
+                    throw new Exception("Insufficient inventory for " . $req_item['name']);
+                }
+            }
+        }
+
+        // 5. Insert order items
+        $sql_order_items = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
+        $stmt = $con->prepare($sql_order_items);
+        $stmt->bind_param("iidd", $order_id, $item['id'], $item['quantity'], $item['price']);
+        $stmt->execute();
+
+        // 6. Update sold table
+        $sql_sold = "INSERT INTO sold (product_id, qty, date) VALUES (?, ?, CURDATE())
+                    ON DUPLICATE KEY UPDATE qty = qty + VALUES(qty)";
+        $stmt = $con->prepare($sql_sold);
+        $stmt->bind_param("ii", $item['id'], $item['quantity']);
+        $stmt->execute();
     }
-
-    // Update customer's order count
-    $sql_update_customer = "UPDATE customers SET orders = orders + 1 WHERE id = ?";
-    $stmt_update_customer = $con->prepare($sql_update_customer);
-    $stmt_update_customer->bind_param("i", $customer);
-    $stmt_update_customer->execute();
 
     // Commit transaction
     $con->commit();
-    echo json_encode(['success' => true, 'message' => 'Order saved successfully']);
+    echo json_encode(['success' => true, 'message' => 'Order completed successfully']);
 
 } catch (Exception $e) {
-    // Rollback transaction in case of error
     $con->rollback();
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

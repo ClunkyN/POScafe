@@ -117,6 +117,7 @@ include "../conn/connection.php";
                                 $result = mysqli_query($con, $query);
                                 while ($product = mysqli_fetch_assoc($result)):
                                 ?>
+                                    <!-- Update the product display to show stock -->
                                     <div class="product-item cursor-pointer bg-[#543A14] hover:bg-[#C2A47E] text-white rounded p-3 text-center"
                                         data-json='<?php echo json_encode($product); ?>'
                                         data-category="<?php echo $product['category_id']; ?>">
@@ -124,6 +125,7 @@ include "../conn/connection.php";
                                             <?php echo htmlspecialchars($product['product_name']); ?>
                                         </span>
                                         <div class="text-xs">₱<?php echo number_format($product['price'], 2); ?></div>
+                                        <div class="text-xs"><?php echo $product['quantity'] > 0 ? "Stock: " . $product['quantity'] : "Out of Stock"; ?></div>
                                     </div>
                                 <?php endwhile; ?>
                             </div>
@@ -178,15 +180,29 @@ include "../conn/connection.php";
         function addToOrder(product) {
             // Check if product already exists in order
             const existingItem = orderItems.find(item => item.id === product.id);
+            
+            // Get current stock from product data
+            const availableStock = parseInt(product.quantity);
+            
+            if (availableStock <= 0) {
+                alert(`Sorry, ${product.product_name} is out of stock!`);
+                return;
+            }
 
             if (existingItem) {
+                // Check if adding one more exceeds available stock
+                if (existingItem.quantity >= availableStock) {
+                    alert(`Sorry, only ${availableStock} ${product.product_name}(s) available in stock!`);
+                    return;
+                }
                 existingItem.quantity++;
             } else {
                 orderItems.push({
                     id: product.id,
                     name: product.product_name,
                     price: product.price,
-                    quantity: 1
+                    quantity: 1,
+                    maxStock: availableStock
                 });
             }
 
@@ -227,7 +243,12 @@ include "../conn/connection.php";
 
         // Add quantity control functions
         function increaseQuantity(index) {
-            orderItems[index].quantity++;
+            const item = orderItems[index];
+            if (item.quantity >= item.maxStock) {
+                alert(`Sorry, only ${item.maxStock} ${item.name}(s) available in stock!`);
+                return;
+            }
+            item.quantity++;
             updateOrderDisplay();
         }
 
@@ -282,6 +303,17 @@ include "../conn/connection.php";
                 alert('Insufficient amount');
                 return;
             }
+
+            // Check stock availability for all items
+            let stockError = false;
+            orderItems.forEach(item => {
+                if (item.quantity > item.maxStock) {
+                    alert(`Sorry, only ${item.maxStock} ${item.name}(s) available in stock!`);
+                    stockError = true;
+                }
+            });
+
+            if (stockError) return;
 
             // Format data for submission
             const formData = {

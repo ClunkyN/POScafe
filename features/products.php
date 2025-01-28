@@ -276,11 +276,22 @@ if (!$result) {
                                     <button type="button" onclick="removeItem(this)" class="bg-red-500 text-white px-3 rounded">×</button>
                                 </div>
                             `;
-                            document.getElementById('editItemsList').insertAdjacentHTML('beforeend', itemDiv);
+                            const div = document.createElement('div');
+                            div.innerHTML = itemDiv;
+                            
+                            // Set selected value for dropdown
+                            const select = div.querySelector('select');
+                            const optionValue = `${item.id}|${item.name}`;
+                            Array.from(select.options).forEach(option => {
+                                if (option.value === optionValue) {
+                                    option.selected = true;
+                                }
+                            });
+                            
+                            document.getElementById('editItemsList').appendChild(div.firstElementChild);
                         });
                     }
                     
-                    // Show edit modal
                     document.getElementById('editProductModal').classList.remove('hidden');
                 })
                 .catch(error => {
