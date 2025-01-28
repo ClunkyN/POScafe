@@ -29,17 +29,21 @@ if(isset($data['id'])) {
 
         // Archive each product in the category
         while($product = mysqli_fetch_assoc($products)) {
-            $prod_insert = "INSERT INTO archive_products (id, product_name, category_id, price, category_name) 
-                          VALUES (?, ?, ?, ?, ?)";
+            $prod_insert = "INSERT INTO archive_products 
+                          (id, product_name, category_id, price, category_name, quantity, required_items) 
+                          VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = mysqli_prepare($con, $prod_insert);
-            mysqli_stmt_bind_param($stmt, "isids", 
+            mysqli_stmt_bind_param($stmt, "isidsis", 
                 $product['id'],
                 $product['product_name'],
                 $product['category_id'],
                 $product['price'],
-                $category['category_name']
+                $category['category_name'],
+                $product['quantity'],          
+                $product['required_items']  
             );
             mysqli_stmt_execute($stmt);
+        
 
             // Delete product from products table
             $prod_delete = "DELETE FROM products WHERE id = ?";
