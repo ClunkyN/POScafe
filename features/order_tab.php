@@ -42,6 +42,12 @@ $orderNumber = generateOrderNumber($con);
     <title>Order Management</title>
     <link rel="stylesheet" href="../src/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Initialize jsPDF
+        window.jsPDF = window.jspdf.jsPDF;
+    </script>
+    <script src="../js/generateReceipt.js"></script>
 </head>
 
 <body class="bg-[#FFF0DC]">
@@ -71,8 +77,8 @@ $orderNumber = generateOrderNumber($con);
                             </div>
                             <div class="bg-[#543A14] p-3 rounded flex items-center">
                                 <label class="text-sm font-medium text-white text-center w-24">Customer</label>
-                                <select name="customer_id" class="flex-1 p-2 text-sm border rounded">
-                                    <option value="">Select Customer</option>
+                                <select id="customer-select" required class="w-full p-2 border rounded">
+                                    <option value="" disabled selected>Select Customer</option>
                                     <?php
                                     $customer_query = "SELECT * FROM customers WHERE id NOT IN (SELECT id FROM archive_customers)";
                                     $customer_result = mysqli_query($con, $customer_query);
@@ -226,36 +232,62 @@ $orderNumber = generateOrderNumber($con);
             addToOrder(product);
         });
 
-        function addToOrder(product) {
-            // Check if product already exists in order
-            const existingItem = orderItems.find(item => item.id === product.id);
-
-            // Get current stock from product data
+        async function addToOrder(product) {
+            // Check product stock first
             const availableStock = parseInt(product.quantity);
-
             if (availableStock <= 0) {
                 alert(`Sorry, ${product.product_name} is out of stock!`);
                 return;
             }
 
-            if (existingItem) {
-                // Check if adding one more exceeds available stock
-                if (existingItem.quantity >= availableStock) {
-                    alert(`Sorry, only ${availableStock} ${product.product_name}(s) available in stock!`);
-                    return;
-                }
-                existingItem.quantity++;
-            } else {
-                orderItems.push({
-                    id: product.id,
-                    name: product.product_name,
-                    price: product.price,
-                    quantity: 1,
-                    maxStock: availableStock
-                });
-            }
+            // Check required items stock
+            if (product.required_items) {
+                const items = JSON.parse(product.required_items);
+                
+                try {
+                    // Check all required items stock first
+                    for (const item of items) {
+                        const totalNeeded = item.quantity;
+                        const existingOrderItem = orderItems.find(orderItem => orderItem.id === product.id);
+                        const existingQuantity = existingOrderItem ? existingOrderItem.quantity : 0;
+                        const additionalNeeded = totalNeeded * (existingQuantity + 1);
 
-            updateOrderDisplay();
+                        const response = await fetch(`../endpoint/get_inventory_stock.php?id=${item.id}`);
+                        const data = await response.json();
+
+                        if (!data.success) {
+                            alert(data.error);
+                            return;
+                        }
+
+                        if (data.stock < additionalNeeded) {
+                            alert(`Cannot add ${product.product_name}: Insufficient ${data.name}`);
+                            return;
+                        }
+                    }
+
+                    // If we reach here, all items are available
+                    const existingItem = orderItems.find(item => item.id === product.id);
+                    if (existingItem) {
+                        existingItem.quantity++;
+                    } else {
+                        orderItems.push({
+                            id: product.id,
+                            name: product.product_name,
+                            price: product.price,
+                            quantity: 1,
+                            maxStock: availableStock,
+                            required_items: product.required_items
+                        });
+                    }
+
+                    updateOrderDisplay();
+
+                } catch (error) {
+                    console.error('Error checking inventory:', error);
+                    alert('Error checking inventory availability');
+                }
+            }
         }
 
         function updateOrderDisplay() {
@@ -340,6 +372,11 @@ $orderNumber = generateOrderNumber($con);
 
         // Update processPayment validation
         function processPayment() {
+            const customerId = $('#customer-select').val();
+            if (!customerId) {
+                alert('Please select a customer');
+                return;
+            }
             const tendered = parseFloat($('#amount-tendered').val()) || 0;
             const orderNumber = $('input[name="order_number"]').val();
 
@@ -352,6 +389,8 @@ $orderNumber = generateOrderNumber($con);
                 alert('Insufficient amount');
                 return;
             }
+            
+            
 
             // Check stock availability for all items
             let stockError = false;
@@ -372,6 +411,39 @@ $orderNumber = generateOrderNumber($con);
                 total_amount: total,
                 amount_tendered: tendered
             };
+
+            const orderData = {
+                orderNumber: $('input[name="order_number"]').val(),
+                customerName: $('#customer-select option:selected').text(),
+                items: orderItems,
+                totalAmount: total,
+                amountTendered: parseFloat($('#amount-tendered').val()),
+                change: parseFloat($('#change-amount').val())
+            };
+
+            // Generate receipt before AJAX call
+            try {
+                generateReceipt(orderData);
+            } catch (error) {
+                console.error('Error generating receipt:', error);
+            }
+            
+            fetch('../endpoint/save_order.php', {
+                method: 'POST',
+                body: JSON.stringify(orderData),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    generateReceipt(orderData);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                }
+            });
 
             $.ajax({
                 url: '../endpoint/save_order.php',
