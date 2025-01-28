@@ -232,7 +232,7 @@ $orderNumber = generateOrderNumber($con);
             addToOrder(product);
         });
 
-        async function addToOrder(product) {
+        function addToOrder(product) {
             // Check product stock first
             const availableStock = parseInt(product.quantity);
             if (availableStock <= 0) {
@@ -243,51 +243,59 @@ $orderNumber = generateOrderNumber($con);
             // Check required items stock
             if (product.required_items) {
                 const items = JSON.parse(product.required_items);
+                let insufficientItems = [];
                 
-                try {
-                    // Check all required items stock first
-                    for (const item of items) {
-                        const totalNeeded = item.quantity;
-                        const existingOrderItem = orderItems.find(orderItem => orderItem.id === product.id);
-                        const existingQuantity = existingOrderItem ? existingOrderItem.quantity : 0;
-                        const additionalNeeded = totalNeeded * (existingQuantity + 1);
-
-                        const response = await fetch(`../endpoint/get_inventory_stock.php?id=${item.id}`);
-                        const data = await response.json();
-
-                        if (!data.success) {
-                            alert(data.error);
-                            return;
-                        }
-
-                        if (data.stock < additionalNeeded) {
-                            alert(`Cannot add ${product.product_name}: Insufficient ${data.name}`);
-                            return;
-                        }
-                    }
-
-                    // If we reach here, all items are available
-                    const existingItem = orderItems.find(item => item.id === product.id);
-                    if (existingItem) {
-                        existingItem.quantity++;
-                    } else {
-                        orderItems.push({
-                            id: product.id,
-                            name: product.product_name,
-                            price: product.price,
-                            quantity: 1,
-                            maxStock: availableStock,
-                            required_items: product.required_items
+                // Calculate total required quantities
+                items.forEach(item => {
+                    const totalNeeded = item.quantity; // Quantity needed per product
+                    const existingOrderItem = orderItems.find(orderItem => orderItem.id === product.id);
+                    const existingQuantity = existingOrderItem ? existingOrderItem.quantity : 0;
+                    const additionalNeeded = totalNeeded * (existingQuantity + 1); // For current order + new addition
+                    
+                    // Fetch current stock from inventory
+                    fetch(`../endpoint/get_inventory_stock.php?id=${item.id}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.stock < additionalNeeded) {
+                                insufficientItems.push({
+                                    name: item.name,
+                                    available: data.stock,
+                                    needed: additionalNeeded
+                                });
+                            }
                         });
-                    }
+                });
 
-                    updateOrderDisplay();
-
-                } catch (error) {
-                    console.error('Error checking inventory:', error);
-                    alert('Error checking inventory availability');
+                if (insufficientItems.length > 0) {
+                    let message = "Cannot add product due to insufficient ingredients:\n";
+                    insufficientItems.forEach(item => {
+                        message += `\n${item.name}: Need ${item.needed}, only ${item.available} available`;
+                    });
+                    alert(message);
+                    return;
                 }
             }
+
+            // Check if product already exists in order
+            const existingItem = orderItems.find(item => item.id === product.id);
+            if (existingItem) {
+                if (existingItem.quantity >= availableStock) {
+                    alert(`Sorry, only ${availableStock} ${product.product_name}(s) available in stock!`);
+                    return;
+                }
+                existingItem.quantity++;
+            } else {
+                orderItems.push({
+                    id: product.id,
+                    name: product.product_name,
+                    price: product.price,
+                    quantity: 1,
+                    maxStock: availableStock,
+                    required_items: product.required_items
+                });
+            }
+
+            updateOrderDisplay();
         }
 
         function updateOrderDisplay() {
