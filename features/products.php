@@ -52,6 +52,8 @@ if (!$result) {
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Product Name</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Category</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Price</th>
+                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Quantity</th>
+                            <th class="py-3 px-6 text-left border-r border-[#A88B68]"> Items</th>
                             <th class="py-3 px-6 text-center">Actions</th>
                         </tr>
                     </thead>
@@ -63,6 +65,8 @@ if (!$result) {
                                 p.product_name,
                                 p.category_id,
                                 p.price,
+                                p.quantity,
+                                p.required_items,
                                 c.category_name
                             FROM products p 
                             LEFT JOIN categories c ON p.category_id = c.id
@@ -92,6 +96,21 @@ if (!$result) {
                                     <td class="py-4 px-6 border-r border-black">
                                         ₱<?php echo number_format($row['price'], 2); ?>
                                     </td>
+                                    <td class="py-4 px-6 border-r border-black">
+                                        <?php echo htmlspecialchars($row['quantity']); ?>
+                                    </td>
+                                    <td class="py-4 px-6 border-r border-black">
+                                        <?php 
+                                        if (!empty($row['required_items'])) {
+                                            $items = json_decode($row['required_items'], true);
+                                            echo "<ul class='list-disc pl-4'>";
+                                            foreach ($items as $item) {
+                                                echo "<li>{$item['name']} ({$item['quantity']} pcs)</li>";
+                                            }
+                                            echo "</ul>";
+                                        }
+                                        ?>
+                                    </td>
                                     <td class="py-4 px-6">
                                         <div class="flex justify-center space-x-2">
                                             <button onclick="editProduct(<?php echo $row['id']; ?>)"
@@ -108,7 +127,7 @@ if (!$result) {
                         <?php
                             }
                         } else {
-                            echo "<tr><td colspan='4' class='py-4 px-6 text-center'>No products found</td></tr>";
+                            echo "<tr><td colspan='6' class='py-4 px-6 text-center'>No products found</td></tr>";
                         }
                         ?>
                     </tbody>
@@ -117,22 +136,19 @@ if (!$result) {
         </div>
     </main>
 
-    <!-- Product Modal -->
-    <div id="productModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg w-96">
-            <h2 id="modalTitle" class="text-xl font-bold mb-4">Add Product</h2>
-            <form id="productForm" class="space-y-4">
-                <input type="hidden" id="product_id" name="id">
-
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg w-[600px]">
+            <h2 class="text-xl font-bold mb-4">Add Product</h2>
+            <form id="addProductForm" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium">Product Name</label>
-                    <input type="text" id="product_name" name="product_name" required
-                        class="w-full p-2 border border-gray-300 rounded">
+                    <input type="text" name="product_name" required class="w-full p-2 border border-gray-300 rounded">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium">Category</label>
-                    <select id="category_id" name="category_id" required class="w-full p-2 border border-gray-300 rounded">
+                    <select name="category_id" required class="w-full p-2 border border-gray-300 rounded">
                         <?php
                         $categories = mysqli_query($con, "SELECT * FROM categories WHERE id NOT IN (SELECT id FROM archive_categories)");
                         while ($category = mysqli_fetch_assoc($categories)) {
@@ -144,62 +160,181 @@ if (!$result) {
 
                 <div>
                     <label class="block text-sm font-medium">Price</label>
-                    <input type="number" id="price" name="price" step="0.01" required
-                        class="w-full p-2 border border-gray-300 rounded">
+                    <input type="number" name="price" step="0.01" required class="w-full p-2 border border-gray-300 rounded">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium">Quantity</label>
+                    <input type="number" name="quantity" min="0" required class="w-full p-2 border border-gray-300 rounded">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium">Required Items</label>
+                    <div id="addItemsList" class="space-y-2">
+                        <div class="flex gap-2">
+                            <select name="items[]" class="w-2/3 p-2 border border-gray-300 rounded">
+                                <?php
+                                $inventory = mysqli_query($con, "SELECT * FROM inventory WHERE id NOT IN (SELECT id FROM archive_inventory)");
+                                while($item = mysqli_fetch_assoc($inventory)) {
+                                    echo "<option value='".$item['id']."|".$item['item']."'>".$item['item']."</option>";
+                                }
+                                ?>
+                            </select>
+                            <input type="number" name="item_qty[]" min="1" value="1" class="w-1/4 p-2 border border-gray-300 rounded">
+                            <button type="button" onclick="removeItem(this)" class="bg-red-500 text-white px-3 rounded">×</button>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addNewItem('addItemsList')" class="mt-2 text-blue-600 hover:text-blue-800">+ Add Another Item</button>
                 </div>
 
                 <div class="flex justify-end gap-2 mt-4">
-                    <button type="button" onclick="closeModal()"
-                        class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Cancel</button>
-                    <button type="submit"
-                        class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Add Product</button>
+                    <button type="button" onclick="closeAddModal()" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Cancel</button>
+                    <button type="submit" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Add Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg w-[600px]">
+            <h2 class="text-xl font-bold mb-4">Edit Product</h2>
+            <form id="editProductForm" class="space-y-4">
+                <input type="hidden" id="edit_product_id" name="id">
+
+                <div>
+                    <label class="block text-sm font-medium">Product Name</label>
+                    <input type="text" id="edit_product_name" name="product_name" required class="w-full p-2 border border-gray-300 rounded">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium">Category</label>
+                    <select id="edit_category_id" name="category_id" required class="w-full p-2 border border-gray-300 rounded">
+                        <?php
+                        $categories = mysqli_query($con, "SELECT * FROM categories WHERE id NOT IN (SELECT id FROM archive_categories)");
+                        while ($category = mysqli_fetch_assoc($categories)) {
+                            echo "<option value='" . $category['id'] . "'>" . $category['category_name'] . "</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium">Price</label>
+                    <input type="number" id="edit_price" name="price" step="0.01" required class="w-full p-2 border border-gray-300 rounded">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium">Quantity</label>
+                    <input type="number" id="edit_quantity" name="quantity" min="0" required class="w-full p-2 border border-gray-300 rounded">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium">Required Items</label>
+                    <div id="editItemsList" class="space-y-2"></div>
+                    <button type="button" onclick="addNewItem('editItemsList')" class="mt-2 text-blue-600 hover:text-blue-800">+ Add Another Item</button>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" onclick="closeEditModal()" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Cancel</button>
+                    <button type="submit" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Update Product</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        function showAddModal() {
-            document.getElementById('modalTitle').textContent = 'Add Product';
-            document.getElementById('productForm').reset();
-            document.getElementById('productModal').classList.remove('hidden');
-        }
-
         function editProduct(id) {
-            document.getElementById('modalTitle').textContent = 'Edit Product';
             fetch(`../endpoint/get_product.php?id=${id}`)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('product_id').value = data.id;
-                    document.getElementById('product_name').value = data.product_name;
-                    document.getElementById('category_id').value = data.category_id;
-                    document.getElementById('price').value = data.price;
-                    document.getElementById('productModal').classList.remove('hidden');
-                });
-        }
-
-        function closeModal() {
-            document.getElementById('productModal').classList.add('hidden');
-        }
-
-        document.getElementById('productForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const isAdd = !formData.get('id');
-
-            fetch(`../endpoint/${isAdd ? 'add_product' : 'update_product'}.php`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        closeModal();
-                        location.reload();
-                    } else {
-                        alert('Error saving product');
+                    // Set basic product info
+                    document.getElementById('edit_product_id').value = data.id;
+                    document.getElementById('edit_product_name').value = data.product_name;
+                    document.getElementById('edit_category_id').value = data.category_id;
+                    document.getElementById('edit_price').value = data.price;
+                    document.getElementById('edit_quantity').value = data.quantity;
+                    
+                    // Clear existing items
+                    document.getElementById('editItemsList').innerHTML = '';
+                    
+                    // Load existing items
+                    if (data.required_items) {
+                        const items = JSON.parse(data.required_items);
+                        items.forEach(item => {
+                            const itemDiv = `
+                                <div class="flex gap-2">
+                                    <select name="items[]" class="w-2/3 p-2 border border-gray-300 rounded">
+                                        <?php
+                                        $inventory = mysqli_query($con, "SELECT * FROM inventory WHERE id NOT IN (SELECT id FROM archive_inventory)");
+                                        while($item = mysqli_fetch_assoc($inventory)) {
+                                            echo "<option value='".$item['id']."|".$item['item']."'>".$item['item']."</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                    <input type="number" name="item_qty[]" min="1" value="${item.quantity}" class="w-1/4 p-2 border border-gray-300 rounded">
+                                    <button type="button" onclick="removeItem(this)" class="bg-red-500 text-white px-3 rounded">×</button>
+                                </div>
+                            `;
+                            document.getElementById('editItemsList').insertAdjacentHTML('beforeend', itemDiv);
+                        });
                     }
+                    
+                    // Show edit modal
+                    document.getElementById('editProductModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading product details');
                 });
+        }
+
+        // Add event listener for edit form submission
+        document.getElementById('editProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate number of items
+            const itemsCount = document.querySelectorAll('#editItemsList > div').length;
+            if (itemsCount > 3) {
+                alert('Maximum of 3 items allowed');
+                return;
+            }
+
+            const formData = new FormData(this);
+            
+            // Collect items and quantities
+            const items = [];
+            const itemSelects = this.querySelectorAll('select[name="items[]"]');
+            const itemQtys = this.querySelectorAll('input[name="item_qty[]"]');
+            
+            itemSelects.forEach((select, index) => {
+                const [id, name] = select.value.split('|');
+                items.push({
+                    id: parseInt(id),
+                    name: name,
+                    quantity: parseInt(itemQtys[index].value)
+                });
+            });
+            
+            formData.set('required_items', JSON.stringify(items));
+            
+            fetch('../endpoint/update_product.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeEditModal();
+                    location.reload();
+                } else {
+                    alert('Error updating product: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating product');
+            });
         });
 
         function archiveProduct(id) {
@@ -245,6 +380,103 @@ if (!$result) {
                     });
             }
         }
+
+        function closeAddModal() {
+            document.getElementById('addProductModal').classList.add('hidden');
+            document.getElementById('addProductForm').reset();
+        }
+
+        function closeEditModal() {
+            document.getElementById('editProductModal').classList.add('hidden');
+        }
+
+        function addNewItem(listId) {
+            const itemsList = document.getElementById(listId);
+            if (itemsList.children.length >= 3) {
+                alert('Maximum of 3 items allowed');
+                return;
+            }
+
+            const itemDiv = `
+                <div class="flex gap-2">
+                    <select name="items[]" class="w-2/3 p-2 border border-gray-300 rounded">
+                        <?php
+                        $inventory = mysqli_query($con, "SELECT * FROM inventory WHERE id NOT IN (SELECT id FROM archive_inventory)");
+                        while($item = mysqli_fetch_assoc($inventory)) {
+                            echo "<option value='".$item['id']."|".$item['item']."'>".$item['item']."</option>";
+                        }
+                        ?>
+                    </select>
+                    <input type="number" name="item_qty[]" min="1" value="1" class="w-1/4 p-2 border border-gray-300 rounded">
+                    <button type="button" onclick="removeItem(this)" class="bg-red-500 text-white px-3 rounded">×</button>
+                </div>
+            `;
+            itemsList.insertAdjacentHTML('beforeend', itemDiv);
+        }
+
+        function removeItem(button) {
+            button.parentElement.remove();
+        }
+    </script>
+
+    <script>
+        // Add modal functions
+        function showAddModal() {
+            document.getElementById('addProductModal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addProductModal').classList.add('hidden');
+            document.getElementById('addProductForm').reset();
+        }
+
+        // Add form submission handler
+        document.getElementById('addProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate number of items
+            const itemsCount = document.querySelectorAll('#addItemsList > div').length;
+            if (itemsCount > 3) {
+                alert('Maximum of 3 items allowed');
+                return;
+            }
+
+            const formData = new FormData(this);
+            
+            // Collect items and quantities
+            const items = [];
+            const itemSelects = this.querySelectorAll('select[name="items[]"]');
+            const itemQtys = this.querySelectorAll('input[name="item_qty[]"]');
+            
+            itemSelects.forEach((select, index) => {
+                const [id, name] = select.value.split('|');
+                items.push({
+                    id: parseInt(id),
+                    name: name,
+                    quantity: parseInt(itemQtys[index].value)
+                });
+            });
+            
+            formData.append('required_items', JSON.stringify(items));
+            
+            fetch('../endpoint/add_product.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeAddModal();
+                    location.reload();
+                } else {
+                    alert('Error adding product: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding product');
+            });
+        });
     </script>
 </body>
 

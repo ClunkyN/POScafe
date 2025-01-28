@@ -47,13 +47,11 @@ if (!$result) {
 
         <div class="space-y-6">
             <div class="overflow-x-auto rounded-md">
-                <h2 class="text-xl font-bold mb-4">Categories</h2>
                 <table class="min-w-full bg-white border-4 border-black rounded-md">
                     <thead class="bg-[#C2A47E] text-black">
                         <tr>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Category Name</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Description</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Status</th>
                             <th class="py-3 px-6 text-center">Action</th>
                         </tr>
                     </thead>
@@ -70,9 +68,6 @@ if (!$result) {
                                 <tr class="<?php echo $rowClass; ?>">
                                     <td class="py-4 px-6 border-r border-black"><?php echo $row['category_name']; ?></td>
                                     <td class="py-4 px-6 border-r border-black"><?php echo $row['description']; ?></td>
-                                    <td class="py-4 px-6 border-r border-black">
-                                        <?php echo $row['is_archived'] ? 'Archived' : 'Active'; ?>
-                                    </td>
                                     <td class="py-4 px-6">
                                         <div class="flex justify-center gap-2">
                                             <?php if (!$row['is_archived']) { ?>
