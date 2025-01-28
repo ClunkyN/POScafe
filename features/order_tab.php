@@ -290,7 +290,7 @@ $orderNumber = generateOrderNumber($con);
             $('#total-amount').text(`₱${total.toFixed(2)}`);
         }
 
-        // Add quantity control functions
+        //  quantity control functions
         function increaseQuantity(index) {
             const item = orderItems[index];
             if (item.quantity >= item.maxStock) {
