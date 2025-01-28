@@ -49,7 +49,7 @@ if (!$result) {
                 <table class="min-w-full bg-white border-4 border-black rounded-md">
                     <thead class="bg-[#C2A47E] text-black">
                         <tr>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Product Name</th>
+                            <th class="py-3 px-6 text-left border-r border-[    ]">Product Name</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Category</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Price</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Quantity</th>
