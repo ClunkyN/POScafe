@@ -217,7 +217,7 @@ if (!$result) {
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium">Price</label>
-                    <input type="text" name="price" id="add_price" 
+                    <input type="text" name="price" id="add_price"
                         class="w-full p-2 border border-gray-300 rounded" required>
                 </div>
 
@@ -262,7 +262,7 @@ if (!$result) {
             <h2 class="text-xl font-bold mb-4">Edit Product</h2>
             <form id="editProductForm">
                 <input type="hidden" id="edit_product_id" name="id">
-                
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium">Product Name</label>
                     <input type="text" name="product_name" id="edit_product_name" maxlength="50"
@@ -302,14 +302,14 @@ if (!$result) {
                 <div class="mb-4">
                     <label class="block text-sm font-medium">Required Items</label>
                     <div id="editItemsList" class="space-y-2"></div>
-                    <button type="button" onclick="addNewItem('editItemsList')" 
+                    <button type="button" onclick="addNewItem('editItemsList')"
                         class="mt-2 text-blue-600 hover:text-blue-800">+ Add Another Item</button>
                 </div>
 
                 <div class="flex justify-end gap-2">
-                    <button type="button" onclick="closeEditModal()" 
+                    <button type="button" onclick="closeEditModal()"
                         class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Cancel</button>
-                    <button type="submit" 
+                    <button type="submit"
                         class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Update Product</button>
                 </div>
             </form>
@@ -670,7 +670,7 @@ if (!$result) {
         // Add price validation to forms
         document.querySelectorAll('#addProductForm, #editProductForm').forEach(form => {
             const priceInput = form.querySelector('input[name="price"]');
-            
+
             // Change input type to text for better decimal handling
             priceInput.type = 'text';
             priceInput.placeholder = '0.00';
@@ -690,7 +690,7 @@ if (!$result) {
             // Add to existing form submit validation
             form.addEventListener('submit', function(e) {
                 // ...existing validation...
-                
+
                 const price = parseFloat(priceInput.value);
                 if (!price || price <= 0 || price > 9999.99) {
                     e.preventDefault();
@@ -705,18 +705,18 @@ if (!$result) {
         function validateQuantity(input) {
             // Store cursor position
             const cursorPos = input.selectionStart;
-            
+
             // Remove non-numeric characters
             let value = input.value.replace(/[^\d]/g, '');
-            
+
             // Remove leading zeros
             value = value.replace(/^0+/, '');
-            
+
             // Limit to 3 digits
             if (value.length > 3) {
                 value = value.slice(0, 3);
             }
-            
+
             // Ensure value is between 1-999
             const numValue = parseInt(value);
             if (numValue > 999) {
@@ -724,28 +724,28 @@ if (!$result) {
             } else if (numValue < 1) {
                 value = '';
             }
-            
+
             // Update input value
             input.value = value;
-            
+
             // Restore cursor position
             input.setSelectionRange(cursorPos, cursorPos);
-            
+
             return value !== '';
         }
 
         // Add quantity validation to forms
         document.querySelectorAll('#addProductForm, #editProductForm').forEach(form => {
             const qtyInput = form.querySelector('input[name="quantity"], input[name="additional_quantity"]');
-            
+
             if (qtyInput) {
                 qtyInput.type = 'text';
                 qtyInput.placeholder = 'Enter quantity (1-999)';
-                
+
                 qtyInput.addEventListener('input', function() {
                     validateQuantity(this);
                 });
-                
+
                 // Add to form submit validation
                 form.addEventListener('submit', function(e) {
                     const qty = parseInt(qtyInput.value);

@@ -158,7 +158,7 @@ if (!$result) {
 
                 <div>
                     <label class="block text-sm font-medium">Category Name</label>
-                    <input type="text" id="category_name" name="category_name" required
+                    <input type="text" id="category_name" maxlength="20" name="category_name" required
                         class="w-full p-2 border border-gray-300 rounded">
                 </div>
 
@@ -172,7 +172,6 @@ if (!$result) {
                         style="resize: none;"
                         class="w-full p-2 border border-gray-300 rounded"
                         placeholder="Maximum 30 characters"></textarea>
-                    <small class="text-gray-500">Character limit: 30</small>
                 </div>
 
                 <div class="flex justify-end gap-2 mt-4">
@@ -297,6 +296,96 @@ if (!$result) {
                     });
             }
         }
+    </script>
+    <script>
+    // Validation functions
+    function validateCategoryName(input) {
+        const trimmedValue = input.value.trim();
+        
+        // Check empty/spaces
+        if (!trimmedValue) {
+            input.value = '';
+            return false;
+        }
+        
+        // Check length and truncate if over 20 chars
+        if (trimmedValue.length > 20) {
+            input.value = trimmedValue.substring(0, 20);
+            alert('Category name cannot exceed 20 characters');
+        }
+        
+        return true;
+    }
+
+    function validateDescription(input) {
+        const trimmedValue = input.value.trim();
+        
+        // Check empty/spaces
+        if (!trimmedValue) {
+            input.value = '';
+            return false;
+        }
+        
+        // Check length and truncate if over 50 chars
+        if (trimmedValue.length > 50) {
+            input.value = trimmedValue.substring(0, 50);
+            alert('Description cannot exceed 50 characters');
+        }
+        
+        return true;
+    }
+
+    // Add validation to both forms
+    document.querySelectorAll('#addCategoryForm, #editCategoryForm').forEach(form => {
+        // Category name validation
+        const nameInput = form.querySelector('input[name="category_name"]');
+        if (nameInput) {
+            nameInput.addEventListener('input', function() {
+                validateCategoryName(this);
+            });
+        }
+        
+        // Description validation
+        const descInput = form.querySelector('textarea[name="description"]');
+        if (descInput) {
+            descInput.addEventListener('input', function() {
+                validateDescription(this);
+            });
+        }
+
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            const categoryName = nameInput.value.trim();
+            const description = descInput.value.trim();
+            
+            if (!categoryName || categoryName.length === 0) {
+                e.preventDefault();
+                alert('Category name cannot be empty');
+                return false;
+            }
+            
+            if (categoryName.length > 20) {
+                e.preventDefault();
+                alert('Category name cannot exceed 20 characters');
+                return false;
+            }
+
+            if (description.length > 50) {
+                e.preventDefault();
+                alert('Description cannot exceed 50 characters');
+                return false;
+            }
+        });
+    });
+
+    // Add character counter displays
+    function updateCharCount(input, counterId) {
+        const counter = document.getElementById(counterId);
+        const length = input.value.trim().length;
+        const maxLength = input.hasAttribute('maxlength') ? input.getAttribute('maxlength') : 20;
+        counter.textContent = `(${length}/${maxLength})`;
+        counter.style.color = length > maxLength ? 'red' : '#6B7280';
+    }
     </script>
 </body>
 

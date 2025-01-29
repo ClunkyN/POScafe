@@ -92,10 +92,10 @@ if (!$result) {
                                                     Edit
                                                 </button>
                                                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                                                <button onclick="archiveItem(<?php echo $row['id']; ?>)"
-                                                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
-                                                    Archive
-                                                </button>
+                                                    <button onclick="archiveItem(<?php echo $row['id']; ?>)"
+                                                        class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                                        Archive
+                                                    </button>
                                                 <?php endif; ?>
                                             <?php } else { ?>
                                             <?php } ?>
@@ -372,33 +372,33 @@ if (!$result) {
         // Validation functions
         function validateItemName(input) {
             const trimmedValue = input.value.trim();
-            
+
             // Check empty/spaces
             if (!trimmedValue) {
                 input.value = '';
                 return false;
             }
-            
+
             // Check length
             if (trimmedValue.length > 50) {
                 input.value = trimmedValue.substring(0, 50);
             }
-            
+
             return true;
         }
 
         function validateQuantity(input) {
             // Remove non-numeric characters
             let value = input.value.replace(/[^\d]/g, '');
-            
+
             // Remove leading zeros
             value = value.replace(/^0+/, '');
-            
+
             // Limit to 3 digits
             if (value.length > 3) {
                 value = value.slice(0, 3);
             }
-            
+
             // Ensure value is between 1-999
             const numValue = parseInt(value);
             if (numValue > 999) {
@@ -406,7 +406,7 @@ if (!$result) {
             } else if (numValue < 1) {
                 value = '';
             }
-            
+
             input.value = value;
             return value !== '';
         }
