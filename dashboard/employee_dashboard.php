@@ -101,26 +101,27 @@ while ($row = mysqli_fetch_assoc($result_birthdays)) {
     </div>
     <!-- Main content -->
     <main class="ml-[230px] mt-[171px] p-6">
-        <div class="grid grid-cols-2 gap-4">
-            <!-- No. of Orders -->
-            <div class="bg-[#FFF0DC] p-4 rounded-lg border border-[#A88B68]">
-                <h2 class="text-lg font-bold text-[#A88B68]">No. of Orders</h2>
-                <p class="text-2xl text-[#A88B68] font-semibold"><?php echo $orders_today; ?></p>
-            </div>
-            <!-- Categories Section -->
-            <div class="bg-[#FFF0DC] p-4 rounded-lg border border-[#A88B68]">
-                <h2 class="text-lg font-bold text-[#A88B68]">No. of Categories</h2>
-                <p class="text-2xl text-[#A88B68] font-semibold"><?php echo $categories_count; ?></p>
-            </div>
-            <!-- Items Section -->
-            <div class="bg-[#FFF0DC] p-4 rounded-lg border border-[#A88B68]">
-                <h2 class="text-lg font-bold text-[#A88B68]">No. of Items</h2>
-                <p class="text-2xl text-[#A88B68] font-semibold"><?php echo $items_count; ?></p>
-            </div>
-        </div>
+    <div class="flex justify-center items-center space-x-16 mt-8">
+    <!-- No. of Orders -->
+    <div class="bg-[#FFF0DC] p-8 rounded-lg border border-[#A88B68] w-96 h-60 flex flex-col justify-center items-center">
+        <h2 class="text-xl font-bold text-[#A88B68]">Number of Orders</h2>
+        <p class="text-4xl text-[#A88B68] font-semibold"><?php echo $orders_today; ?></p>
+    </div>
+    <!-- Categories Section -->
+    <div class="bg-[#FFF0DC] p-8 rounded-lg border border-[#A88B68] w-96 h-60 flex flex-col justify-center items-center">
+        <h2 class="text-xl font-bold text-[#A88B68]">Number of Categories</h2>
+        <p class="text-4xl text-[#A88B68] font-semibold"><?php echo $categories_count; ?></p>
+    </div>
+    <!-- Items Section -->
+    <div class="bg-[#FFF0DC] p-8 rounded-lg border border-[#A88B68] w-96 h-60 flex flex-col justify-center items-center">
+        <h2 class="text-xl font-bold text-[#A88B68]">Number of Items</h2>
+        <p class="text-4xl text-[#A88B68] font-semibold"><?php echo $items_count; ?></p>
+    </div>
+</div>
 
-                <!-- Birthdays and Calendar Section -->
-                <div class="grid grid-cols-2 gap-4 mt-4">
+
+        <!-- Birthdays and Calendar Section -->
+        <div class="grid grid-cols-2 gap-4 mt-4">
         <!-- Birthdays List -->
         <div class="bg-[#FFF0DC] p-4 rounded-lg border border-[#A88B68] mt-4">
             <h2 class="text-lg font-bold text-[#A88B68] mb-2">Birthdays This Month</h2>
@@ -152,12 +153,13 @@ while ($row = mysqli_fetch_assoc($result_birthdays)) {
             <?php endif; ?>
         </div>
         
+
         <!-- Calendar Section -->
         <div class="bg-[#FFF0DC] p-4 rounded-lg border border-[#A88B68] mt-4">
             <h2 class="text-lg font-bold text-[#A88B68]">Calendar</h2>
             <div id="calendar" class="h-[300px] overflow-hidden"></div>
         </div>
-                </div>
+    </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/index.global.min.js"></script>
