@@ -139,7 +139,7 @@ if (!$result) {
             <form id="addInventoryForm" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium">Item Name</label>
-                    <input type="text" name="item" required class="w-full p-2 border border-gray-300 rounded">
+                    <input type="text" name="item" id="add_item" maxlength="50" required class="w-full p-2 border border-gray-300 rounded">
                 </div>
 
                 <div>
@@ -166,8 +166,7 @@ if (!$result) {
 
                 <div>
                     <label class="block text-sm font-medium">Item Name</label>
-                    <input type="text" id="edit_item" name="item" required
-                        class="w-full p-2 border border-gray-300 rounded">
+                    <input type="text" id="edit_item" name="item" maxlength="50" required class="w-full p-2 border border-gray-300 rounded">
                 </div>
 
                 <div>
@@ -368,6 +367,125 @@ if (!$result) {
         function closeEditModal() {
             document.getElementById('editInventoryModal').classList.add('hidden');
         }
+    </script>
+    <script>
+        // Validation functions
+        function validateItemName(input) {
+            const trimmedValue = input.value.trim();
+            
+            // Check empty/spaces
+            if (!trimmedValue) {
+                input.value = '';
+                return false;
+            }
+            
+            // Check length
+            if (trimmedValue.length > 50) {
+                input.value = trimmedValue.substring(0, 50);
+            }
+            
+            return true;
+        }
+
+        function validateQuantity(input) {
+            // Remove non-numeric characters
+            let value = input.value.replace(/[^\d]/g, '');
+            
+            // Remove leading zeros
+            value = value.replace(/^0+/, '');
+            
+            // Limit to 3 digits
+            if (value.length > 3) {
+                value = value.slice(0, 3);
+            }
+            
+            // Ensure value is between 1-999
+            const numValue = parseInt(value);
+            if (numValue > 999) {
+                value = '999';
+            } else if (numValue < 1) {
+                value = '';
+            }
+            
+            input.value = value;
+            return value !== '';
+        }
+
+        function validateEditQuantity(input) {
+            const currentQty = parseInt(document.getElementById('edit_available_qty').value) || 0;
+            const additionalQty = parseInt(input.value) || 0;
+            const totalQty = currentQty + additionalQty;
+
+            if (totalQty > 999) {
+                const maxAdditional = 999 - currentQty;
+                input.value = maxAdditional > 0 ? maxAdditional : 0;
+                alert(`Total quantity cannot exceed 999. Maximum additional quantity allowed: ${maxAdditional}`);
+            }
+        }
+
+        // Add to existing edit form validation
+        document.getElementById('editInventoryForm').addEventListener('submit', function(e) {
+            const currentQty = parseInt(document.getElementById('edit_available_qty').value) || 0;
+            const additionalQty = parseInt(document.getElementById('edit_additional_qty').value) || 0;
+            const totalQty = currentQty + additionalQty;
+
+            if (totalQty > 999) {
+                e.preventDefault();
+                alert('Total quantity cannot exceed 999');
+                return false;
+            }
+        });
+
+        // Add input event listener for additional quantity
+        document.getElementById('edit_additional_qty').addEventListener('input', function() {
+            validateQuantity(this);
+            validateEditQuantity(this);
+        });
+
+        // Add validation to forms
+        document.querySelectorAll('#addInventoryForm, #editInventoryForm, #inventoryForm').forEach(form => {
+            // Item name validation
+            const itemInput = form.querySelector('input[name="item"]');
+            if (itemInput) {
+                itemInput.addEventListener('input', function() {
+                    validateItemName(this);
+                });
+            }
+
+            // Quantity validation
+            const qtyInputs = form.querySelectorAll('input[name="qty"], input[name="additional_qty"]');
+            qtyInputs.forEach(input => {
+                if (input && !input.readOnly) {
+                    input.addEventListener('input', function() {
+                        validateQuantity(this);
+                    });
+                }
+            });
+
+            // Form submission validation
+            form.addEventListener('submit', function(e) {
+                const itemName = form.querySelector('input[name="item"]').value.trim();
+                const qty = parseInt(form.querySelector('input[type="number"]:not([readonly])').value);
+
+                if (!itemName || itemName.length === 0) {
+                    e.preventDefault();
+                    alert('Item name cannot be empty');
+                    return false;
+                }
+
+                if (itemName.length > 50) {
+                    e.preventDefault();
+                    alert('Item name cannot exceed 50 characters');
+                    return false;
+                }
+
+                if (!qty || qty < 1 || qty > 999) {
+                    e.preventDefault();
+                    alert('Quantity must be between 1 and 999');
+                    return false;
+                }
+            });
+        });
     </script>
 </body>
 
