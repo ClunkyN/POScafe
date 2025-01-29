@@ -239,7 +239,7 @@ if (!$result) {
                                 }
                                 ?>
                             </select>
-                            <input type="number" name="item_qty[]" min="1" value="1" class="w-1/4 p-2 border border-gray-300 rounded">
+                            <input type="number" name="item_qty[]" min="1" value="1" required class="w-1/4 p-2 border border-gray-300 rounded">
                             <button type="button" onclick="removeItem(this)" class="bg-red-500 text-white px-3 rounded">×</button>
                         </div>
                     </div>
