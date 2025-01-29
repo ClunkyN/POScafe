@@ -69,7 +69,6 @@ if (!$result) {
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Last Name</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Username</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Role</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Email</th>
                             <th class="py-3 px-6 text-center">Action</th>
                         </tr>
                     </thead>
@@ -77,7 +76,8 @@ if (!$result) {
                         <?php
                         $query = "SELECT u.*, CASE WHEN au.user_id IS NOT NULL THEN 1 ELSE 0 END as is_archived 
                                  FROM user_db u 
-                                 LEFT JOIN archive_users au ON u.user_id = au.user_id";
+                                 LEFT JOIN archive_users au ON u.user_id = au.user_id
+                                 WHERE u.role != 'admin'";
                         $result = mysqli_query($con, $query);
                         if (mysqli_num_rows($result) > 0) {
                             while ($row = mysqli_fetch_assoc($result)) {
@@ -88,19 +88,18 @@ if (!$result) {
                                     <td class="py-4 px-6 border-r border-black"><?php echo $row['lname']; ?></td>
                                     <td class="py-4 px-6 border-r border-black"><?php echo $row['user_name']; ?></td>
                                     <td class="py-4 px-6 border-r border-black"><?php echo $row['role']; ?></td>
-                                    <td class="py-4 px-6 border-r border-black"><?php echo $row['email']; ?></td>
                                     <td class="py-4 px-6">
                                         <div class="flex justify-center gap-2">
-                                            <?php if (!$row['is_archived']) { ?>
+                                            <?php if (!$row['is_archived'] && $row['role'] === 'new_user') { ?>
                                                 <button onclick="editUser(<?php echo $row['user_id']; ?>)"
                                                     class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
                                                     Edit
                                                 </button>
-                                                <button onclick="archiveUser(<?php echo $row['user_id']; ?>)"
-                                                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
-                                                    Archive
-                                                </button>
                                             <?php } ?>
+                                            <button onclick="archiveUser(<?php echo $row['user_id']; ?>)"
+                                                class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                                Archive
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -118,6 +117,7 @@ if (!$result) {
             <h2 id="modalTitle" class="text-xl font-bold mb-4">Edit User</h2>
             <form id="userForm" class="space-y-4">
                 <input type="hidden" id="user_id" name="user_id">
+                <input type="hidden" id="original_role" name="original_role">
 
                 <div>
                     <label class="block text-sm font-medium">First Name</label>
@@ -139,19 +139,11 @@ if (!$result) {
 
                 <div>
                     <label class="block text-sm font-medium">Role</label>
-                    <select id="role" name="role" required
-                        class="w-full p-2 border border-gray-300 rounded">
-                        <option value="Admin">Admin</option>
-                        <option value="Employee">Employee</option>
+                    <select id="edit_role" name="role" class="w-full p-2 border border-gray-300 rounded" required>
+                        <option value="new_user">New User</option>
+                        <option value="employee">Employee</option>
                     </select>
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium">Email</label>
-                    <input type="email" id="email" name="email" required
-                        class="w-full p-2 border border-gray-300 rounded">
-                </div>
-
                 <div class="flex justify-end gap-2 mt-4">
                     <button type="button" onclick="closeModal()"
                         class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Cancel</button>
@@ -163,6 +155,18 @@ if (!$result) {
     </div>
 
     <script>
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            const originalRole = document.getElementById('original_role').value;
+            const newRole = document.getElementById('edit_role').value;
+            
+            if (originalRole === 'employee' && newRole === 'new_user') {
+                e.preventDefault();
+                alert('Cannot change role back to new user once set to employee');
+                document.getElementById('edit_role').value = 'employee';
+                return false;
+            }
+        });
+
         function editUser(id) {
             document.getElementById('modalTitle').textContent = 'Edit User';
             fetch(`../endpoint/get_user.php?id=${id}`)
@@ -172,8 +176,8 @@ if (!$result) {
                     document.getElementById('fname').value = data.fname;
                     document.getElementById('lname').value = data.lname;
                     document.getElementById('user_name').value = data.user_name;
-                    document.getElementById('role').value = data.role; // Set dropdown value
-                    document.getElementById('email').value = data.email;
+                    document.getElementById('edit_role').value = data.role;
+                    document.getElementById('original_role').value = data.role; // Store original role
                     document.getElementById('userModal').classList.remove('hidden');
                 })
                 .catch(error => {

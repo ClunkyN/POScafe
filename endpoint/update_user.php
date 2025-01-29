@@ -9,27 +9,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lname = isset($_POST['lname']) ? mysqli_real_escape_string($con, $_POST['lname']) : null;
     $user_name = isset($_POST['user_name']) ? mysqli_real_escape_string($con, $_POST['user_name']) : null;
     $role = isset($_POST['role']) ? mysqli_real_escape_string($con, $_POST['role']) : null;
-    $email = isset($_POST['email']) ? mysqli_real_escape_string($con, $_POST['email']) : null;
 
     // Validate inputs
-    if ($user_id && $fname && $lname && $user_name && $role && $email) {
+    if ($user_id && $fname && $lname && $user_name && $role) {
+        // Add role change validation
+        $originalRoleQuery = "SELECT role FROM user_db WHERE user_id = $user_id";
+        $originalRoleResult = mysqli_query($con, $originalRoleQuery);
+        $originalRoleRow = mysqli_fetch_assoc($originalRoleResult);
+        $originalRole = $originalRoleRow['role'];
+
+        if ($originalRole === 'employee' && $role === 'new_user') {
+            echo json_encode(['success' => false, 'message' => 'Cannot change role back to new user']);
+            exit();
+        }
+
         $query = "UPDATE user_db SET 
             fname = '$fname',
             lname = '$lname',
             user_name = '$user_name',
-            role = '$role',
-            email = '$email'
+            role = '$role'
             WHERE user_id = $user_id";
 
         if (mysqli_query($con, $query)) {
-            echo json_encode(['success' => true]);
+            echo json_encode(['success' => true, 'message' => 'User updated successfully']);
         } else {
-            echo json_encode(['success' => false, 'error' => 'Database error: ' . mysqli_error($con)]);
+            echo json_encode(['success' => false, 'message' => 'Database error: ' . mysqli_error($con)]);
         }
     } else {
-        echo json_encode(['success' => false, 'error' => 'Invalid input data.']);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Missing required fields',
+            'debug' => [
+                'user_id' => $user_id,
+                'fname' => $fname,
+                'lname' => $lname,
+                'user_name' => $user_name,
+                'role' => $role
+            ]
+        ]);
     }
 } else {
-    echo json_encode(['success' => false, 'error' => 'Invalid request method.']);
+    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
 }
 ?>
