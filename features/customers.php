@@ -108,14 +108,27 @@ if (!$result) {
                 <input type="hidden" id="customer_id" name="id">
 
                 <div>
-                    <label class="block text-sm font-medium">Name</label>
-                    <input type="text" id="customer_name" name="name" required
+                    <label class="block text-sm font-medium">
+                        Name
+                    </label>
+                    <input type="text" 
+                        id="customer_name" 
+                        name="name" 
+                        maxlength="30"
+                        oninput="validateCustomerName(this)"
+                        required
                         class="w-full p-2 border border-gray-300 rounded">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium">Birthday</label>
-                    <input type="date" id="customer_birthday" name="birthday" required
+                    <input type="date" 
+                        id="customer_birthday" 
+                        name="birthday" 
+                        min="1990-01-01"
+                        max="<?php echo date('Y-m-d'); ?>"
+                        onchange="validateBirthday(this)"
+                        required
                         class="w-full p-2 border border-gray-300 rounded">
                 </div>
 
@@ -154,22 +167,31 @@ if (!$result) {
 
         document.getElementById('customerForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            if (!validateCustomerName(document.getElementById('customer_name'))) {
+                return false;
+            }
+            
+            if (!validateBirthday(document.getElementById('customer_birthday'))) {
+                return false;
+            }
+
             const formData = new FormData(this);
             const isAdd = !formData.get('id');
 
             fetch(`../endpoint/${isAdd ? 'add_customer' : 'update_customer'}.php`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        closeModal();
-                        location.reload();
-                    } else {
-                        alert('Error saving customer');
-                    }
-                });
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal();
+                    location.reload();
+                } else {
+                    alert('Error saving customer');
+                }
+            });
         });
 
         function archiveCustomer(id) {
@@ -214,6 +236,45 @@ if (!$result) {
                         }
                     });
             }
+        }
+
+        function validateCustomerName(input) {
+            // Get trimmed value
+            const trimmedValue = input.value.trim();
+
+            // Validate empty/spaces only
+            if (!trimmedValue) {
+                input.value = '';
+                return false;
+            }
+
+            // Truncate if over 30 chars
+            if (trimmedValue.length > 30) {
+                input.value = trimmedValue.substring(0, 30);
+                alert('Customer name cannot exceed 30 characters');
+            }
+
+            return true;
+        }
+
+        function validateBirthday(input) {
+            const selectedDate = new Date(input.value);
+            const minDate = new Date('1990-01-01');
+            const today = new Date();
+
+            if (selectedDate < minDate) {
+                alert('Birth year must be 1990 or later');
+                input.value = '';
+                return false;
+            }
+
+            if (selectedDate > today) {
+                alert('Birth date cannot be in the future');
+                input.value = '';
+                return false;
+            }
+
+            return true;
         }
     </script>
 </body>
