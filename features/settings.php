@@ -35,7 +35,7 @@ include "../conn/connection.php";
                     <div class="mb-4">
                         <label class="block text-sm font-semibold mb-2">New Password:</label>
                         <input type="password" class="w-full p-2 border rounded text-black" />
-                        <p class="text-xs text-gray-300">Leave this blank if you don’t want to change password</p>
+                        
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-semibold mb-2">Confirm Password:</label>
