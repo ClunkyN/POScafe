@@ -692,6 +692,14 @@ video {
   margin-left: 0.5rem;
 }
 
+.ml-64 {
+  margin-left: 16rem;
+}
+
+.ms-2 {
+  margin-inline-start: 0.5rem;
+}
+
 .block {
   display: block;
 }
@@ -862,6 +870,10 @@ video {
 
 .w-full {
   width: 100%;
+}
+
+.w-\[450px\] {
+  width: 450px;
 }
 
 .min-w-full {
@@ -1185,6 +1197,11 @@ video {
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+}
+
+.bg-\[\#5A3A1B\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(90 58 27 / var(--tw-bg-opacity, 1));
 }
 
 .bg-opacity-50 {
