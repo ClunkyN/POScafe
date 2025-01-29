@@ -213,26 +213,41 @@ if (!$result) {
                 });
         });
 
+        // Replace the archiveUser function
         function archiveUser(id) {
             if (confirm('Are you sure you want to archive this user?')) {
+                console.log('Archiving user:', id); // Debug log
+                
                 fetch('../endpoint/archive_user.php', {
                     method: 'POST',
-                    body: JSON.stringify({ user_id: id }),
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user_id: id })
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Redirect to archive_users_table.php after successful archiving
-                            window.location.href = '../features/archive_users_table.php';
+                .then(response => {
+                    console.log('Response status:', response.status); // Debug log
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data); // Debug log
+                    
+                    if (data.success) {
+                        if (data.isCurrentUser) {
+                            alert('Your account has been deactivated.');
+                            window.location.href = '../endpoint/employee_logout.php';
                         } else {
-                            alert(`Error: ${data.error || 'Unknown error'}`);
+                            alert('User archived successfully');
+                            location.reload();
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred while archiving the user.');
-                    });
+                    } else {
+                        throw new Error(data.error || 'Failed to archive user');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error archiving user: ' + error.message);
+                });
             }
         }
     </script>
