@@ -42,6 +42,37 @@ if (!$con) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
+// Get date range parameters 
+$startDate = $_GET['start_date'] ?? date('Y-m-01'); // Default to first day of current month
+$endDate = $_GET['end_date'] ?? date('Y-m-d'); // Default to today
+
+// Add query for getting all sold items for PDF
+$pdfQuery = "SELECT 
+    sold.id,
+    products.product_name,
+    SUM(sold.qty) AS total_qty,
+    SUM(sold.qty * products.price) AS total_sales,
+    DATE_FORMAT(sold.date, '%M %d, %Y') as formatted_date
+FROM sold
+JOIN products ON sold.product_id = products.id
+WHERE DATE(sold.date) BETWEEN ? AND ?
+GROUP BY sold.product_id, sold.date
+ORDER BY sold.date DESC";
+
+$pdfStmt = mysqli_prepare($con, $pdfQuery);
+mysqli_stmt_bind_param($pdfStmt, "ss", $startDate, $endDate);
+mysqli_stmt_execute($pdfStmt);
+$pdfResult = mysqli_stmt_get_result($pdfStmt);
+
+// Calculate PDF totals
+$totalPdfSales = 0;
+$totalPdfItems = 0;
+while ($row = mysqli_fetch_assoc($pdfResult)) {
+    $totalPdfSales += floatval($row['total_sales']);
+    $totalPdfItems += $row['total_qty'];
+}
+mysqli_data_seek($pdfResult, 0); // Reset pointer
+
 // Modify the query to include LIMIT and OFFSET
 $query = "SELECT 
         sold.id,
@@ -90,16 +121,24 @@ while ($row = mysqli_fetch_assoc($result)) {
             window.generatePDF = function() {
                 try {
                     const doc = new jsPDF();
-                    doc.setFontSize(18);
-                    doc.text('Sold Items Report', 14, 20);
+                    const startDate = document.getElementById('start_date').value;
+                    const endDate = document.getElementById('end_date').value;
 
-                    doc.setFontSize(11);
-                    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+                    // Header
+                    doc.setFontSize(20);
+                    doc.text('ZEFMAVEN COMPUTER PARTS AND ACCESSORIES', 
+                        doc.internal.pageSize.getWidth() / 2, 15, {
+                            align: 'center'
+                    });
+                    
+                    doc.setFontSize(14);
+                    doc.text(`Sold Items Report (${startDate} to ${endDate})`,
+                        doc.internal.pageSize.getWidth() / 2, 25, {
+                            align: 'center'
+                    });
 
                     const tableData = {
-                        head: [
-                            ['Date', 'Product', 'Quantity', 'Total Sales']
-                        ],
+                        head: [['Date', 'Product', 'Quantity', 'Total Sales']],
                         body: [
                             <?php
                             mysqli_data_seek($result, 0);
@@ -107,13 +146,15 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 echo "['" .
                                     str_replace("'", "\\'", $row['formatted_date']) . "','" .
                                     str_replace("'", "\\'", $row['product_name']) . "','" .
-                                    number_format($row['total_qty']) . "','₱" .
+                                    number_format($row['total_qty']) . "','PHP " .
                                     number_format($row['total_sales'], 2) .
                                     "'],";
                             }
                             ?>
                         ]
                     };
+
+                    let firstPage = true;
 
                     doc.autoTable({
                         head: tableData.head,
@@ -130,26 +171,25 @@ while ($row = mysqli_fetch_assoc($result)) {
                             fontStyle: 'bold'
                         },
                         columnStyles: {
-                            0: {
-                                cellWidth: 40
-                            },
-                            1: {
-                                cellWidth: 50
-                            },
-                            2: {
-                                cellWidth: 30
-                            },
-                            3: {
-                                cellWidth: 40
-                            }
+                            0: {cellWidth: 40},
+                            1: {cellWidth: 50},
+                            2: {cellWidth: 30},
+                            3: {cellWidth: 40}
+                        },
+                        didDrawPage: function(data) {
+                            // Page number on all pages
+                            doc.setFontSize(10);
+                            doc.text(`Page ${data.pageNumber}`, data.settings.margin.left,
+                                doc.internal.pageSize.height - 10);
                         }
                     });
 
                     const finalY = doc.lastAutoTable.finalY || 35;
                     doc.setFontSize(11);
-                    doc.text('Total Sales: ₱<?php echo number_format($total_sales, 2); ?>', 14, finalY + 10);
+                    doc.text(`Total Items Sold: <?php echo number_format($total_sales); ?>`, 14, finalY + 10);
+                    doc.text(`Total Sales: PHP <?php echo number_format($total_sales, 2); ?>`, 14, finalY + 20);
 
-                    doc.save('sold-items-report.pdf');
+                    doc.save(`Sold_Items_Report_${startDate}_to_${endDate}.pdf`);
                 } catch (error) {
                     console.error('PDF Generation failed:', error);
                     alert('Failed to generate PDF. Please try again.');
@@ -165,11 +205,37 @@ while ($row = mysqli_fetch_assoc($result)) {
 
     <main class="ml-[230px] mt-[171px] p-6">
         <h1 class="text-2xl font-bold mb-4">Sold Items</h1>
-        <div class="mb-4">
+        
+        <!-- Date Range Form -->
+        <div class="mb-6">
+            <form method="GET" action="sold_items.php" class="mb-2 space-y-2 sm:space-y-4">
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                    <input type="date" id="start_date" name="start_date"
+                        class="w-full sm:w-auto px-3 py-2 text-sm border rounded-lg"
+                        value="<?php echo isset($_GET['start_date']) ? htmlspecialchars($_GET['start_date']) : date('Y-m-01'); ?>"
+                        max="<?php echo date('Y-m-d'); ?>">
+                    <input type="date" id="end_date" name="end_date"
+                        class="w-full sm:w-auto px-3 py-2 text-sm border rounded-lg"
+                        value="<?php echo isset($_GET['end_date']) ? htmlspecialchars($_GET['end_date']) : date('Y-m-d'); ?>"
+                        max="<?php echo date('Y-m-d'); ?>">
+                    <button type="submit"
+                        class="w-full sm:w-auto bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded-lg">
+                        View Sold Items
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="flex justify-between items-center mb-4">
             <button onclick="generatePDF()" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">
                 Download PDF
             </button>
+            <div class="text-lg font-semibold">
+                Total Items Sold: <?php echo number_format($totalPdfItems); ?> |
+                Total Sales: ₱<?php echo number_format($totalPdfSales, 2); ?>
+            </div>
         </div>
+
         <div class="w-full overflow-x-auto rounded-md">
             <table class="w-full bg-white border-4 border-black rounded-md">
                 <thead class="bg-[#C2A47E] text-black">
@@ -210,14 +276,6 @@ while ($row = mysqli_fetch_assoc($result)) {
                     }
                     ?>
                 </tbody>
-                <tfoot>
-                    <tr class="bg-[#FFF0DC]">
-                        <td colspan="3" class="py-3 px-6 text-right border-r border-black font-bold">Total Sales:</td>
-                        <td class="py-3 px-6 border-r border-black font-bold">
-                            ₱<?php echo number_format($total_sales, 2); ?>
-                        </td>
-                    </tr>
-                </tfoot>
             </table>
             <!-- Add before closing main div -->
             <div class="flex justify-center items-center mt-4 space-x-2">
