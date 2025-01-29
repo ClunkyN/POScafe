@@ -27,8 +27,7 @@ try {
         au.fname,
         au.lname,
         au.user_name,
-        au.role,
-        au.email
+        au.role
     FROM archive_users au
     ORDER BY au.user_id DESC
     LIMIT ?, ?";
@@ -91,14 +90,13 @@ try {
 
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white border-4 border-black rounded-md">
-                    <thead class="bg-[#C2A47E] text-black">
+                    <thead class="bg-[#C2A47E] text-white">
                         <tr>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">First Name</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Last Name</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Username</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Role</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Email</th>
-                            <th class="py-3 px-6 text-center">Action</th>
+                            <th class="py-3 px-6 text-left border-r border-black">First Name</th>
+                            <th class="py-3 px-6 text-left border-r border-black">Last Name</th>
+                            <th class="py-3 px-6 text-left border-r border-black">Username</th>
+                            <th class="py-3 px-6 text-left border-r border-black">Role</th>
+                            <th class="py-3 px-6 text-left">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -116,9 +114,6 @@ try {
                                     </td>
                                     <td class="py-4 px-6 border-r border-black">
                                         <?php echo htmlspecialchars($user['role']); ?>
-                                    </td>
-                                    <td class="py-4 px-6 border-r border-black">
-                                        <?php echo htmlspecialchars($user['email']); ?>
                                     </td>
                                     <td class="py-4 px-6">
                                         <div class="flex justify-center">
