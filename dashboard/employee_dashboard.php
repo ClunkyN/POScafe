@@ -101,7 +101,7 @@ while ($row = mysqli_fetch_assoc($result_birthdays)) {
     </div>
     <!-- Main content -->
     <main class="ml-[230px] mt-[171px] p-6">
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 gap-4">
             <!-- No. of Orders -->
             <div class="bg-[#FFF0DC] p-4 rounded-lg border border-[#A88B68]">
                 <h2 class="text-lg font-bold text-[#A88B68]">No. of Orders</h2>
