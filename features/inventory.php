@@ -57,13 +57,14 @@ if (!$result) {
         </div>
 
         <div class="mb-6">
-            <input type="text" placeholder="Search inventory..."
-                class="min-w-full max-w-xs px-4 py-2 rounded border border-gray-300 focus:outline-none focus:border-[#C2A47E]">
+        <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search item..." 
+        class="min-w-full max-w-xs px-4 py-2 rounded border border-gray-300 focus:outline-none focus:border-[#C2A47E]">
         </div>
 
         <div class="space-y-6">
             <div class="overflow-x-auto rounded-md">
-                <table class="min-w-full bg-white border-4 border-black rounded-md">
+                
+                <table id="inventoryTable" class="min-w-full bg-white border-4 border-black rounded-md">
                     <thead class="bg-[#C2A47E] text-black">
                         <tr>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Item</th>
@@ -487,6 +488,27 @@ if (!$result) {
             });
         });
     </script>
+    <script>
+    function searchTable() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let table = document.getElementById("inventoryTable");
+        let rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) {
+            let cells = rows[i].getElementsByTagName("td");
+            let found = false;
+
+            for (let j = 0; j < cells.length; j++) {
+                if (cells[j].innerText.toLowerCase().includes(input)) {
+                    found = true;
+                    break;
+                }
+            }
+            rows[i].style.display = found ? "" : "none";
+        }
+    }
+</script>
+
 </body>
 
 </html>
