@@ -3,8 +3,10 @@ session_start();
 include "../conn/connection.php";
 
 // RBAC Check
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || 
-    ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'employee')) {
+if (
+    !isset($_SESSION['user_id']) || !isset($_SESSION['role']) ||
+    ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'employee')
+) {
     session_unset();
     session_destroy();
     header("Location: ../features/homepage.php");
@@ -60,7 +62,7 @@ if (!$result) {
     <main class="ml-[230px] mt-[171px] p-6">
         <div class="flex flex-col justify-between items-start mb-6">
             <h1 class="text-2xl font-bold mb-4">Products</h1>
-            <div class="flex items-center space-x-4">    
+            <div class="flex items-center space-x-4">
                 <button onclick="showAddModal()" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-2 px-4 rounded">
                     Add New Product
                 </button>
@@ -130,7 +132,7 @@ if (!$result) {
                                         <?php echo htmlspecialchars($row['quantity']); ?>
                                     </td>
                                     <td class="py-4 px-6 border-r border-black">
-                                        <?php 
+                                        <?php
                                         if (!empty($row['required_items'])) {
                                             $items = json_decode($row['required_items'], true);
                                             echo "<ul class='list-disc pl-4'>";
@@ -148,10 +150,10 @@ if (!$result) {
                                                 Edit
                                             </button>
                                             <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                                            <button onclick="archiveProduct(<?php echo $row['id']; ?>)"
-                                                class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
-                                                Archive
-                                            </button>
+                                                <button onclick="archiveProduct(<?php echo $row['id']; ?>)"
+                                                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">
+                                                    Archive
+                                                </button>
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -197,7 +199,12 @@ if (!$result) {
             <form id="addProductForm" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium">Product Name</label>
-                    <input type="text" name="product_name" required class="w-full p-2 border border-gray-300 rounded">
+                    <input type="text"
+                        id="edit_product_name"
+                        name="product_name"
+                        maxlength="50"
+                        class="w-full p-2 border border-gray-300 rounded"
+                        required>
                 </div>
 
                 <div>
@@ -229,8 +236,8 @@ if (!$result) {
                             <select name="items[]" class="w-2/3 p-2 border border-gray-300 rounded">
                                 <?php
                                 $inventory = mysqli_query($con, "SELECT * FROM inventory WHERE id NOT IN (SELECT id FROM archive_inventory)");
-                                while($item = mysqli_fetch_assoc($inventory)) {
-                                    echo "<option value='".$item['id']."|".$item['item']."'>".$item['item']."</option>";
+                                while ($item = mysqli_fetch_assoc($inventory)) {
+                                    echo "<option value='" . $item['id'] . "|" . $item['item'] . "'>" . $item['item'] . "</option>";
                                 }
                                 ?>
                             </select>
@@ -258,7 +265,12 @@ if (!$result) {
 
                 <div>
                     <label class="block text-sm font-medium">Product Name</label>
-                    <input type="text" id="edit_product_name" name="product_name" required class="w-full p-2 border border-gray-300 rounded">
+                    <input type="text"
+                        id="edit_product_name"
+                        name="product_name"
+                        maxlength="50"
+                        class="w-full p-2 border border-gray-300 rounded"
+                        required>
                 </div>
 
                 <div>
@@ -280,7 +292,7 @@ if (!$result) {
 
                 <div>
                     <label class="block text-sm font-medium">Available Quantity</label>
-                    <input type="number" id="edit_available_quantity" name="available_quantity" readonly 
+                    <input type="number" id="edit_available_quantity" name="available_quantity" readonly
                         class="w-full p-2 border border-gray-300 rounded bg-gray-100">
                 </div>
 
@@ -315,10 +327,10 @@ if (!$result) {
                     document.getElementById('edit_price').value = data.price;
                     document.getElementById('edit_available_quantity').value = data.quantity;
                     document.getElementById('edit_additional_quantity').value = 0;
-                    
+
                     // Clear existing items
                     document.getElementById('editItemsList').innerHTML = '';
-                    
+
                     // Load existing items
                     if (data.required_items) {
                         const items = JSON.parse(data.required_items);
@@ -328,8 +340,8 @@ if (!$result) {
                                     <select name="items[]" class="w-2/3 p-2 border border-gray-300 rounded">
                                         <?php
                                         $inventory = mysqli_query($con, "SELECT * FROM inventory WHERE id NOT IN (SELECT id FROM archive_inventory)");
-                                        while($item = mysqli_fetch_assoc($inventory)) {
-                                            echo "<option value='".$item['id']."|".$item['item']."'>".$item['item']."</option>";
+                                        while ($item = mysqli_fetch_assoc($inventory)) {
+                                            echo "<option value='" . $item['id'] . "|" . $item['item'] . "'>" . $item['item'] . "</option>";
                                         }
                                         ?>
                                     </select>
@@ -339,7 +351,7 @@ if (!$result) {
                             `;
                             const div = document.createElement('div');
                             div.innerHTML = itemDiv;
-                            
+
                             // Set selected value for dropdown
                             const select = div.querySelector('select');
                             const optionValue = `${item.id}|${item.name}`;
@@ -348,11 +360,11 @@ if (!$result) {
                                     option.selected = true;
                                 }
                             });
-                            
+
                             document.getElementById('editItemsList').appendChild(div.firstElementChild);
                         });
                     }
-                    
+
                     document.getElementById('editProductModal').classList.remove('hidden');
                 })
                 .catch(error => {
@@ -364,7 +376,7 @@ if (!$result) {
         // Add event listener for edit form submission
         document.getElementById('editProductForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             // Validate number of items
             const itemsCount = document.querySelectorAll('#editItemsList > div').length;
             if (itemsCount > 3) {
@@ -373,12 +385,12 @@ if (!$result) {
             }
 
             const formData = new FormData(this);
-            
+
             // Collect items and quantities
             const items = [];
             const itemSelects = this.querySelectorAll('select[name="items[]"]');
             const itemQtys = this.querySelectorAll('input[name="item_qty[]"]');
-            
+
             itemSelects.forEach((select, index) => {
                 const [id, name] = select.value.split('|');
                 items.push({
@@ -387,33 +399,33 @@ if (!$result) {
                     quantity: parseInt(itemQtys[index].value)
                 });
             });
-            
+
             formData.set('required_items', JSON.stringify(items));
-            
+
             // Calculate total quantity
             const availableQty = parseInt(document.getElementById('edit_available_quantity').value);
             const additionalQty = parseInt(document.getElementById('edit_additional_quantity').value);
             const totalQty = availableQty + additionalQty;
-            
+
             formData.set('quantity', totalQty);
-            
+
             fetch('../endpoint/update_product.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeEditModal();
-                    location.reload();
-                } else {
-                    alert('Error updating product: ' + (data.error || 'Unknown error'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error updating product');
-            });
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeEditModal();
+                        location.reload();
+                    } else {
+                        alert('Error updating product: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error updating product');
+                });
         });
 
         function archiveProduct(id) {
@@ -481,8 +493,8 @@ if (!$result) {
                     <select name="items[]" class="w-2/3 p-2 border border-gray-300 rounded">
                         <?php
                         $inventory = mysqli_query($con, "SELECT * FROM inventory WHERE id NOT IN (SELECT id FROM archive_inventory)");
-                        while($item = mysqli_fetch_assoc($inventory)) {
-                            echo "<option value='".$item['id']."|".$item['item']."'>".$item['item']."</option>";
+                        while ($item = mysqli_fetch_assoc($inventory)) {
+                            echo "<option value='" . $item['id'] . "|" . $item['item'] . "'>" . $item['item'] . "</option>";
                         }
                         ?>
                     </select>
@@ -499,6 +511,54 @@ if (!$result) {
     </script>
 
     <script>
+        function validateProductName(input) {
+            const trimmedValue = input.value.trim();
+            const charCount = document.getElementById(input.id + '_count');
+
+
+            // Validate empty/spaces only
+            if (!trimmedValue) {
+                input.value = '';
+                return false;
+            }
+
+            // Truncate if over 50 chars
+            if (trimmedValue.length > 50) {
+                input.value = trimmedValue.substring(0, 50);
+                alert('Product name cannot exceed 50 characters');
+            }
+
+            return true;
+        }
+
+        // Add validation to both forms
+        document.querySelectorAll('#addProductForm, #editProductForm').forEach(form => {
+            const productNameInput = form.querySelector('input[name="product_name"]');
+            const formId = form.id;
+
+            // Add input validation
+            productNameInput.addEventListener('input', function() {
+                validateProductName(this);
+            });
+
+            // Add form submit validation
+            form.addEventListener('submit', function(e) {
+                const productName = productNameInput.value.trim();
+
+                if (!productName || productName.length === 0) {
+                    e.preventDefault();
+                    alert('Product name cannot be empty');
+                    return false;
+                }
+
+                if (productName.length > 50) {
+                    e.preventDefault();
+                    alert('Product name cannot exceed 50 characters');
+                    return false;
+                }
+            });
+        });
+
         // Add modal functions
         function showAddModal() {
             document.getElementById('addProductModal').classList.remove('hidden');
@@ -512,7 +572,7 @@ if (!$result) {
         // Add form submission handler
         document.getElementById('addProductForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             // Validate number of items
             const itemsCount = document.querySelectorAll('#addItemsList > div').length;
             if (itemsCount > 3) {
@@ -521,12 +581,12 @@ if (!$result) {
             }
 
             const formData = new FormData(this);
-            
+
             // Collect items and quantities
             const items = [];
             const itemSelects = this.querySelectorAll('select[name="items[]"]');
             const itemQtys = this.querySelectorAll('input[name="item_qty[]"]');
-            
+
             itemSelects.forEach((select, index) => {
                 const [id, name] = select.value.split('|');
                 items.push({
@@ -535,26 +595,167 @@ if (!$result) {
                     quantity: parseInt(itemQtys[index].value)
                 });
             });
-            
+
             formData.append('required_items', JSON.stringify(items));
-            
+
             fetch('../endpoint/add_product.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeAddModal();
-                    location.reload();
-                } else {
-                    alert('Error adding product: ' + (data.error || 'Unknown error'));
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeAddModal();
+                        location.reload();
+                    } else {
+                        alert('Error adding product: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error adding product');
+                });
+        });
+    </script>
+
+    <script>
+        function validatePrice(input) {
+            let value = input.value;
+            const cursorPos = input.selectionStart;
+
+            // Remove non-numeric and non-decimal characters
+            value = value.replace(/[^\d.]/g, '');
+
+            // Handle decimal points
+            const parts = value.split('.');
+            if (parts.length > 2) {
+                parts.splice(2); // Remove extra decimal points
+            }
+
+            // Handle whole number part (1-9999)
+            if (parts[0]) {
+                // Remove leading zeros
+                parts[0] = parts[0].replace(/^0+/, '');
+                // Limit to 4 digits
+                if (parts[0].length > 4) {
+                    parts[0] = parts[0].slice(0, 4);
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error adding product');
+                // If empty after removing zeros, set to '0'
+                if (!parts[0]) parts[0] = '0';
+            }
+
+            // Handle decimal part (max 2 digits)
+            if (parts[1]) {
+                parts[1] = parts[1].slice(0, 2);
+            }
+
+            // Combine parts
+            input.value = parts.join('.');
+
+            // Restore cursor position
+            input.setSelectionRange(cursorPos, cursorPos);
+
+            // Validate final value
+            const numValue = parseFloat(input.value);
+            if (numValue > 9999.99) {
+                input.value = '9999.99';
+                return false;
+            }
+            if (numValue <= 0) {
+                return false;
+            }
+            return true;
+        }
+
+        // Add price validation to forms
+        document.querySelectorAll('#addProductForm, #editProductForm').forEach(form => {
+            const priceInput = form.querySelector('input[name="price"]');
+            
+            // Change input type to text for better decimal handling
+            priceInput.type = 'text';
+            priceInput.placeholder = '0.00';
+
+            // Add input validation
+            priceInput.addEventListener('input', function() {
+                validatePrice(this);
             });
+
+            // Format on blur
+            priceInput.addEventListener('blur', function() {
+                if (this.value && validatePrice(this)) {
+                    this.value = parseFloat(this.value).toFixed(2);
+                }
+            });
+
+            // Add to existing form submit validation
+            form.addEventListener('submit', function(e) {
+                // ...existing validation...
+                
+                const price = parseFloat(priceInput.value);
+                if (!price || price <= 0 || price > 9999.99) {
+                    e.preventDefault();
+                    alert('Price must be between 0.01 and 9999.99');
+                    return false;
+                }
+            });
+        });
+    </script>
+
+    <script>
+        function validateQuantity(input) {
+            // Store cursor position
+            const cursorPos = input.selectionStart;
+            
+            // Remove non-numeric characters
+            let value = input.value.replace(/[^\d]/g, '');
+            
+            // Remove leading zeros
+            value = value.replace(/^0+/, '');
+            
+            // Limit to 3 digits
+            if (value.length > 3) {
+                value = value.slice(0, 3);
+            }
+            
+            // Ensure value is between 1-999
+            const numValue = parseInt(value);
+            if (numValue > 999) {
+                value = '999';
+            } else if (numValue < 1) {
+                value = '';
+            }
+            
+            // Update input value
+            input.value = value;
+            
+            // Restore cursor position
+            input.setSelectionRange(cursorPos, cursorPos);
+            
+            return value !== '';
+        }
+
+        // Add quantity validation to forms
+        document.querySelectorAll('#addProductForm, #editProductForm').forEach(form => {
+            const qtyInput = form.querySelector('input[name="quantity"], input[name="additional_quantity"]');
+            
+            if (qtyInput) {
+                qtyInput.type = 'text';
+                qtyInput.placeholder = 'Enter quantity (1-999)';
+                
+                qtyInput.addEventListener('input', function() {
+                    validateQuantity(this);
+                });
+                
+                // Add to form submit validation
+                form.addEventListener('submit', function(e) {
+                    const qty = parseInt(qtyInput.value);
+                    if (!qty || qty < 1 || qty > 999) {
+                        e.preventDefault();
+                        alert('Quantity must be between 1 and 999');
+                        return false;
+                    }
+                });
+            }
         });
     </script>
 </body>
