@@ -193,23 +193,19 @@ if (!$result) {
     </main>
 
     <!-- Add Product Modal -->
-    <div id="addProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg w-[600px]">
-            <h2 class="text-xl font-bold mb-4">Add Product</h2>
-            <form id="addProductForm" class="space-y-4">
-                <div>
+    <div id="addProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg w-96">
+            <h2 class="text-xl font-bold mb-4">Add New Product</h2>
+            <form id="addProductForm">
+                <div class="mb-4">
                     <label class="block text-sm font-medium">Product Name</label>
-                    <input type="text"
-                        id="edit_product_name"
-                        name="product_name"
-                        maxlength="50"
-                        class="w-full p-2 border border-gray-300 rounded"
-                        required>
+                    <input type="text" name="product_name" id="add_product_name" maxlength="50"
+                        class="w-full p-2 border border-gray-300 rounded" required>
                 </div>
 
-                <div>
+                <div class="mb-4">
                     <label class="block text-sm font-medium">Category</label>
-                    <select name="category_id" required class="w-full p-2 border border-gray-300 rounded">
+                    <select name="category_id" id="add_category_id" required class="w-full p-2 border border-gray-300 rounded">
                         <?php
                         $categories = mysqli_query($con, "SELECT * FROM categories WHERE id NOT IN (SELECT id FROM archive_categories)");
                         while ($category = mysqli_fetch_assoc($categories)) {
@@ -219,17 +215,19 @@ if (!$result) {
                     </select>
                 </div>
 
-                <div>
+                <div class="mb-4">
                     <label class="block text-sm font-medium">Price</label>
-                    <input type="number" name="price" step="0.01" required class="w-full p-2 border border-gray-300 rounded">
+                    <input type="text" name="price" id="add_price" 
+                        class="w-full p-2 border border-gray-300 rounded" required>
                 </div>
 
-                <div>
+                <div class="mb-4">
                     <label class="block text-sm font-medium">Quantity</label>
-                    <input type="number" name="quantity" min="0" required class="w-full p-2 border border-gray-300 rounded">
+                    <input type="text" name="quantity" id="add_quantity"
+                        class="w-full p-2 border border-gray-300 rounded" required>
                 </div>
 
-                <div>
+                <div class="mb-4">
                     <label class="block text-sm font-medium">Required Items</label>
                     <div id="addItemsList" class="space-y-2">
                         <div class="flex gap-2">
@@ -245,10 +243,12 @@ if (!$result) {
                             <button type="button" onclick="removeItem(this)" class="bg-red-500 text-white px-3 rounded">×</button>
                         </div>
                     </div>
-                    <button type="button" onclick="addNewItem('addItemsList')" class="mt-2 text-blue-600 hover:text-blue-800">+ Add Another Item</button>
+                    <button type="button" onclick="addNewItem('addItemsList')" class="mt-2 text-blue-600 hover:text-blue-800">
+                        + Add Another Item
+                    </button>
                 </div>
 
-                <div class="flex justify-end gap-2 mt-4">
+                <div class="flex justify-end gap-2">
                     <button type="button" onclick="closeAddModal()" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Cancel</button>
                     <button type="submit" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Add Product</button>
                 </div>
@@ -257,27 +257,23 @@ if (!$result) {
     </div>
 
     <!-- Edit Product Modal -->
-    <div id="editProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg w-[600px]">
+    <div id="editProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg w-96">
             <h2 class="text-xl font-bold mb-4">Edit Product</h2>
-            <form id="editProductForm" class="space-y-4">
+            <form id="editProductForm">
                 <input type="hidden" id="edit_product_id" name="id">
-
-                <div>
+                
+                <div class="mb-4">
                     <label class="block text-sm font-medium">Product Name</label>
-                    <input type="text"
-                        id="edit_product_name"
-                        name="product_name"
-                        maxlength="50"
-                        class="w-full p-2 border border-gray-300 rounded"
-                        required>
+                    <input type="text" name="product_name" id="edit_product_name" maxlength="50"
+                        class="w-full p-2 border border-gray-300 rounded" required>
                 </div>
 
-                <div>
+                <div class="mb-4">
                     <label class="block text-sm font-medium">Category</label>
-                    <select id="edit_category_id" name="category_id" required class="w-full p-2 border border-gray-300 rounded">
+                    <select name="category_id" id="edit_category_id" required class="w-full p-2 border border-gray-300 rounded">
                         <?php
-                        $categories = mysqli_query($con, "SELECT * FROM categories WHERE id NOT IN (SELECT id FROM archive_categories)");
+                        mysqli_data_seek($categories, 0);
                         while ($category = mysqli_fetch_assoc($categories)) {
                             echo "<option value='" . $category['id'] . "'>" . $category['category_name'] . "</option>";
                         }
@@ -285,32 +281,36 @@ if (!$result) {
                     </select>
                 </div>
 
-                <div>
+                <div class="mb-4">
                     <label class="block text-sm font-medium">Price</label>
-                    <input type="number" id="edit_price" name="price" step="0.01" required class="w-full p-2 border border-gray-300 rounded">
+                    <input type="text" name="price" id="edit_price"
+                        class="w-full p-2 border border-gray-300 rounded" required>
                 </div>
 
-                <div>
+                <div class="mb-4">
                     <label class="block text-sm font-medium">Available Quantity</label>
-                    <input type="number" id="edit_available_quantity" name="available_quantity" readonly
+                    <input type="text" id="edit_available_quantity" readonly
                         class="w-full p-2 border border-gray-300 rounded bg-gray-100">
                 </div>
 
-                <div>
+                <div class="mb-4">
                     <label class="block text-sm font-medium">Additional Quantity</label>
-                    <input type="number" id="edit_additional_quantity" name="additional_quantity" min="0" value="0"
-                        class="w-full p-2 border border-gray-300 rounded">
+                    <input type="text" name="additional_quantity" id="edit_additional_quantity"
+                        class="w-full p-2 border border-gray-300 rounded" value="0">
                 </div>
 
-                <div>
+                <div class="mb-4">
                     <label class="block text-sm font-medium">Required Items</label>
                     <div id="editItemsList" class="space-y-2"></div>
-                    <button type="button" onclick="addNewItem('editItemsList')" class="mt-2 text-blue-600 hover:text-blue-800">+ Add Another Item</button>
+                    <button type="button" onclick="addNewItem('editItemsList')" 
+                        class="mt-2 text-blue-600 hover:text-blue-800">+ Add Another Item</button>
                 </div>
 
-                <div class="flex justify-end gap-2 mt-4">
-                    <button type="button" onclick="closeEditModal()" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Cancel</button>
-                    <button type="submit" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Update Product</button>
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeEditModal()" 
+                        class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Cancel</button>
+                    <button type="submit" 
+                        class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">Update Product</button>
                 </div>
             </form>
         </div>
