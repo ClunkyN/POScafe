@@ -7,7 +7,7 @@ try {
     $query = "SELECT user_name, role FROM user_db WHERE user_id = ?";
     $user_id = $_SESSION['user_id'];
     $stmt = mysqli_prepare($con, $query);
-    
+
     if ($stmt) {
         mysqli_stmt_bind_param($stmt, "s", $user_id);
         mysqli_stmt_execute($stmt);
@@ -30,7 +30,7 @@ try {
 <div class="fixed top-0 right-0 h-[171px] w-[1920px] bg-[#C2A47E] shadow-md flex justify-between items-center px-8">
     <!-- Logo Section -->
     <div class="flex items-center">
-        <img src="../assets/header_logo.svg" alt="Cafe Logo" class="object-cover">
+        <img src="../assets/header_logo.svg" alt="logo" class="h-[100px] w-[100px]">
     </div>
 
     <!-- User Profile Dropdown -->
