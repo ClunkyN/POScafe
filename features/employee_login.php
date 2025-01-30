@@ -16,6 +16,19 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
         if($result && mysqli_num_rows($result) > 0) {
             $user_data = mysqli_fetch_assoc($result);
             
+            // Check if user is archived
+            $archive_check = "SELECT * FROM archive_users WHERE user_id = ?";
+            $stmt = mysqli_prepare($con, $archive_check);
+            mysqli_stmt_bind_param($stmt, "s", $user_data['user_id']);
+            mysqli_stmt_execute($stmt);
+            $archive_result = mysqli_stmt_get_result($stmt);
+            
+            if(mysqli_num_rows($archive_result) > 0) {
+                $error = "Account deactivated. Please contact your administrator.";
+                echo "<script>alert('$error');</script>";
+                exit();
+            }
+            
             if(password_verify($password, $user_data['password'])) {
                 $_SESSION['user_id'] = $user_data['user_id'];
                 $_SESSION['role'] = $user_data['role'];

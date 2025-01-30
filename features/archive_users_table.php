@@ -97,7 +97,6 @@ try {
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Last Name</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Username</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Role</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Email</th>
                             <th class="py-3 px-6 text-center">Action</th>
                         </tr>
                     </thead>
@@ -116,9 +115,6 @@ try {
                                     </td>
                                     <td class="py-4 px-6 border-r border-black">
                                         <?php echo htmlspecialchars($user['role']); ?>
-                                    </td>
-                                    <td class="py-4 px-6 border-r border-black">
-                                        <?php echo htmlspecialchars($user['email']); ?>
                                     </td>
                                     <td class="py-4 px-6">
                                         <div class="flex justify-center">

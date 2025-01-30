@@ -11,7 +11,7 @@ header("Pragma: no-cache");
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'new_user') {
     session_unset();
     session_destroy();
-    header("Location: ../features/login.php");
+    header("Location: ../dashboard/new_user.php");
     exit();
 }
 
@@ -27,7 +27,7 @@ $user = mysqli_fetch_assoc($result);
 if (!$user) {
     session_unset();
     session_destroy();
-    header("Location: ../features/login.php");
+    header("Location: ../dashboard/new_user.php");
     exit();
 }
 ?>
@@ -46,6 +46,42 @@ if (!$user) {
         window.addEventListener('popstate', function() {
             history.pushState(null, null, document.URL);
         });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        function checkUserRole() {
+            $.ajax({
+                url: '../endpoint/check_user_role.php',
+                method: 'POST',
+                data: {
+                    user_id: '<?php echo $_SESSION['user_id']; ?>'
+                },
+                dataType: 'json',
+                success: function(response) {
+                    console.log('Response:', response); // Debug log
+                    
+                    if (response.success) {
+                        if (response.role === 'employee') {
+                            console.log('Redirecting to employee dashboard...'); // Debug log
+                            window.location.replace(response.redirect);
+                        }
+                    } else {
+                        console.error('Error:', response.error);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                }
+            });
+        }
+
+        // Check every 3 seconds
+        setInterval(checkUserRole, 3000);
+        
+        // Initial check
+        checkUserRole();
+    });
     </script>
 </head>
 
