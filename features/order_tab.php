@@ -69,7 +69,6 @@ $orderNumber = generateOrderNumber($con);
     </script>
     <script src="../js/generateReceipt.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Add user ID to global scope for session monitor
         const userId = '<?php echo $_SESSION['user_id']; ?>';
