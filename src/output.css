@@ -1100,10 +1100,6 @@ video {
   border-top-width: 1px;
 }
 
-.border-b {
-  border-bottom-width: 1px;
-}
-
 .border-\[\#A88B68\] {
   --tw-border-opacity: 1;
   border-color: rgb(168 139 104 / var(--tw-border-opacity, 1));

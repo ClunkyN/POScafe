@@ -5,14 +5,8 @@ function checkSessionStatus() {
         dataType: 'json',
         success: function(response) {
             if (response.status === 'archived') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Account Deactivated',
-                    text: response.message,
-                    confirmButtonText: 'OK'
-                }).then((result) => {
-                    window.location.href = '../features/homepage.php';
-                });
+                alert(response.message);
+                window.location.href = '../features/homepage.php';
             }
         },
         error: function(xhr, status, error) {

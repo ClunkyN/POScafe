@@ -2,10 +2,15 @@
 session_start();
 include "../conn/connection.php";
 
-// Redirect if already logged in
-if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'employee') {
-    header("Location: ../dashboard/employee_dashboard.php");
-    exit();
+// Modified session check to prevent redirect loop
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] === 'employee') {
+        header("Location: ../dashboard/employee_dashboard.php");
+        exit();
+    } elseif ($_SESSION['role'] === 'new_user') {
+        header("Location: ../dashboard/new_user.php");
+        exit();
+    }
 }
 
 if($_SERVER['REQUEST_METHOD'] == "POST") {
@@ -21,10 +26,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
         $archive_result = mysqli_stmt_get_result($stmt);
 
         if(mysqli_num_rows($archive_result) > 0) {
-            $error = "Account is deactivated. Please contact your administrator.";
+            $error = "Account is Archived. Please contact your administrator.";
         } else {
-            // Continue with normal login process
-            $query = "SELECT * FROM user_db WHERE user_name = ? AND role = 'employee'";
+            $query = "SELECT * FROM user_db WHERE user_name = ? AND (role = 'employee' OR role = 'new_user')";
             $stmt = mysqli_prepare($con, $query);
             mysqli_stmt_bind_param($stmt, "s", $username);
             mysqli_stmt_execute($stmt);
@@ -33,35 +37,16 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
             if($result && mysqli_num_rows($result) > 0) {
                 $user_data = mysqli_fetch_assoc($result);
                 
-                // Check if user is archived
-                $archive_check = "SELECT * FROM archive_users WHERE user_id = ?";
-                $stmt = mysqli_prepare($con, $archive_check);
-                mysqli_stmt_bind_param($stmt, "s", $user_data['user_id']);
-                mysqli_stmt_execute($stmt);
-                $archive_result = mysqli_stmt_get_result($stmt);
-                
-                if(mysqli_num_rows($archive_result) > 0) {
-                    $error = "Account deactivated. Please contact your administrator.";
-                    echo "<script>alert('$error');</script>";
-                    exit();
-                }
-                
                 if(password_verify($password, $user_data['password'])) {
                     $_SESSION['user_id'] = $user_data['user_id'];
-                    $_SESSION['role'] = 'employee';
-                    $_SESSION['last_activity'] = time();
-
-                    // Redirect based on role
-                    switch($user_data['role']) {
-                        case 'employee':
-                            header("Location: ../dashboard/employee_dashboard.php");
-                            exit();
-                        case 'new_user':
-                            header("Location: ../dashboard/new_user.php");
-                            exit();
-                        default:
-                            $error = "Access denied. Please use correct login portal.";
+                    $_SESSION['role'] = $user_data['role'];
+                    
+                    if($user_data['role'] == 'new_user') {
+                        header("Location: ../dashboard/new_user.php");
+                    } else {
+                        header("Location: ../dashboard/employee_dashboard.php");
                     }
+                    exit();
                 } else {
                     $error = "Invalid username or password";
                 }
@@ -107,7 +92,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
                 <?php endif; ?>
 
                 <?php if(isset($_SESSION['success_message'])): ?>
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                    <div id="errorMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                         <?php 
                             echo $_SESSION['success_message']; 
                             unset($_SESSION['success_message']);
