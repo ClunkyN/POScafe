@@ -130,6 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <title>Sign Up - POSCafe</title>
     <link rel="stylesheet" href="../src/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="../js/signup.js" defer></script>
 </head>
 
 <body class="bg-[#F2DBBE] min-h-screen">
@@ -159,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
                 <form method="post" class="space-y-4">
                     <div>
-                        <label for="user_name" class="block text-sm font-medium text-gray-700">Username</label>
+                        <label for="user_name" class="block text-sm font-medium text-gray-700">Username<span class="text-red-500 required-asterisk"> *</span></label>
                         <input type="text"
                             name="user_name"
                             id="user_name"
@@ -170,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     </div>
                     <div class="flex space-x-4 mb-4">
                         <div class="w-1/2">
-                            <label for="fname" class="block text-sm font-medium text-gray-700">First Name</label>
+                            <label for="fname" class="block text-sm font-medium text-gray-700">First Name <span class="text-red-500 required-asterisk"> *</span></label>
                             <input type="text"
                                 name="fname"
                                 id="fname"
@@ -181,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                         </div>
 
                         <div class="w-1/2">
-                            <label for="lname" class="block text-sm font-medium text-gray-700">Last Name</label>
+                            <label for="lname" class="block text-sm font-medium text-gray-700">Last Name<span class="text-red-500 required-asterisk"> *</span></label>
                             <input type="text"
                                 name="lname"
                                 id="lname"
@@ -192,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                         </div>
                     </div>
                     <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email<span class="text-red-500 required-asterisk"> *</span></label>
                         <input type="email"
                             name="email"
                             id="email"
@@ -201,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
                     </div>
                     <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password<span class="text-red-500 required-asterisk"> *</span></label>
                         <div class="relative group">
                             <input type="password"
                                 name="password"
@@ -224,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     </div>
 
                     <div>
-                        <label for="cpassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                        <label for="cpassword" class="block text-sm font-medium text-gray-700">Confirm Password<span class="text-red-500 required-asterisk"> *</span></label>
                         <div class="relative group">
                             <input type="password"
                                 name="cpassword"
@@ -241,132 +242,89 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                             </button>
                         </div>
                     </div>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="terms" name="terms" required class="mr-2">
+                        <label for="terms" class="text-sm">I agree to the <a href="#" onclick="showTermsModal(event)" class="text-blue-600 hover:underline">Terms and Conditions</a></label>
+                    </div>
                     <div>
-                    <button type="submit"
-                        class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
-                        Sign up
-                    </button>
-            </div>
+                        <button type="submit"
+                            class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                            Sign up
+                        </button>
+                    </div>
 
-            <div class="text-start flex">
-                <p>Have an account? </p>
-                <a class="pl-2 underline text-blue-700" href="../features/employee_login.php">Login here</a>
+                    <div class="text-start flex">
+                        <p>Have an account? </p>
+                        <a class="pl-2 hover:underline text-blue-700" href="../features/employee_login.php">Login here</a>
+                    </div>
+                </form>
             </div>
-            </form>
         </div>
     </div>
+    <div id="termsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="relative top-20 mx-auto p-6 border w-[600px] shadow-lg rounded-md bg-white">
+            <h2 class="text-2xl font-bold mb-4">Terms and Conditions</h2>
+            <div class="max-h-[400px] overflow-y-auto mb-4">
+                <p class="mb-4">Welcome to Cafe POS System. By accessing and using this system, you agree to be bound by these terms and conditions:</p>
+
+                <h3 class="font-bold mb-2">1. Account Security</h3>
+                <p class="mb-4">You are responsible for maintaining the confidentiality of your account credentials. Any activities that occur under your account are your responsibility.</p>
+
+                <h3 class="font-bold mb-2">2. Acceptable Use</h3>
+                <p class="mb-4">You agree to use the system only for its intended purpose and in compliance with all applicable laws and regulations.</p>
+
+                <h3 class="font-bold mb-2">3. Privacy</h3>
+                <p class="mb-4">Your use of this system is also governed by our Privacy Policy. We respect your privacy and protect your personal information.</p>
+
+                <h3 class="font-bold mb-2">4. System Access</h3>
+                <p class="mb-4">Access to certain features may be restricted based on your user role and permissions.</p>
+
+                <h3 class="font-bold mb-2">5. Modifications</h3>
+                <p>We reserve the right to modify these terms at any time. Continued use of the system constitutes acceptance of modified terms.</p>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="closeTermsModal()" class="bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                    Close
+                </button>
+            </div>
+        </div>
     </div>
+    <!--TERMS AND CONDITIONS SCRIPT-->
+    <script>
+        function showTermsModal(event) {
+            event.preventDefault();
+            document.getElementById('termsModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTermsModal() {
+            document.getElementById('termsModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('termsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTermsModal();
+            }
+        });
+    </script>
+    <script>
+        function togglePassword(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(inputId + '-toggle');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
 </body>
 
 </html>
-<script>
-    function checkPasswordStrength() {
-        const password = document.getElementById('password').value;
-        const strengthBar = document.getElementById('strength-bar');
-        const confirmPassword = document.getElementById('cpassword');
-        let strength = 0;
-        let messages = [];
-
-        // Reset strength bar
-        strengthBar.innerHTML = '';
-
-        // Check length
-        if (password.length >= 8) {
-            strength += 1;
-        } else {
-            messages.push('At least 8 characters');
-        }
-
-        // Check uppercase
-        if (password.match(/[A-Z]/)) {
-            strength += 1;
-        } else {
-            messages.push('One uppercase letter');
-        }
-
-        // Check lowercase
-        if (password.match(/[a-z]/)) {
-            strength += 1;
-        } else {
-            messages.push('One lowercase letter');
-        }
-
-        // Check numbers
-        if (password.match(/[0-9]/)) {
-            strength += 1;
-        } else {
-            messages.push('One number');
-        }
-
-        // Check special characters
-        if (password.match(/[!@#$%^&*(),.?":{}|<>]/)) {
-            strength += 1;
-        } else {
-            messages.push('One special character');
-        }
-
-        // Update strength bar
-        let strengthText = '';
-        let strengthColor = '';
-        switch (strength) {
-            case 0:
-                strengthColor = '#ff0000';
-                strengthText = 'Very Weak';
-                break;
-            case 1:
-                strengthColor = '#ff4500';
-                strengthText = 'Weak';
-                break;
-            case 2:
-                strengthColor = '#ffa500';
-                strengthText = 'Fair';
-                break;
-            case 3:
-                strengthColor = '#9acd32';
-                strengthText = 'Good';
-                break;
-            case 4:
-                strengthColor = '#90ee90';
-                strengthText = 'Strong';
-                break;
-            case 5:
-                strengthColor = '#008000';
-                strengthText = 'Very Strong';
-                break;
-        }
-
-        strengthBar.innerHTML = `
-        <div style="width: ${(strength/5)*100}%; background-color: ${strengthColor}; height: 5px; transition: all 0.3s;"></div>
-        <div class="text-sm mt-1">${strengthText}</div>
-        <div class="text-sm text-gray-600">${messages.length ? 'Required: ' + messages.join(', ') : ''}</div>
-    `;
-
-        // Check password match
-        if (confirmPassword.value) {
-            if (password === confirmPassword.value) {
-                confirmPassword.style.borderColor = '#008000';
-            } else {
-                confirmPassword.style.borderColor = '#ff0000';
-            }
-        }
-    }
-
-    // Add event listeners
-    document.getElementById('password').addEventListener('keyup', checkPasswordStrength);
-    document.getElementById('cpassword').addEventListener('keyup', checkPasswordStrength);
-
-    function togglePassword(inputId) {
-        const passwordInput = document.getElementById(inputId);
-        const toggleIcon = document.getElementById(inputId + '-toggle');
-
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            toggleIcon.classList.remove('fa-eye');
-            toggleIcon.classList.add('fa-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            toggleIcon.classList.remove('fa-eye-slash');
-            toggleIcon.classList.add('fa-eye');
-        }
-    }
-</script>

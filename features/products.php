@@ -263,7 +263,7 @@ if (!$result) {
     </div>
 
     <!-- Edit Product Modal -->
-    <div id="editProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div id="editProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex z-[80] items-center justify-center">
         <div class="bg-white p-6 rounded-lg w-96">
             <h2 class="text-xl font-bold mb-4">Edit Product</h2>
             <form id="editProductForm">

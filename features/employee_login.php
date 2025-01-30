@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     </div>
 
                     <div class="text-start flex">
-                        <p class="text-black">No account yet?</p> <a href="../features/signup.php" class=" pl-2 underline text-blue-700"> Register here</a>
+                        <p class="text-black">No account yet?</p> <a href="../features/signup.php" class=" pl-2 hover:underline text-blue-700"> Register here</a>
                     </div>
                 </form>
             </div>
