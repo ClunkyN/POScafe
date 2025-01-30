@@ -8,8 +8,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $product_name = mysqli_real_escape_string($con, $_POST['product_name']);
         $category_id = mysqli_real_escape_string($con, $_POST['category_id']);
         $price = mysqli_real_escape_string($con, $_POST['price']);
-        $quantity = mysqli_real_escape_string($con, $_POST['quantity']);
+        $quantity = intval(mysqli_real_escape_string($con, $_POST['quantity']));
         $required_items = $_POST['required_items'];
+
+        // Validate quantity
+        if ($quantity > 999) {
+            echo json_encode(['success' => false, 'error' => 'Quantity cannot exceed 999']);
+            exit();
+        }
 
         $query = "UPDATE products SET 
                   product_name = ?,

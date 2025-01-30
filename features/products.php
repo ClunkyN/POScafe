@@ -709,36 +709,42 @@ if (!$result) {
     </script>
 
     <script>
+        // Replace the existing validateQuantity function with:
         function validateQuantity(input) {
-            // Store cursor position
-            const cursorPos = input.selectionStart;
+            const isAdditionalQty = input.id === 'edit_additional_quantity';
+            let value = input.value;
 
-            // Remove non-numeric characters
-            let value = input.value.replace(/[^\d]/g, '');
+            // Remove spaces and non-numeric characters
+            value = value.replace(/[\s\D]/g, '');
 
-            // Remove leading zeros
-            value = value.replace(/^0+/, '');
-
-            // Limit to 3 digits
-            if (value.length > 3) {
-                value = value.slice(0, 3);
+            if (isAdditionalQty) {
+                // For additional quantity
+                if (value === '') {
+                    value = '0'; // Keep 0 as minimum
+                }
+                if (value.length > 3) {
+                    value = value.slice(0, 3);
+                }
+                const numValue = parseInt(value);
+                if (numValue > 999) {
+                    value = '999';
+                }
+            } else {
+                // For initial quantity (1-999)
+                value = value.replace(/^0+/, '');
+                if (value.length > 3) {
+                    value = value.slice(0, 3);
+                }
+                const numValue = parseInt(value);
+                if (numValue > 999) {
+                    value = '999';
+                } else if (numValue < 1) {
+                    value = '';
+                }
             }
 
-            // Ensure value is between 1-999
-            const numValue = parseInt(value);
-            if (numValue > 999) {
-                value = '999';
-            } else if (numValue < 1) {
-                value = '';
-            }
-
-            // Update input value
             input.value = value;
-
-            // Restore cursor position
-            input.setSelectionRange(cursorPos, cursorPos);
-
-            return value !== '';
+            return true;
         }
 
         // Add quantity validation to forms
@@ -758,7 +764,6 @@ if (!$result) {
                     const qty = parseInt(qtyInput.value);
                     if (!qty || qty < 1 || qty > 999) {
                         e.preventDefault();
-                        alert('Quantity must be between 1 and 999');
                         return false;
                     }
                 });
