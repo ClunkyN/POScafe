@@ -127,7 +127,6 @@ if (!$result) {
                         name="birthday" 
                         min="1990-01-01"
                         max="<?php echo date('Y-m-d'); ?>"
-                        onchange="validateBirthday(this)"
                         required
                         class="w-full p-2 border border-gray-300 rounded">
                 </div>
@@ -296,6 +295,23 @@ if (!$result) {
             rows[i].style.display = found ? "" : "none";
         }
     }
+
+    document.getElementById('customerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const birthday = document.getElementById('customer_birthday').value;
+        const selectedDate = new Date(birthday);
+        const minDate = new Date('1990-01-01');
+        const maxDate = new Date();
+        
+        if (selectedDate < minDate || selectedDate > maxDate) {
+            alert('Birthday must be between 1990 and current date');
+            return false;
+        }
+        
+        // Continue with form submission
+        this.submit();
+    });
 </script>
 
 </body>
