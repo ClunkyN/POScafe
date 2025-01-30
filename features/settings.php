@@ -41,64 +41,78 @@ if (
         <?php include '../features/component/sidebar.php'; ?>
     </div>
 
-    <main class="ml-[230px] mt-[171px] p-6">
-        <div class="flex flex-col justify-between items-start mb-6">
+    <main class="ml-[230px] mt-[171px] p-6 flex justify-center">
+        <div class="flex flex-col w-[450px]">
             <h1 class="text-2xl font-bold mb-4">Change Password</h1>
-        </div>
-        <div class="bg-[#A88B68] p-6 rounded-lg w-[450px] text-white">
-            <div class="bg-[#5A3A1B] p-6 rounded-lg">
-                <form id="changePasswordForm">
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold mb-2">Current Password:</label>
-                        <div class="flex items-center">
-                            <input type="password" 
-                                id="currentPassword" 
-                                name="currentPassword" 
-                                class="w-full p-2 border rounded text-black" 
-                                required />
-                            <span><i class="fa fa-eye ms-2 text-white cursor-pointer" id="currentPassword-toggle" onclick="togglePassword('currentPassword')"></i></span>
+            <div class="bg-[#A88B68] p-6 rounded-lg w-full text-white">
+                <div class="bg-[#5A3A1B] p-6 rounded-lg">
+                    <form id="changePasswordForm">
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold mb-2">Current Password:</label>
+                            <div class="relative group">
+                                <input type="password" 
+                                    id="currentPassword" 
+                                    name="currentPassword" 
+                                    class="w-full px-3 py-2 pr-12 border rounded text-black focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]" 
+                                    required />
+                                <button type="button"
+                                    onclick="togglePassword('currentPassword')"
+                                    class="absolute top-1/2 right-4 transform -translate-y-1/2">
+                                    <i class="fa fa-eye text-gray-500 hover:text-gray-700" id="currentPassword-toggle"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold mb-2">New Password:</label>
-                        <div class="flex items-center">
-                            <input type="password" 
-                                id="newPassword" 
-                                name="newPassword" 
-                                class="w-full p-2 border rounded text-black" 
-                                required 
-                                minlength="8"
-                                onkeyup="checkPasswordStrength()" />
-                            <span><i class="fa fa-eye ms-2 text-white cursor-pointer" id="newPassword-toggle" onclick="togglePassword('newPassword')"></i></span>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold mb-2">New Password:</label>
+                            <div class="relative group">
+                                <input type="password" 
+                                    id="newPassword" 
+                                    name="newPassword" 
+                                    class="w-full px-3 py-2 pr-12 border rounded text-black focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]" 
+                                    required 
+                                    minlength="8"
+                                    onkeyup="checkPasswordStrength()" />
+                                <button type="button"
+                                    onclick="togglePassword('newPassword')"
+                                    class="absolute top-1/2 right-4 transform -translate-y-1/2">
+                                    <i class="fa fa-eye text-gray-500 hover:text-gray-700" id="newPassword-toggle"></i>
+                                </button>
+                            </div>
+                            <div class="strength mt-1" id="strength-bar">
+                                <span></span>
+                            </div>
+                            <p class="text-xs text-gray-300 mt-1">
+                                Password must contain at least 8 characters with uppercase, lowercase, number and special character
+                            </p>
                         </div>
-                        <div class="strength mt-1" id="strength-bar">
-                            <span></span>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold mb-2">Confirm Password:</label>
+                            <div class="relative group">
+                                <input type="password" 
+                                    id="confirmPassword" 
+                                    name="confirmPassword" 
+                                    class="w-full px-3 py-2 pr-12 border rounded text-black focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]" 
+                                    required />
+                                <button type="button"
+                                    onclick="togglePassword('confirmPassword')"
+                                    class="absolute top-1/2 right-4 transform -translate-y-1/2">
+                                    <i class="fa fa-eye text-gray-500 hover:text-gray-700" id="confirmPassword-toggle"></i>
+                                </button>
+                            </div>
                         </div>
-                        <p class="text-xs text-gray-300 mt-1">
-                            Password must contain at least 8 characters with uppercase, lowercase, number and special character
-                        </p>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold mb-2">Confirm Password:</label>
-                        <div class="flex items-center">
-                            <input type="password" 
-                                id="confirmPassword" 
-                                name="confirmPassword" 
-                                class="w-full p-2 border rounded text-black" 
-                                required />
-                            <span><i class="fa fa-eye ms-2 text-white cursor-pointer" id="confirmPassword-toggle" onclick="togglePassword('confirmPassword')"></i></span>
-                        </div>
-                    </div>
-                    
-                    <!-- Error and Success Messages -->
-                    <div id="errorMessage" class="hidden text-red-500 bg-red-100 p-2 rounded mb-2"></div>
-                    <div id="successMessage" class="hidden text-green-500 bg-green-100 p-2 rounded mb-2"></div>
-                    
-                    <button type="submit" 
-                        class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white font-semibold px-4 py-2 rounded w-full">
-                        Update Password
-                    </button>
-                </form>
+                        
+                        <!-- Error and Success Messages -->
+                        <div id="errorMessage" class="hidden text-red-500 bg-red-100 p-2 rounded mb-2"></div>
+                        <div id="successMessage" class="hidden text-green-500 bg-green-100 p-2 rounded mb-2"></div>
+                        
+                        <button type="submit" 
+                            class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white font-semibold px-4 py-2 rounded w-full">
+                            Update Password
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </main>
