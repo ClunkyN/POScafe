@@ -574,11 +574,6 @@ video {
   inset: 0px;
 }
 
-.inset-y-0 {
-  top: 0px;
-  bottom: 0px;
-}
-
 .left-0 {
   left: 0px;
 }
@@ -593,6 +588,10 @@ video {
 
 .right-2 {
   right: 0.5rem;
+}
+
+.right-4 {
+  right: 1rem;
 }
 
 .top-0 {
@@ -611,32 +610,24 @@ video {
   top: 171px;
 }
 
-.right-3 {
-  right: 0.75rem;
-}
-
-.left-3 {
-  left: 0.75rem;
-}
-
-.left-14 {
-  left: 3.5rem;
-}
-
-.right-4 {
-  right: 1rem;
-}
-
 .z-50 {
   z-index: 50;
 }
 
-.order-1 {
-  order: 1;
+.z-40 {
+  z-index: 40;
 }
 
-.order-none {
-  order: 0;
+.z-\[80\] {
+  z-index: 80;
+}
+
+.z-\[30\] {
+  z-index: 30;
+}
+
+.z-\[75\] {
+  z-index: 75;
 }
 
 .col-span-1 {
@@ -723,10 +714,6 @@ video {
 
 .mt-\[171px\] {
   margin-top: 171px;
-}
-
-.-mt-\[5px\] {
-  margin-top: -5px;
 }
 
 .block {
@@ -1254,6 +1241,18 @@ video {
   --tw-bg-opacity: 0.5;
 }
 
+.bg-opacity-0 {
+  --tw-bg-opacity: 0;
+}
+
+.bg-opacity-20 {
+  --tw-bg-opacity: 0.2;
+}
+
+.bg-opacity-10 {
+  --tw-bg-opacity: 0.1;
+}
+
 .object-contain {
   -o-object-fit: contain;
      object-fit: contain;
@@ -1350,6 +1349,14 @@ video {
   padding-left: 1rem;
 }
 
+.pr-10 {
+  padding-right: 2.5rem;
+}
+
+.pr-12 {
+  padding-right: 3rem;
+}
+
 .pr-2 {
   padding-right: 0.5rem;
 }
@@ -1364,22 +1371,6 @@ video {
 
 .pt-6 {
   padding-top: 1.5rem;
-}
-
-.pr-10 {
-  padding-right: 2.5rem;
-}
-
-.pl-10 {
-  padding-left: 2.5rem;
-}
-
-.pr-3 {
-  padding-right: 0.75rem;
-}
-
-.pr-12 {
-  padding-right: 3rem;
 }
 
 .text-left {
@@ -1709,14 +1700,14 @@ video {
   color: rgb(30 64 175 / var(--tw-text-opacity, 1));
 }
 
-.hover\:text-red-700:hover {
-  --tw-text-opacity: 1;
-  color: rgb(185 28 28 / var(--tw-text-opacity, 1));
-}
-
 .hover\:text-gray-700:hover {
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity, 1));
+}
+
+.hover\:text-red-700:hover {
+  --tw-text-opacity: 1;
+  color: rgb(185 28 28 / var(--tw-text-opacity, 1));
 }
 
 .hover\:underline:hover {
@@ -1759,23 +1750,11 @@ video {
 }
 
 @media (min-width: 768px) {
-  .md\:order-1 {
-    order: 1;
-  }
-
-  .md\:order-none {
-    order: 0;
-  }
-
   .md\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .md\:flex-row {
     flex-direction: row;
-  }
-
-  .md\:text-left {
-    text-align: left;
   }
 }

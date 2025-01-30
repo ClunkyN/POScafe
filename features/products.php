@@ -197,9 +197,9 @@ if (!$result) {
             <?php endif; ?>
         </div>
     </main>
-
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-black bg-opacity-10 z-[75]"></div>
     <!-- Add Product Modal -->
-    <div id="addProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div id="addProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[80] flex items-center justify-center">
         <div class="bg-white p-6 rounded-lg w-96">
             <h2 class="text-xl font-bold mb-4">Add New Product</h2>
             <form id="addProductForm">
@@ -568,11 +568,15 @@ if (!$result) {
         // Add modal functions
         function showAddModal() {
             document.getElementById('addProductModal').classList.remove('hidden');
+            document.getElementById('modalOverlay').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
         }
 
         function closeAddModal() {
             document.getElementById('addProductModal').classList.add('hidden');
             document.getElementById('addProductForm').reset();
+            document.getElementById('modalOverlay').classList.add('hidden');
+            document.body.style.overflow = 'auto';
         }
 
         // Add form submission handler
