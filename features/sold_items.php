@@ -42,9 +42,15 @@ if (!$con) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-// Get date range parameters 
+// Get date range parameters
 $startDate = $_GET['start_date'] ?? date('Y-m-01'); // Default to first day of current month
 $endDate = $_GET['end_date'] ?? date('Y-m-d'); // Default to today
+
+// Ensure start_date is not greater than end_date
+if ($startDate > $endDate) {
+    echo "<script>alert('Error: Start date cannot be later than end date.'); window.history.back();</script>";
+    exit; // Stop further execution
+}
 
 // Add query for getting all sold items for PDF
 $pdfQuery = "SELECT 
@@ -203,6 +209,18 @@ while ($row = mysqli_fetch_assoc($result)) {
             }
         });
     </script>
+    <script>
+    function validateDates() {
+        let startDate = document.getElementById("start_date").value;
+        let endDate = document.getElementById("end_date").value;
+
+        if (startDate > endDate) {
+            alert("Error: Start date cannot be later than end date.");
+            return false; // Prevent form submission
+        }
+        return true; // Allow form submission
+    }
+</script>
 </head>
 
 <body class="bg-[#FFF0DC]">
@@ -214,23 +232,23 @@ while ($row = mysqli_fetch_assoc($result)) {
         
         <!-- Date Range Form -->
         <div class="mb-6">
-            <form method="GET" action="sold_items.php" class="mb-2 space-y-2 sm:space-y-4">
-                <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                    <input type="date" id="start_date" name="start_date"
-                        class="w-full sm:w-auto px-3 py-2 text-sm border rounded-lg"
-                        value="<?php echo isset($_GET['start_date']) ? htmlspecialchars($_GET['start_date']) : date('Y-m-01'); ?>"
-                        max="<?php echo date('Y-m-d'); ?>">
-                    <input type="date" id="end_date" name="end_date"
-                        class="w-full sm:w-auto px-3 py-2 text-sm border rounded-lg"
-                        value="<?php echo isset($_GET['end_date']) ? htmlspecialchars($_GET['end_date']) : date('Y-m-d'); ?>"
-                        max="<?php echo date('Y-m-d'); ?>">
-                    <button type="submit"
-                        class="w-full sm:w-auto bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded-lg">
-                        View Sold Items
-                    </button>
-                </div>
-            </form>
+    <form method="GET" action="orders.php" class="mb-2 space-y-2 sm:space-y-4" onsubmit="return validateDates();">
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <input type="date" id="start_date" name="start_date"
+                class="w-full sm:w-auto px-3 py-2 text-sm border rounded-lg"
+                value="<?php echo isset($_GET['start_date']) ? htmlspecialchars($_GET['start_date']) : date('Y-m-01'); ?>"
+                max="<?php echo date('Y-m-d'); ?>">
+            <input type="date" id="end_date" name="end_date"
+                class="w-full sm:w-auto px-3 py-2 text-sm border rounded-lg"
+                value="<?php echo isset($_GET['end_date']) ? htmlspecialchars($_GET['end_date']) : date('Y-m-d'); ?>"
+                max="<?php echo date('Y-m-d'); ?>">
+            <button type="submit"
+                class="w-full sm:w-auto bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded-lg">
+                View Sold Items
+            </button>
         </div>
+    </form>
+</div>
 
         <div class="flex justify-between items-center mb-4">
             <button onclick="generatePDF()" class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white px-4 py-2 rounded">
