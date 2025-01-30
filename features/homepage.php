@@ -50,19 +50,20 @@
             </button>
         </div>
     </header>
-    <main class="w-full max-w-6xl p-4 flex flex-col md:flex-row items-center gap-8">
-        <div class="flex-1 text-center md:text-left p-4 order-1 md:order-none">
-            <h1 class="text-6xl font-bold">GOOD</h1>
-            <p class="text-4xl font-bold">ideas start with brainstorming...</p>
-            <h1 class="text-6xl font-bold mt-8">GREAT</h1>
-            <p class="text-2xl font-bold">ideas start with a coffee...</p>
+    <main class="w-full max-w-6xl p-4 flex flex-col md:flex-row items-center justify-between gap-8">
+    <div class="flex-1 text-left p-4">
+        <h1 class="text-6xl font-bold">GOOD</h1>
+        <p class="text-4xl font-bold">ideas start with brainstorming...</p>
+        <h1 class="text-6xl font-bold mt-8">GREAT</h1>
+        <p class="text-2xl font-bold">ideas start with a coffee...</p>
+    </div>
+    <div class="relative w-[400px] h-[400px] bg-gray-200 rounded-lg overflow-hidden shadow-lg flex-shrink-0"> 
+        <div id="carousel-container" class="flex w-full h-full transition-transform duration-500 ease-in-out">
         </div>
-            <div class="relative w-[400px] h-[400px] bg-gray-200 rounded-lg overflow-hidden shadow-lg flex-shrink-0 order-none md:order-1"> 
-                <div id="carousel-container" class="flex w-full h-full transition-transform duration-500 ease-in-out">
-                </div>
-                <button id="prev" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white px-3 py-2 rounded-full shadow text-black">&#9665;</button>
-                <button id="next" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white px-3 py-2 rounded-full shadow text-black">&#9655;</button>
-            </div>
-        </main>
+        <button id="prev" class="absolute left-2 top-1/2 transform -translate-y-1/2  px-3 py-2 rounded-full shadow text-black"></button>
+        <button id="next" class="absolute right-2 top-1/2 transform -translate-y-1/2  px-3 py-2 rounded-full shadow text-black"></button>
+    </div>
+</main>
+
 </body>
 </html>
