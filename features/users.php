@@ -158,7 +158,7 @@ if (!$result) {
         document.getElementById('userForm').addEventListener('submit', function(e) {
             const originalRole = document.getElementById('original_role').value;
             const newRole = document.getElementById('edit_role').value;
-            
+
             if (originalRole === 'employee' && newRole === 'new_user') {
                 e.preventDefault();
                 alert('Cannot change role back to new user once set to employee');
@@ -190,14 +190,14 @@ if (!$result) {
             document.getElementById('userModal').classList.add('hidden');
         }
 
-        document.getElementById('userForm').addEventListener('submit', function (e) {
+        document.getElementById('userForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
 
             fetch('../endpoint/update_user.php', {
-                method: 'POST',
-                body: formData
-            })
+                    method: 'POST',
+                    body: formData
+                })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -217,60 +217,62 @@ if (!$result) {
         function archiveUser(id) {
             if (confirm('Are you sure you want to archive this user?')) {
                 console.log('Archiving user:', id); // Debug log
-                
+
                 fetch('../endpoint/archive_user.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ user_id: id })
-                })
-                .then(response => {
-                    console.log('Response status:', response.status); // Debug log
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Response data:', data); // Debug log
-                    
-                    if (data.success) {
-                        if (data.isCurrentUser) {
-                            alert('Your account has been deactivated.');
-                            window.location.href = '../endpoint/employee_logout.php';
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            user_id: id
+                        })
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status); // Debug log
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Response data:', data); // Debug log
+
+                        if (data.success) {
+                            if (data.isCurrentUser) {
+                                alert('Your account has been deactivated.');
+                                window.location.href = '../endpoint/employee_logout.php';
+                            } else {
+                                alert('User archived successfully');
+                                location.reload();
+                            }
                         } else {
-                            alert('User archived successfully');
-                            location.reload();
+                            throw new Error(data.error || 'Failed to archive user');
                         }
-                    } else {
-                        throw new Error(data.error || 'Failed to archive user');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error archiving user: ' + error.message);
-                });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error archiving user: ' + error.message);
+                    });
             }
         }
     </script>
-<script>
-    function searchTable() {
-        let input = document.getElementById("searchInput").value.toLowerCase();
-        let table = document.getElementById("userTable");
-        let rows = table.getElementsByTagName("tr");
+    <script>
+        function searchTable() {
+            let input = document.getElementById("searchInput").value.toLowerCase();
+            let table = document.getElementById("userTable");
+            let rows = table.getElementsByTagName("tr");
 
-        for (let i = 1; i < rows.length; i++) {
-            let cells = rows[i].getElementsByTagName("td");
-            let found = false;
+            for (let i = 1; i < rows.length; i++) {
+                let cells = rows[i].getElementsByTagName("td");
+                let found = false;
 
-            for (let j = 0; j < cells.length; j++) {
-                if (cells[j].innerText.toLowerCase().includes(input)) {
-                    found = true;
-                    break;
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j].innerText.toLowerCase().includes(input)) {
+                        found = true;
+                        break;
+                    }
                 }
+                rows[i].style.display = found ? "" : "none";
             }
-            rows[i].style.display = found ? "" : "none";
         }
-    }
-</script>
+    </script>
 
 </body>
 

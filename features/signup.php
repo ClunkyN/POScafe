@@ -131,6 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <link rel="stylesheet" href="../src/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="../js/signup.js" defer></script>
+    <script src="../js/signup_otp.js" defer></script>
 </head>
 
 <body class="bg-[#F2DBBE] min-h-screen">
@@ -158,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     </div>
                 <?php endif; ?>
 
-                <form method="post" class="space-y-4">
+                <form id="signupForm" method="post" class="space-y-4">
                     <div>
                         <label for="user_name" class="block text-sm font-medium text-gray-700">Username<span class="text-red-500 required-asterisk"> *</span></label>
                         <input type="text"
@@ -286,6 +287,31 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 <button onclick="closeTermsModal()" class="bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
                     Close
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add before closing body tag -->
+    <div id="otpModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg font-medium text-gray-900">Email Verification</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500 mb-4">Please enter the verification code sent to your email</p>
+                    <input type="text" id="otpInput" maxlength="6"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        placeholder="Enter 6-digit code">
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button onclick="verifyOTP()"
+                        class="w-full bg-[#6E6A43] text-white py-2 px-4 rounded-md mb-2">
+                        Verify
+                    </button>
+                    <button onclick="resendOTP()"
+                        class="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md">
+                        Resend Code
+                    </button>
+                </div>
             </div>
         </div>
     </div>
