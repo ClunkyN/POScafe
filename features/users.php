@@ -91,7 +91,12 @@ if (!$result) {
                                     <td class="py-4 px-6">
                                         <div class="flex justify-center gap-2">
                                             <?php if (!$row['is_archived'] && $row['role'] === 'new_user') { ?>
-                                                <button onclick="editUser(<?php echo $row['user_id']; ?>)"
+                                                <button onclick="editUser('<?php echo $row['user_id']; ?>')"
+                                                    data-id="<?php echo $row['user_id']; ?>"
+                                                    data-fname="<?php echo htmlspecialchars($row['fname']); ?>"
+                                                    data-lname="<?php echo htmlspecialchars($row['lname']); ?>"
+                                                    data-username="<?php echo htmlspecialchars($row['user_name']); ?>"
+                                                    data-role="<?php echo htmlspecialchars($row['role']); ?>"
                                                     class="bg-[#F0BB78] hover:bg-[#C2A47E] text-white py-1 px-3 rounded">
                                                     Edit
                                                 </button>
@@ -216,39 +221,28 @@ if (!$result) {
         // Replace the archiveUser function
         function archiveUser(id) {
             if (confirm('Are you sure you want to archive this user?')) {
-                console.log('Archiving user:', id); // Debug log
-
+                // Convert id to string since it's stored as string in database
                 fetch('../endpoint/archive_user.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            user_id: id
+                            user_id: id.toString() // Convert to string
                         })
                     })
-                    .then(response => {
-                        console.log('Response status:', response.status); // Debug log
-                        return response.json();
-                    })
+                    .then(response => response.json())
                     .then(data => {
-                        console.log('Response data:', data); // Debug log
-
                         if (data.success) {
-                            if (data.isCurrentUser) {
-                                alert('Your account has been deactivated.');
-                                window.location.href = '../endpoint/employee_logout.php';
-                            } else {
-                                alert('User archived successfully');
-                                location.reload();
-                            }
+                            alert('User archived successfully');
+                            location.reload();
                         } else {
-                            throw new Error(data.error || 'Failed to archive user');
+                            alert(data.message || 'Failed to archive user');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error archiving user: ' + error.message);
+                        alert('Error archiving user');
                     });
             }
         }
