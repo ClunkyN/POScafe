@@ -56,7 +56,7 @@ if (!$result) {
                         <tr>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Name</th>
                             <th class="py-3 px-6 text-left border-r border-[#A88B68]">Birthday</th>
-                            <th class="py-3 px-6 text-left border-r border-[#A88B68]">Orders</th>
+                            <!--<th class="py-3 px-6 text-left border-r border-[#A88B68]">Orders</th>-->
                             <th class="py-3 px-6 text-center">Action</th>
                         </tr>
                     </thead>
@@ -73,7 +73,7 @@ if (!$result) {
                                 <tr class="<?php echo $rowClass; ?>">
                                     <td class="py-4 px-6 border-r border-black"><?php echo $row['name']; ?></td>
                                     <td class="py-4 px-6 border-r border-black"><?php echo $row['birthday']; ?></td>
-                                    <td class="py-4 px-6 border-r border-black"><?php echo $row['orders']; ?></td> <!-- Displaying the 'orders' column -->
+                                  <!--  <td class="py-4 px-6 border-r border-black"><?php echo $row['orders']; ?></td> Displaying the 'orders' column -->
                                     <td class="py-4 px-6">
                                         <div class="flex justify-center gap-2">
                                             <?php if (!$row['is_archived']) { ?>
