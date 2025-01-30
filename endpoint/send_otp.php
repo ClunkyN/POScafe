@@ -8,15 +8,21 @@ use PHPMailer\PHPMailer\Exception;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
+    $role = isset($_POST['role']) ? $_POST['role'] : 'employee'; // Default to employee if not specified
     
-    // Verify email exists in database
-    $stmt = mysqli_prepare($con, "SELECT user_id FROM user_db WHERE email = ?");
-    mysqli_stmt_bind_param($stmt, "s", $email);
+    // Modified query to check both email and role
+    $query = "SELECT user_id FROM user_db WHERE email = ? AND role = ?";
+    $stmt = mysqli_prepare($con, $query);
+    mysqli_stmt_bind_param($stmt, "ss", $email, $role);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
     
     if (mysqli_num_rows($result) === 0) {
-        echo json_encode(['success' => false, 'message' => 'Email not found']);
+        if ($role === 'admin') {
+            echo json_encode(['success' => false, 'message' => 'Email not found or not associated with an admin account']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Email not found']);
+        }
         exit;
     }
     
@@ -24,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $otp = rand(100000, 999999);
     $_SESSION['reset_otp'] = $otp;
     $_SESSION['reset_email'] = $email;
+    $_SESSION['reset_role'] = $role;
     $_SESSION['otp_timestamp'] = time();
 
     // Get mail config

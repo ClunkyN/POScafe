@@ -104,6 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                         </div>
                     </div>
 
+                    <div class="text-left">
+                        <a href="#" onclick="showAdminForgotPasswordModal()" class="text-sm text-blue-600 hover:underline">
+                            Forgot Password?
+                        </a>
+                    </div>
+
                     <div>
                         <button type="submit"
                             class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
@@ -141,6 +147,267 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 toggleIcon.classList.add('fa-eye');
             }
         }
+    </script>
+
+    <!-- Email Modal -->
+    <div id="adminEmailModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Forgot Password</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500 mb-4">
+                        Enter your email address to receive OTP
+                    </p>
+                    <input type="email" id="adminResetEmail"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]"
+                        placeholder="Enter your email">
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="sendOtpBtn" onclick="sendAdminOTP()"
+                        class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                        Send OTP
+                    </button>
+                    <button onclick="closeAdminEmailModal()"
+                        class="mt-3 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md transition duration-200">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OTP Modal -->
+    <div id="adminOtpModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Enter OTP</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500 mb-4">
+                        Enter the OTP sent to your email
+                    </p>
+                    <input type="text" id="adminOtpInput" maxlength="6"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]"
+                        placeholder="Enter 6-digit OTP">
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button onclick="verifyAdminOTP()"
+                        class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                        Verify OTP
+                    </button>
+                    <button onclick="closeAdminOtpModal()"
+                        class="mt-3 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md transition duration-200">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="adminResetPasswordModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Reset Password</h3>
+                <div class="mt-2 px-7 py-3">
+                    <input type="password" id="adminNewPassword"
+                        class="w-full px-3 py-2 mb-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]"
+                        placeholder="New Password">
+                    <input type="password" id="adminConfirmNewPassword"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]"
+                        placeholder="Confirm New Password">
+                    <div id="adminPasswordStrength" class="mt-2 text-sm"></div>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button onclick="resetAdminPassword()"
+                        class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                        Reset Password
+                    </button>
+                    <button onclick="closeAdminResetPasswordModal()"
+                        class="mt-3 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md transition duration-200">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let adminEmail = '';
+
+        function showAdminForgotPasswordModal() {
+            document.getElementById('adminEmailModal').classList.remove('hidden');
+        }
+
+        function closeAdminEmailModal() {
+            document.getElementById('adminEmailModal').classList.add('hidden');
+        }
+
+        function closeAdminOtpModal() {
+            document.getElementById('adminOtpModal').classList.add('hidden');
+        }
+
+        function closeAdminResetPasswordModal() {
+            document.getElementById('adminResetPasswordModal').classList.add('hidden');
+        }
+
+        async function sendAdminOTP() {
+            const email = document.getElementById('adminResetEmail').value;
+            if (!email) {
+                alert('Please enter your email');
+                return;
+            }
+            adminEmail = email;
+
+            try {
+                const response = await fetch('../endpoint/send_otp.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(email)}&role=admin`
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    closeAdminEmailModal();
+                    document.getElementById('adminOtpModal').classList.remove('hidden');
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('Error sending OTP');
+            }
+        }
+
+        async function verifyAdminOTP() {
+            const otp = document.getElementById('adminOtpInput').value;
+            if (!otp || otp.length !== 6) {
+                alert('Please enter valid 6-digit OTP');
+                return;
+            }
+
+            try {
+                const response = await fetch('../endpoint/verify_otp.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(adminEmail)}&otp=${encodeURIComponent(otp)}&role=admin`
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    closeAdminOtpModal();
+                    document.getElementById('adminResetPasswordModal').classList.remove('hidden');
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('Error verifying OTP');
+            }
+        }
+
+        async function resetAdminPassword() {
+            const newPassword = document.getElementById('adminNewPassword').value;
+            const confirmPassword = document.getElementById('adminConfirmNewPassword').value;
+
+            if (!isPasswordValid(newPassword)) {
+                alert('Password must meet all requirements');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            try {
+                const response = await fetch('../endpoint/reset_password.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(adminEmail)}&password=${encodeURIComponent(newPassword)}&role=admin`
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Password reset successful');
+                    closeAdminResetPasswordModal();
+                    window.location.reload();
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('Error resetting password');
+            }
+        }
+
+        function isPasswordValid(password) {
+            return password.length >= 8 &&
+                /[A-Z]/.test(password) &&
+                /[a-z]/.test(password) &&
+                /[0-9]/.test(password) &&
+                /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        }
+
+        document.getElementById('adminNewPassword').addEventListener('keyup', function() {
+            const password = this.value;
+            let strength = 0;
+            let message = [];
+
+            if (password.length >= 8) strength++;
+            else message.push('At least 8 characters');
+
+            if (/[A-Z]/.test(password)) strength++;
+            else message.push('One uppercase letter');
+
+            if (/[a-z]/.test(password)) strength++;
+            else message.push('One lowercase letter');
+
+            if (/[0-9]/.test(password)) strength++;
+            else message.push('One number');
+
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+            else message.push('One special character');
+
+            const strengthDiv = document.getElementById('adminPasswordStrength');
+            let strengthText = '';
+            let strengthColor = '';
+
+            switch (strength) {
+                case 0:
+                    strengthColor = '#ff0000';
+                    strengthText = 'Very Weak';
+                    break;
+                case 1:
+                    strengthColor = '#ff4500';
+                    strengthText = 'Weak';
+                    break;
+                case 2:
+                    strengthColor = '#ffa500';
+                    strengthText = 'Fair';
+                    break;
+                case 3:
+                    strengthColor = '#9acd32';
+                    strengthText = 'Good';
+                    break;
+                case 4:
+                    strengthColor = '#90ee90';
+                    strengthText = 'Strong';
+                    break;
+                case 5:
+                    strengthColor = '#008000';
+                    strengthText = 'Very Strong';
+                    break;
+            }
+
+            strengthDiv.innerHTML = `
+                <div style="width: ${(strength/5)*100}%; background-color: ${strengthColor}; height: 5px; transition: all 0.3s;"></div>
+                <div class="text-sm mt-1">${strengthText}</div>
+                <div class="text-sm text-gray-600">${message.length ? 'Required: ' + message.join(', ') : ''}</div>
+            `;
+        });
     </script>
 </body>
 
