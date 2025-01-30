@@ -282,6 +282,39 @@ while ($row = mysqli_fetch_assoc($result_birthdays)) {
             });
             calendar.render();
         });
+
+        (function() {
+            // Initialize state
+            const dashboardUrl = window.location.href;
+            window.history.pushState({ page: 'admin_dashboard' }, '', dashboardUrl);
+            
+            // Prevent back navigation
+            window.addEventListener('popstate', function() {
+                window.history.pushState({ page: 'admin_dashboard' }, '', dashboardUrl);
+                window.location.replace(dashboardUrl);
+            });
+
+            // Force page to stay on dashboard
+            setInterval(function() {
+                if (window.location.href !== dashboardUrl) {
+                    window.location.replace(dashboardUrl);
+                }
+            }, 100);
+
+            // Monitor admin session
+            setInterval(function() {
+                fetch('../endpoint/check_admin_session.php', {
+                    credentials: 'same-origin',
+                    cache: 'no-store'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.valid) {
+                        window.location.replace('../features/admin_login.php');
+                    }
+                });
+            }, 5000);
+        })();
     </script>
 </body>
 </html>

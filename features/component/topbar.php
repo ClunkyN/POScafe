@@ -53,7 +53,7 @@ try {
             <?php if ($_SESSION['role'] === 'admin'): ?>
                 <a href="../endpoint/admin_logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
             <?php else: ?>
-                <a href="../features/homepage.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
+                <a href="../endpoint/employee_logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
             <?php endif; ?>
         </div>
     </div>

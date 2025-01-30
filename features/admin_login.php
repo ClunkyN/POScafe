@@ -2,6 +2,12 @@
 session_start();
 include "../conn/connection.php";
 
+// Redirect if already logged in as admin
+if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
+    header("Location: ../dashboard/admin_dashboard.php");
+    exit();
+}
+
 if($_SERVER['REQUEST_METHOD'] == "POST") {
     $username = mysqli_real_escape_string($con, $_POST['username']);
     $password = mysqli_real_escape_string($con, $_POST['password']);
@@ -37,6 +43,21 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - POSCafe</title>
     <link rel="stylesheet" href="../src/output.css">
+
+    <script>
+        // Prevent back if logged in
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+        
+        // Force reload on first visit to prevent back
+        window.onload = function() {
+            if(!window.location.hash) {
+                window.location = window.location + '#loaded';
+                window.location.reload();
+            }
+        }
+    </script>
 </head>
 
 <body class="bg-[#F2DBBE] min-h-screen">
@@ -49,7 +70,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
                 </div>
 
                 <?php if(isset($error)): ?>
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <div id="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                         <?php echo $error; ?>
                     </div>
                 <?php endif; ?>
@@ -94,5 +115,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
             <img src="../assets/header_logo.svg" alt="Logo" class="w-2/3 h-2/3 object-contain">
         </div>
     </div>
+    <script src="../js/errorTimer.js"></script>
 </body>
 </html>

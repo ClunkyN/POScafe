@@ -2,6 +2,12 @@
 session_start();
 include "../conn/connection.php";
 
+// Redirect if already logged in
+if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'employee') {
+    header("Location: ../dashboard/employee_dashboard.php");
+    exit();
+}
+
 if($_SERVER['REQUEST_METHOD'] == "POST") {
     $username = mysqli_real_escape_string($con, $_POST['username']);
     $password = mysqli_real_escape_string($con, $_POST['password']);
@@ -18,7 +24,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
             $error = "Account is deactivated. Please contact your administrator.";
         } else {
             // Continue with normal login process
-            $query = "SELECT * FROM user_db WHERE user_name = ?";
+            $query = "SELECT * FROM user_db WHERE user_name = ? AND role = 'employee'";
             $stmt = mysqli_prepare($con, $query);
             mysqli_stmt_bind_param($stmt, "s", $username);
             mysqli_stmt_execute($stmt);
@@ -42,7 +48,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
                 
                 if(password_verify($password, $user_data['password'])) {
                     $_SESSION['user_id'] = $user_data['user_id'];
-                    $_SESSION['role'] = $user_data['role'];
+                    $_SESSION['role'] = 'employee';
+                    $_SESSION['last_activity'] = time();
 
                     // Redirect based on role
                     switch($user_data['role']) {
@@ -76,6 +83,12 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../js/sessionMonitor.js"></script>
+    <script>
+        // Prevent back navigation after logout
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+    </script>
 </head>
 
 <body class="bg-[#F2DBBE] min-h-screen">
@@ -88,7 +101,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
                 </div>
 
                 <?php if(isset($error)): ?>
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <div id="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                         <?php echo $error; ?>
                     </div>
                 <?php endif; ?>
@@ -228,8 +241,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
             </div>
         </div>
     </div>
-
-    <!-- Add JavaScript before closing body tag -->
+    <script src="../js/errorTimer.js"></script>
     <script>
     let userEmail = '';
 

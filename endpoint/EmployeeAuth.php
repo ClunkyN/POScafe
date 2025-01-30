@@ -12,7 +12,7 @@ header("Pragma: no-cache");
 
 // Check if the user is logged in and has the correct role
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 'employee') {
-    header("Location: http://localhost/features/login.php");
+    header("Location: http://localhost/POSCAFE/feature/homepage.php");
     exit();
 }
 ?>

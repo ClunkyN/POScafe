@@ -2,18 +2,25 @@
 session_start();
 include "../conn/connection.php";
 
-// Prevent caching
+//  cache prevention
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
-// Check if user is logged in and has employee role
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'employee') {
-    session_unset();
-    session_destroy();
-    header("Location: ../features/homepage.php");
+// Session validation
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employee') {
+    header("Location: ../features/employee_login.php");
     exit();
 }
+
+// Session timeout check (30 minutes)
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+    session_unset();
+    session_destroy();
+    header("Location: ../features/employee_login.php");
+    exit();
+}
+$_SESSION['last_activity'] = time();
 
 // Double check employee role from database
 $user_id = $_SESSION['user_id'];
@@ -84,11 +91,24 @@ while ($row = mysqli_fetch_assoc($result_birthdays)) {
     <title>Employee Dashboard</title>
     <link rel="stylesheet" href="../src/output.css">
     <script>
-        // Prevent going back
-        history.pushState(null, null, document.URL);
-        window.addEventListener('popstate', function() {
-            history.pushState(null, null, document.URL);
-        });
+        (function() {
+            // Prevent back navigation
+            window.history.pushState(null, null, window.location.href);
+            window.addEventListener('popstate', function() {
+                window.history.pushState(null, null, window.location.href);
+            });
+
+            // Session check every 1 minute
+            setInterval(function() {
+                fetch('../endpoint/check_session.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.valid) {
+                        window.location.href = '../features/employee_login.php';
+                    }
+                });
+            }, 60000);
+        })();
     </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
