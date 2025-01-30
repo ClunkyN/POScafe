@@ -44,20 +44,20 @@
     <header class="bg-[#C2A47E] w-full h-[150px] flex justify-between items-center px-8">
         <img src="../assets/header_logo.svg" alt="logo" class="h-[100px] w-[100px]">
         <div class="flex items-center gap-4">
-            <a href="#" class="text-2xl font-bold text-[#F2DBBE]">About Us</a>
+            <a href="../features/aboutus.php" class="text-2xl font-bold text-[#F2DBBE]">About Us</a>
             <button onclick="window.location.href='../features/employee_login.php'" class="bg-[#F2DBBE] h-[52px] w-[150px] rounded-xl text-2xl font-bold">
                 Login
             </button>
         </div>
     </header>
     <main class="w-full max-w-6xl p-4 flex flex-col md:flex-row items-center gap-8">
-        <div class="text-center md:text-left p-4 flex-1">
+        <div class="flex-1 text-center md:text-left p-4 order-1 md:order-none">
             <h1 class="text-6xl font-bold">GOOD</h1>
             <p class="text-4xl font-bold">ideas start with brainstorming...</p>
             <h1 class="text-6xl font-bold mt-8">GREAT</h1>
             <p class="text-2xl font-bold">ideas start with a coffee...</p>
         </div>
-        <div class="relative w-[400px] h-[400px] bg-gray-200 rounded-lg overflow-hidden shadow-lg flex-shrink-0">
+        <div class="relative w-[400px] h-[400px] bg-gray-200 rounded-lg overflow-hidden shadow-lg flex-shrink-0 order-none md:order-1">
             <div id="carousel-container" class="flex w-full h-full transition-transform duration-500 ease-in-out">
             </div>
             <button id="prev" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white px-3 py-2 rounded-full shadow text-black">&#9665;</button>
