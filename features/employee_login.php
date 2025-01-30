@@ -7,48 +7,60 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     $password = mysqli_real_escape_string($con, $_POST['password']);
 
     if(!empty($username) && !empty($password)) {
-        $query = "SELECT * FROM user_db WHERE user_name = ?";
-        $stmt = mysqli_prepare($con, $query);
+        // First check if user is archived
+        $archive_check = "SELECT * FROM archive_users WHERE user_name = ?";
+        $stmt = mysqli_prepare($con, $archive_check);
         mysqli_stmt_bind_param($stmt, "s", $username);
         mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
+        $archive_result = mysqli_stmt_get_result($stmt);
 
-        if($result && mysqli_num_rows($result) > 0) {
-            $user_data = mysqli_fetch_assoc($result);
-            
-            // Check if user is archived
-            $archive_check = "SELECT * FROM archive_users WHERE user_id = ?";
-            $stmt = mysqli_prepare($con, $archive_check);
-            mysqli_stmt_bind_param($stmt, "s", $user_data['user_id']);
+        if(mysqli_num_rows($archive_result) > 0) {
+            $error = "Account is deactivated. Please contact your administrator.";
+        } else {
+            // Continue with normal login process
+            $query = "SELECT * FROM user_db WHERE user_name = ?";
+            $stmt = mysqli_prepare($con, $query);
+            mysqli_stmt_bind_param($stmt, "s", $username);
             mysqli_stmt_execute($stmt);
-            $archive_result = mysqli_stmt_get_result($stmt);
-            
-            if(mysqli_num_rows($archive_result) > 0) {
-                $error = "Account deactivated. Please contact your administrator.";
-                echo "<script>alert('$error');</script>";
-                exit();
-            }
-            
-            if(password_verify($password, $user_data['password'])) {
-                $_SESSION['user_id'] = $user_data['user_id'];
-                $_SESSION['role'] = $user_data['role'];
+            $result = mysqli_stmt_get_result($stmt);
 
-                // Redirect based on role
-                switch($user_data['role']) {
-                    case 'employee':
-                        header("Location: ../dashboard/employee_dashboard.php");
-                        exit();
-                    case 'new_user':
-                        header("Location: ../dashboard/new_user.php");
-                        exit();
-                    default:
-                        $error = "Access denied. Please use correct login portal.";
+            if($result && mysqli_num_rows($result) > 0) {
+                $user_data = mysqli_fetch_assoc($result);
+                
+                // Check if user is archived
+                $archive_check = "SELECT * FROM archive_users WHERE user_id = ?";
+                $stmt = mysqli_prepare($con, $archive_check);
+                mysqli_stmt_bind_param($stmt, "s", $user_data['user_id']);
+                mysqli_stmt_execute($stmt);
+                $archive_result = mysqli_stmt_get_result($stmt);
+                
+                if(mysqli_num_rows($archive_result) > 0) {
+                    $error = "Account deactivated. Please contact your administrator.";
+                    echo "<script>alert('$error');</script>";
+                    exit();
+                }
+                
+                if(password_verify($password, $user_data['password'])) {
+                    $_SESSION['user_id'] = $user_data['user_id'];
+                    $_SESSION['role'] = $user_data['role'];
+
+                    // Redirect based on role
+                    switch($user_data['role']) {
+                        case 'employee':
+                            header("Location: ../dashboard/employee_dashboard.php");
+                            exit();
+                        case 'new_user':
+                            header("Location: ../dashboard/new_user.php");
+                            exit();
+                        default:
+                            $error = "Access denied. Please use correct login portal.";
+                    }
+                } else {
+                    $error = "Invalid username or password";
                 }
             } else {
                 $error = "Invalid username or password";
             }
-        } else {
-            $error = "Invalid username or password";
         }
     }
 }
@@ -61,6 +73,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - POSCafe</title>
     <link rel="stylesheet" href="../src/output.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../js/sessionMonitor.js"></script>
 </head>
 
 <body class="bg-[#F2DBBE] min-h-screen">

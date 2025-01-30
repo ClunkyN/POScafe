@@ -11,7 +11,7 @@ header("Pragma: no-cache");
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'employee') {
     session_unset();
     session_destroy();
-    header("Location: ../features/login.php");
+    header("Location: ../features/homepage.php");
     exit();
 }
 
@@ -27,7 +27,7 @@ $user = mysqli_fetch_assoc($result);
 if (!$user) {
     session_unset();
     session_destroy();
-    header("Location: ../features/login.php");
+    header("Location: ../features/homepage.php");
     exit();
 }
 
@@ -77,6 +77,7 @@ while ($row = mysqli_fetch_assoc($result_birthdays)) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -85,11 +86,19 @@ while ($row = mysqli_fetch_assoc($result_birthdays)) {
     <script>
         // Prevent going back
         history.pushState(null, null, document.URL);
-        window.addEventListener('popstate', function () {
+        window.addEventListener('popstate', function() {
             history.pushState(null, null, document.URL);
         });
     </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Add user ID to global scope for session monitor
+        const userId = '<?php echo $_SESSION['user_id']; ?>';
+    </script>
+    <script src="../js/sessionMonitor.js"></script>
 </head>
+
 <body class="bg-[#FFF0DC]">
     <!-- Topbar -->
     <div class="relative z-50">
@@ -101,71 +110,71 @@ while ($row = mysqli_fetch_assoc($result_birthdays)) {
     </div>
     <!-- Main content -->
     <main class="ml-[230px] mt-[171px] p-6">
-    <div class="flex justify-center items-center space-x-16 mt-8">
-    <!-- No. of Orders -->
-    <div class="bg-[#FFF0DC] p-8 rounded-lg border border-[#A88B68] w-96 h-60 flex flex-col justify-center items-center">
-        <h2 class="text-xl font-bold text-[#A88B68]">Number of Orders</h2>
-        <p class="text-4xl text-[#A88B68] font-semibold"><?php echo $orders_today; ?></p>
-    </div>
-    <!-- Categories Section -->
-    <div class="bg-[#FFF0DC] p-8 rounded-lg border border-[#A88B68] w-96 h-60 flex flex-col justify-center items-center">
-        <h2 class="text-xl font-bold text-[#A88B68]">Number of Categories</h2>
-        <p class="text-4xl text-[#A88B68] font-semibold"><?php echo $categories_count; ?></p>
-    </div>
-    <!-- Items Section -->
-    <div class="bg-[#FFF0DC] p-8 rounded-lg border border-[#A88B68] w-96 h-60 flex flex-col justify-center items-center">
-        <h2 class="text-xl font-bold text-[#A88B68]">Number of Items</h2>
-        <p class="text-4xl text-[#A88B68] font-semibold"><?php echo $items_count; ?></p>
-    </div>
-</div>
+        <div class="flex justify-center items-center space-x-16 mt-8">
+            <!-- No. of Orders -->
+            <div class="bg-[#FFF0DC] p-8 rounded-lg border border-[#A88B68] w-96 h-60 flex flex-col justify-center items-center">
+                <h2 class="text-xl font-bold text-[#A88B68]">Number of Orders</h2>
+                <p class="text-4xl text-[#A88B68] font-semibold"><?php echo $orders_today; ?></p>
+            </div>
+            <!-- Categories Section -->
+            <div class="bg-[#FFF0DC] p-8 rounded-lg border border-[#A88B68] w-96 h-60 flex flex-col justify-center items-center">
+                <h2 class="text-xl font-bold text-[#A88B68]">Number of Categories</h2>
+                <p class="text-4xl text-[#A88B68] font-semibold"><?php echo $categories_count; ?></p>
+            </div>
+            <!-- Items Section -->
+            <div class="bg-[#FFF0DC] p-8 rounded-lg border border-[#A88B68] w-96 h-60 flex flex-col justify-center items-center">
+                <h2 class="text-xl font-bold text-[#A88B68]">Number of Items</h2>
+                <p class="text-4xl text-[#A88B68] font-semibold"><?php echo $items_count; ?></p>
+            </div>
+        </div>
 
 
         <!-- Birthdays and Calendar Section -->
         <div class="grid grid-cols-2 gap-4 mt-4">
-        <!-- Birthdays List -->
-        <div class="bg-[#FFF0DC] p-4 rounded-lg border border-[#A88B68] mt-4">
-            <h2 class="text-lg font-bold text-[#A88B68] mb-2">Birthdays This Month</h2>
-            <?php if (!empty($upcoming_birthdays)): ?>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <?php foreach ($upcoming_birthdays as $birthday): ?>
-                        <div class="flex items-center space-x-4 p-2 bg-[#FAE6CF] rounded-md shadow-md">
-                            <div class="w-10 h-10 flex items-center justify-center bg-[#A88B68] text-white rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4m16 0a8 8 0 11-16 0 8 8 0 0116 0z" />
-                                </svg>
+            <!-- Birthdays List -->
+            <div class="bg-[#FFF0DC] p-4 rounded-lg border border-[#A88B68] mt-4">
+                <h2 class="text-lg font-bold text-[#A88B68] mb-2">Birthdays This Month</h2>
+                <?php if (!empty($upcoming_birthdays)): ?>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <?php foreach ($upcoming_birthdays as $birthday): ?>
+                            <div class="flex items-center space-x-4 p-2 bg-[#FAE6CF] rounded-md shadow-md">
+                                <div class="w-10 h-10 flex items-center justify-center bg-[#A88B68] text-white rounded-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4m16 0a8 8 0 11-16 0 8 8 0 0116 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-[#A88B68]">
+                                        <?php echo $birthday['name']; ?>
+                                    </p>
+                                    <p class="text-xs text-[#A88B68] <?php echo $birthday['is_today'] ? 'font-bold' : ''; ?>">
+                                        <?php echo $birthday['formatted_birthday']; ?>
+                                        <?php if ($birthday['is_today']): ?>
+                                            <span class="text-red-500">(Today!)</span>
+                                        <?php endif; ?>
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-sm font-semibold text-[#A88B68]">
-                                    <?php echo $birthday['name']; ?>
-                                </p>
-                                <p class="text-xs text-[#A88B68] <?php echo $birthday['is_today'] ? 'font-bold' : ''; ?>">
-                                    <?php echo $birthday['formatted_birthday']; ?>
-                                    <?php if ($birthday['is_today']): ?>
-                                        <span class="text-red-500">(Today!)</span>
-                                    <?php endif; ?>
-                                </p>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <p class="text-center text-[#A88B68]">No Birthdays This Month</p>
-            <?php endif; ?>
-        </div>
-        
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p class="text-center text-[#A88B68]">No Birthdays This Month</p>
+                <?php endif; ?>
+            </div>
 
-        <!-- Calendar Section -->
-        <div class="bg-[#FFF0DC] p-4 rounded-lg border border-[#A88B68] mt-4">
-            <h2 class="text-lg font-bold text-[#A88B68]">Calendar</h2>
-            <div id="calendar" class="h-[300px] overflow-hidden"></div>
+
+            <!-- Calendar Section -->
+            <div class="bg-[#FFF0DC] p-4 rounded-lg border border-[#A88B68] mt-4">
+                <h2 class="text-lg font-bold text-[#A88B68]">Calendar</h2>
+                <div id="calendar" class="h-[300px] overflow-hidden"></div>
+            </div>
         </div>
-    </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/index.global.min.js"></script>
     <script>
         // Initialize FullCalendar
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const calendarEl = document.getElementById('calendar');
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
@@ -175,11 +184,11 @@ while ($row = mysqli_fetch_assoc($result_birthdays)) {
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
                 events: [
-                    <?php foreach ($upcoming_birthdays as $birthday): ?>{
-                        title: '<?php echo $birthday['name']; ?>\'s Birthday',
-                        start: '<?php echo date('Y-m-d', strtotime($birthday['formatted_birthday'])); ?>',
-                        color: '<?php echo $birthday['is_today'] ? "#FF5733" : "#A88B68"; ?>'
-                    },
+                    <?php foreach ($upcoming_birthdays as $birthday): ?> {
+                            title: '<?php echo $birthday['name']; ?>\'s Birthday',
+                            start: '<?php echo date('Y-m-d', strtotime($birthday['formatted_birthday'])); ?>',
+                            color: '<?php echo $birthday['is_today'] ? "#FF5733" : "#A88B68"; ?>'
+                        },
                     <?php endforeach; ?>
                 ]
             });
@@ -187,4 +196,5 @@ while ($row = mysqli_fetch_assoc($result_birthdays)) {
         });
     </script>
 </body>
+
 </html>

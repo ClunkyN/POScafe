@@ -49,6 +49,13 @@ if (!$result) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Categories</title>
     <link rel="stylesheet" href="../src/output.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Add user ID to global scope for session monitor
+        const userId = '<?php echo $_SESSION['user_id']; ?>';
+    </script>
+    <script src="../js/sessionMonitor.js"></script>
 </head>
 
 <body class="bg-[#FFF0DC]">

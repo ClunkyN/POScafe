@@ -25,6 +25,13 @@ if (
     <link rel="stylesheet" href="../src/output.css">
     <!-- Add Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Add user ID to global scope for session monitor
+        const userId = '<?php echo $_SESSION['user_id']; ?>';
+    </script>
+    <script src="../js/sessionMonitor.js"></script>
 </head>
 
 <body class="bg-[#FFF0DC]">
