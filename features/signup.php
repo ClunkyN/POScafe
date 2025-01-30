@@ -202,15 +202,21 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     </div>
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                        <div class="flex items-center">
+                        <div class="relative group">
                             <input type="password"
                                 name="password"
                                 id="password"
                                 placeholder=""
                                 required
                                 onkeyup="checkPasswordStrength()"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
-                            <span> <i class="fa fa-eye" id="password-toggle" onclick="togglePassword('password')"></i></span>
+                                onpaste="return false"
+                                oncopy="return false"
+                                class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
+                            <button type="button"
+                                onclick="togglePassword('password')"
+                                class="absolute top-1/2 right-2 transform -translate-y-1/2">
+                                <i class="fa fa-eye text-gray-500 hover:text-gray-700" id="password-toggle"></i>
+                            </button>
                         </div>
                         <div class="strength mt-1" id="strength-bar">
                             <span></span>
@@ -219,32 +225,36 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
                     <div>
                         <label for="cpassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-                        <div class="flex mb-4 items-center">
+                        <div class="relative group">
                             <input type="password"
                                 name="cpassword"
                                 id="cpassword"
                                 placeholder=""
                                 required
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
-
-                            <i class="fa fa-eye" id="cpassword-toggle" onclick="togglePassword('cpassword')"></i>
-                        </div>
-                        </di>
-
-                        <div>
-                            <button type="submit"
-                                class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
-                                Sign up
+                                class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C2A47E] focus:border-[#C2A47E]">
+                            <button type="button"
+                                onclick="togglePassword('cpassword')"
+                                onpaste="return false"
+                                oncopy="return false"
+                                class="absolute top-1/2 right-2 transform -translate-y-1/2">
+                                <i class="fa fa-eye text-gray-500 hover:text-gray-700" id="cpassword-toggle"></i>
                             </button>
                         </div>
-
-                        <div class="text-start flex">
-                            <p>Have an account? </p>
-                            <a class="pl-2 underline text-blue-700" href="../features/employee_login.php">Login here</a>
-                        </div>
-                </form>
+                    </div>
+                    <div>
+                    <button type="submit"
+                        class="w-full bg-[#6E6A43] hover:bg-[#C2A47E] text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                        Sign up
+                    </button>
             </div>
+
+            <div class="text-start flex">
+                <p>Have an account? </p>
+                <a class="pl-2 underline text-blue-700" href="../features/employee_login.php">Login here</a>
+            </div>
+            </form>
         </div>
+    </div>
     </div>
 </body>
 
